@@ -24,7 +24,8 @@ target_link_libraries(yarp_ros2test
     YARP::YARP_os
     YARP::YARP_sig
     YARP::YARP_dev
-    # FIXME ros libraries
+    rclcpp::rclcpp
+    std_msgs::std_msgs__rosidl_typesupport_c
 )
 
 yarp_install(

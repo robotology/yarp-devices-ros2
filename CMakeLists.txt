@@ -50,9 +50,14 @@ set(CMAKE_CXX_FLAGS "${YARP_CXX_FLAGS} ${CMAKE_CXX_FLAGS}")
 
 yarp_configure_plugins_installation(yarp-ros2)
 
+find_package(ament_cmake REQUIRED)
+
+find_package(rclcpp REQUIRED)
+find_package(std_msgs REQUIRED)
+
+
 add_subdirectory(src)
 
-#find_package(ament_cmake REQUIRED)
 
 #if(BUILD_TESTING)
   #find_package(ament_lint_auto REQUIRED)
@@ -65,6 +70,6 @@ add_subdirectory(src)
   #ament_lint_auto_find_test_dependencies()
 #endif()
 
-#ament_package()
+ament_package()
 
 feature_summary(WHAT ALL INCLUDE_QUIET_PACKAGES)
