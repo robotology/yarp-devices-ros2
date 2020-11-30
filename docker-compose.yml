@@ -1,0 +1,28 @@
+version: "3.7"
+
+x-base: &base
+  image: randaz81/r1slam:ros2
+  environment:
+    - DISPLAY=${DISPLAY}
+    - XAUTHORITY=/home/user1/.Xauthority
+    - YARP_COLORED_OUTPUT=1
+    - QT_X11_NO_MITSHM=1
+    - YARP_NAMESPACE=/root
+  volumes:
+    - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
+    - "${XAUTHORITY}:/home/user1/.Xauthority:rw"
+    - "${HOME}/.config/yarp:/home/user1/.config/yarp:rw"
+    - "${HOME}/.local/share/yarp:/home/user1/.local/share/yarp:rw"
+    - "${HOME}/Workspace/iit/src/yarp-ros2:/home/user1/yarp-ros2"
+  network_mode: host
+  ipc: host
+  pid: host
+  security_opt:
+    - apparmor:unconfined
+
+services:
+# Containers
+  terminator:
+    <<: *base
+    container_name: terminator
+    command: terminator

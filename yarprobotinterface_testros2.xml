@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE robot PUBLIC "-//YARP//DTD yarprobotinterface 3.0//EN" "http://www.yarp.it/DTD/yarprobotinterfaceV3.0.dtd">
+
+<robot name="ros2test" build="2" portprefix="test" xmlns:xi="http://www.w3.org/2001/XInclude">
+
+    <device name="ros2test_a" type="ros2test">
+        <param name="topic">topic_a</param>
+    </device>
+
+    <device name="ros2test_b" type="ros2test">
+        <param name="topic">topic_b</param>
+    </device>
+
+</robot>

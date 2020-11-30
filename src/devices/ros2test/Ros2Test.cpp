@@ -18,38 +18,51 @@
 
 using namespace std::chrono_literals;
 
-YARP_LOG_COMPONENT(ROS2TEST, "yarp.ros2.ros2test");
+YARP_LOG_COMPONENT(ROS2TEST, "yarp.ros2.ros2test", yarp::os::Log::TraceType);
 
-MinimalPublisher::MinimalPublisher() :
-        Node("ros2test_node"), count_(0)
+
+Ros2Init::Ros2Init()
 {
-    publisher_ = this->create_publisher<std_msgs::msg::String>("ros2test_topic", 10);
-    timer_ = this->create_wall_timer(
-        500ms,
-        std::bind(&MinimalPublisher::timer_callback, this)
-    );
+    rclcpp::init(/*argc*/ 0, /*argv*/ nullptr);
+    node = std::make_shared<rclcpp::Node>("yarprobotinterface_node");
 }
 
-void MinimalPublisher::timer_callback()
+Ros2Init& Ros2Init::get()
 {
-    auto message = std_msgs::msg::String();
-    message.data = "Hello, world! " + std::to_string(count_++);
-    RCLCPP_INFO(this->get_logger(), "Publishing: '%s'", message.data.c_str());
-    publisher_->publish(message);
+    static Ros2Init instance;
+    return instance;
+}
+
+
+Ros2Test::Ros2Test() :
+        yarp::os::PeriodicThread(0.5)
+{
 }
 
 bool Ros2Test::open(yarp::os::Searchable& config)
 {
-    yCInfo(ROS2TEST, "Ros2Test::open");
-    YARP_UNUSED(config);
-    rclcpp::init(/*argc*/ 0, /*argv*/ nullptr);
-    m_pub = std::make_shared<MinimalPublisher>();
-    rclcpp::spin(m_pub);
+    yCTrace(ROS2TEST);
+    m_topic = config.check("topic", yarp::os::Value("ros2test_topic"), "Name of the ROS topic").asString();
+    yCInfo(ROS2TEST, "Ros2Test::open - %s", m_topic.c_str());
+
+    m_publisher = Ros2Init::get().node->create_publisher<std_msgs::msg::String>(m_topic, 10);
+
+    start();
     return true;
 }
 
 bool Ros2Test::close()
 {
+    yCTrace(ROS2TEST);
     yCInfo(ROS2TEST, "Ros2Test::close");
     return true;
+}
+
+void Ros2Test::run()
+{
+    yCTrace(ROS2TEST);
+    auto message = std_msgs::msg::String();
+    message.data = "Hello, " + m_topic + "! " + std::to_string(m_count++);
+    yCInfo(ROS2TEST, "Publishing: '%s'", message.data.c_str());
+    m_publisher->publish(message);
 }

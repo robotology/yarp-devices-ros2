@@ -10,30 +10,38 @@
 #define YARP_ROS2_ROS2TEST_H
 
 #include <yarp/dev/DeviceDriver.h>
+#include <yarp/os/PeriodicThread.h>
 
 #include <rclcpp/rclcpp.hpp>
 #include <std_msgs/msg/string.hpp>
 
-class MinimalPublisher :
-    public rclcpp::Node
+#include <mutex>
+
+class Ros2Init
 {
 public:
-    MinimalPublisher();
+    Ros2Init();
 
-  private:
-    void timer_callback();
+    std::shared_ptr<rclcpp::Node> node;
 
-    rclcpp::TimerBase::SharedPtr timer_;
-    rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher_;
-    size_t count_;
-  };
+    static Ros2Init& get();
+};
+
+
+
+class MinimalPublisher
+{
+public:
+    MinimalPublisher(const std::string& topicname);
+};
 
 
 class Ros2Test :
-        public yarp::dev::DeviceDriver
+        public yarp::dev::DeviceDriver,
+        public yarp::os::PeriodicThread
 {
 public:
-    Ros2Test() = default;
+    Ros2Test();
     Ros2Test(const Ros2Test&) = delete;
     Ros2Test(Ros2Test&&) noexcept = delete;
     Ros2Test& operator=(const Ros2Test&) = delete;
@@ -44,8 +52,13 @@ public:
     bool open(yarp::os::Searchable& config) override;
     bool close() override;
 
+    // PeriodicThread
+    void run() override;
+
 private:
-    std::shared_ptr<MinimalPublisher> m_pub;
+    rclcpp::Publisher<std_msgs::msg::String>::SharedPtr m_publisher;
+    std::string m_topic;
+    size_t m_count {0};
 };
 
 #endif // YARP_ROS2_ROS2TEST_H
