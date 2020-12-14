@@ -9,11 +9,32 @@
 #ifndef YARP_ROS2_ROS2WRAPPER_H
 #define YARP_ROS2_ROS2WRAPPER_H
 
-#include <../ros2test/ros2test.h>
 #include <yarp/dev/IMultipleWrapper.h>
+#include <yarp/dev/IRangefinder2D.h>
+#include <yarp/dev/DeviceDriver.h>
+#include <yarp/os/PeriodicThread.h>
+
+#include <rclcpp/rclcpp.hpp>
+#include <std_msgs/msg/string.hpp>
+#include <sensor_msgs/msg/laser_scan.hpp>
+
+#include <mutex>
+
+
+class Ros2Init
+{
+public:
+    Ros2Init();
+
+    std::shared_ptr<rclcpp::Node> node;
+
+    static Ros2Init& get();
+};
+
 
 class Ros2Wrapper :
-        public Ros2Test,
+        public yarp::dev::DeviceDriver,
+        public yarp::os::PeriodicThread,
         public yarp::dev::IMultipleWrapper
 {
 public:
@@ -32,14 +53,24 @@ public:
     void detach();
     
     // DeviceDriver
-    //bool open(yarp::os::Searchable& config) override;
-    //bool close() override;
+    bool open(yarp::os::Searchable& config) override;
+    bool close() override;
 
     // PeriodicThread
-    //void run() override;
+    void run() override;
 
 private:
+	yarp::dev::PolyDriver m_driver;
     yarp::dev::IRangefinder2D *iDevice;
+    rclcpp::Publisher<sensor_msgs::msg::LaserScan>::SharedPtr m_publisher;
+    std::string m_topic;
+    bool isDeviceOwned = false;
+    
+    double minAngle, maxAngle;
+    double minDistance, maxDistance;
+    double resolution;
+    std::string frame_id;
+    std::string sensorId;
 };
 
 #endif // YARP_ROS2_ROS2TEST_H

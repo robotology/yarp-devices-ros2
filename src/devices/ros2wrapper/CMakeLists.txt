@@ -26,6 +26,7 @@ target_link_libraries(yarp_ros2wrapper
     YARP::YARP_dev
     rclcpp::rclcpp
     std_msgs::std_msgs__rosidl_typesupport_c
+    sensor_msgs::sensor_msgs__rosidl_typesupport_cpp
 )
 
 yarp_install(
