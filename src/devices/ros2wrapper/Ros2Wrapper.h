@@ -61,16 +61,16 @@ public:
 
 private:
 	yarp::dev::PolyDriver m_driver;
-    yarp::dev::IRangefinder2D *iDevice;
+    yarp::dev::IRangefinder2D *m_iDevice =nullptr;
     rclcpp::Publisher<sensor_msgs::msg::LaserScan>::SharedPtr m_publisher;
     std::string m_topic;
-    bool isDeviceOwned = false;
+    bool m_isDeviceOwned = false;
     
-    double minAngle, maxAngle;
-    double minDistance, maxDistance;
-    double resolution;
-    std::string frame_id;
-    std::string sensorId;
+    double m_minAngle, m_maxAngle;
+    double m_minDistance, m_maxDistance;
+    double m_resolution;
+    double m_period;
+    std::string m_frame_id;
 };
 
 #endif // YARP_ROS2_ROS2TEST_H

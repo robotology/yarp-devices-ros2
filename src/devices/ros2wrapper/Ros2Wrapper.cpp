@@ -33,7 +33,7 @@ Ros2Init& Ros2Init::get()
 
 
 Ros2Wrapper::Ros2Wrapper() :
-        yarp::os::PeriodicThread(0.5)
+        yarp::os::PeriodicThread(0.01)
 {
 }
 
@@ -46,39 +46,39 @@ bool Ros2Wrapper::attachAll(const PolyDriverList &device2attach)
     }
 
     yarp::dev::PolyDriver * Idevice2attach = device2attach[0]->poly;
-
     if (Idevice2attach->isValid())
     {
-        Idevice2attach->view(iDevice);
+        Idevice2attach->view(m_iDevice);
     }
 
-    if (nullptr == iDevice)
+	//attach the hardware device
+    if (nullptr == m_iDevice)
     {
         yCError(ROS2WRAPPER, "Rangefinder2DWrapper: subdevice passed to attach method is invalid");
         return false;
     }
-    attach(iDevice);
+    attach(m_iDevice);
 
-    if(!iDevice->getDistanceRange(minDistance, maxDistance))
+	//get information/parameters from the hardware device etc
+    if(!m_iDevice->getDistanceRange(m_minDistance, m_maxDistance))
     {
         yCError(ROS2WRAPPER) << "Laser device does not provide min & max distance range.";
         return false;
     }
 
-    if(!iDevice->getScanLimits(minAngle, maxAngle))
+    if(!m_iDevice->getScanLimits(m_minAngle, m_maxAngle))
     {
         yCError(ROS2WRAPPER) << "Laser device does not provide min & max angle scan range.";
         return false;
     }
 
-    if (!iDevice->getHorizontalResolution(resolution))
+    if (!m_iDevice->getHorizontalResolution(m_resolution))
     {
         yCError(ROS2WRAPPER) << "Laser device does not provide horizontal resolution ";
         return false;
     }
     
-    PeriodicThread::setPeriod(0.1);
-    return PeriodicThread::start();
+   return true;
 }
 
 bool Ros2Wrapper::detachAll()
@@ -87,13 +87,13 @@ bool Ros2Wrapper::detachAll()
     {
         PeriodicThread::stop();
     }
-    iDevice = nullptr;
+    m_iDevice = nullptr;
     return true;
 }
 
 void Ros2Wrapper::attach(yarp::dev::IRangefinder2D *s)
 {
-    iDevice = s;
+    m_iDevice = s;
 }
 
 void Ros2Wrapper::detach()
@@ -102,7 +102,7 @@ void Ros2Wrapper::detach()
     {
         PeriodicThread::stop();
     }
-    iDevice = nullptr;
+    m_iDevice = nullptr;
 }
 
 void Ros2Wrapper::run()
@@ -110,38 +110,29 @@ void Ros2Wrapper::run()
     yCTrace(ROS2WRAPPER);
     auto message = std_msgs::msg::String();
     
-    if (iDevice!=nullptr)
+    if (m_iDevice!=nullptr)
     {
         bool ret = true;
         IRangefinder2D::Device_status status;
         yarp::sig::Vector ranges;
-        ret &= iDevice->getRawData(ranges);
-        ret &= iDevice->getDeviceStatus(status);
+        ret &= m_iDevice->getRawData(ranges);
+        ret &= m_iDevice->getDeviceStatus(status);
         
 		if (ret)
 		{
-//			if(iTimed)
-	//			lastStateStamp = iTimed->getLastInputStamp();
-		//	else
-	//			lastStateStamp.update(yarp::os::Time::now());
-
 			int ranges_size = ranges.size();
 
-			sensor_msgs::msg::LaserScan rosData; //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ CHECK HERE
+			sensor_msgs::msg::LaserScan rosData; 
 			
-			//rosData.header.seq = rosMsgCounter++; //"""""""""""""""NON C'e PIU
-		//	rosData.header.stamp = rclcpp::Clock().now();	
-		    rosData.header.stamp = Ros2Init::get().node->get_clock()->now();	
-//00lastStateStamp.getTime();
-			rosData.header.frame_id = frame_id;
-
-			rosData.angle_min = minAngle * M_PI / 180.0;
-			rosData.angle_max = maxAngle * M_PI / 180.0;
-			rosData.angle_increment = resolution * M_PI / 180.0;
+		    rosData.header.stamp = Ros2Init::get().node->get_clock()->now();	//@@@@@@@@@@@ CHECK HERE: simulation time?
+			rosData.header.frame_id = m_frame_id;
+			rosData.angle_min = m_minAngle * M_PI / 180.0;
+			rosData.angle_max = m_maxAngle * M_PI / 180.0;
+			rosData.angle_increment = m_resolution * M_PI / 180.0;
 			rosData.time_increment = 0;             // all points in a single scan are considered took at the very same time
 			rosData.scan_time = getPeriod();        // time elapsed between two successive readings
-			rosData.range_min = minDistance;
-			rosData.range_max = maxDistance;
+			rosData.range_min = m_minDistance;
+			rosData.range_max = m_maxDistance;
 			rosData.ranges.resize(ranges_size);
 			rosData.intensities.resize(ranges_size);
 
@@ -164,7 +155,7 @@ void Ros2Wrapper::run()
 		}
 		else
 		{
-			yCError(ROS2WRAPPER, "Rangefinder2DWrapper: %s: Sensor returned error", sensorId.c_str());
+			yCError(ROS2WRAPPER, "Rangefinder2DWrapper: sensor returned error");
 		}
 	}
 }
@@ -190,15 +181,27 @@ bool Ros2Wrapper::open(yarp::os::Searchable &config)
             yCError(ROS2WRAPPER) << "RangeFinder2DWrapper: failed to open subdevice.. check params";
             return false;
         }
-        isDeviceOwned = true;
+        m_isDeviceOwned = true;
     }
-    
+ 
+    //wrapper params
+    m_topic    = config.check("topic",  yarp::os::Value("laser_topic"), "Name of the ROS topic").asString();
+    m_frame_id = config.check("frame",  yarp::os::Value("laser_frame"), "Name of the frameId").asString();
+    m_period   = config.check("period", yarp::os::Value(0.010), "Period of the thread").asFloat64();
+       
+    //create the topic
     yCTrace(ROS2WRAPPER);
-    m_topic = config.check("topic", yarp::os::Value("ros2test_topic"), "Name of the ROS topic").asString();
-    yCInfo(ROS2WRAPPER, "Ros2Test::open - %s", m_topic.c_str());
 
     m_publisher = Ros2Init::get().node->create_publisher<sensor_msgs::msg::LaserScan>(m_topic, 10);
-
+    yCInfo(ROS2WRAPPER, "Opened topic: %s", m_topic.c_str());
+        
+    //start the publishig thread
+    setPeriod(m_period);
     start();
     return true;
+}
+
+bool Ros2Wrapper::close()
+{
+	return true;
 }
