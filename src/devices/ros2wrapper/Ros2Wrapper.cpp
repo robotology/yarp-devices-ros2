@@ -130,7 +130,9 @@ void Ros2Wrapper::run()
 			sensor_msgs::msg::LaserScan rosData; //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ CHECK HERE
 			
 			//rosData.header.seq = rosMsgCounter++; //"""""""""""""""NON C'e PIU
-			rosData.header.stamp = 0;//00lastStateStamp.getTime();
+		//	rosData.header.stamp = rclcpp::Clock().now();	
+		    rosData.header.stamp = Ros2Init::get().node->get_clock()->now();	
+//00lastStateStamp.getTime();
 			rosData.header.frame_id = frame_id;
 
 			rosData.angle_min = minAngle * M_PI / 180.0;
@@ -195,7 +197,7 @@ bool Ros2Wrapper::open(yarp::os::Searchable &config)
     m_topic = config.check("topic", yarp::os::Value("ros2test_topic"), "Name of the ROS topic").asString();
     yCInfo(ROS2WRAPPER, "Ros2Test::open - %s", m_topic.c_str());
 
-    m_publisher = Ros2Init::get().node->create_publisher<std_msgs::msg::String>(m_topic, 10);
+    m_publisher = Ros2Init::get().node->create_publisher<sensor_msgs::msg::LaserScan>(m_topic, 10);
 
     start();
     return true;
