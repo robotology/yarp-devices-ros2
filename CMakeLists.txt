@@ -5,6 +5,8 @@ project(yarp-ros2
 
 include(FeatureSummary)
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
 find_package(YCM 0.12 REQUIRED)
 
 include(GNUInstallDirs)

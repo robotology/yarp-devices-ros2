@@ -5,4 +5,4 @@
 # BSD-3-Clause license. See the accompanying LICENSE file for details.
 
 add_subdirectory(ros2test)
-add_subdirectory(ros2wrapper)
+add_subdirectory(rangefinder2D_nws_ros2)

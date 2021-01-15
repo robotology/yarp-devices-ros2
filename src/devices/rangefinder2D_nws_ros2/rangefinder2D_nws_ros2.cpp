@@ -6,7 +6,7 @@
  * BSD-3-Clause license. See the accompanying LICENSE file for details.
  */
 
-#include "Rangefinder2D_nws_ros2.h"
+#include "rangefinder2D_nws_ros2.h"
 
 #include <yarp/os/LogComponent.h>
 #include <yarp/os/LogStream.h>
@@ -53,7 +53,7 @@ bool Rangefinder2D_nws_ros2::attachAll(const PolyDriverList &device2attach)
 
     //attach the hardware device
     if (nullptr == m_iDevice)
-    {RangeFinder2DWrapper
+    {
         yCError(RANGEFINDER2D_NWS_ROS2, "Subdevice passed to attach method is invalid");
         return false;
     }
