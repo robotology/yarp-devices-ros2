@@ -4,22 +4,22 @@
 # This software may be modified and distributed under the terms of the
 # BSD-3-Clause license. See the accompanying LICENSE file for details.
 
-yarp_prepare_plugin(ros2wrapper
+yarp_prepare_plugin(rangefinder2D_nws_ros2
   CATEGORY device
-  TYPE Ros2Wrapper
-  INCLUDE Ros2Wrapper.h
+  TYPE Rangefinder2D_nws_ros2
+  INCLUDE rangefinder2D_nws_ros2.h
   INTERNAL ON
 )
 
-yarp_add_plugin(yarp_ros2wrapper)
+yarp_add_plugin(yarp_rangefinder2D_nws_ros2)
 
-target_sources(yarp_ros2wrapper
+target_sources(yarp_rangefinder2D_nws_ros2
   PRIVATE
-    Ros2Wrapper.cpp
-    Ros2Wrapper.h
+    rangefinder2D_nws_ros2.cpp
+    rangefinder2D_nws_ros2.h
 )
 
-target_link_libraries(yarp_ros2wrapper
+target_link_libraries(yarp_rangefinder2D_nws_ros2
   PRIVATE
     YARP::YARP_os
     YARP::YARP_sig
@@ -30,12 +30,12 @@ target_link_libraries(yarp_ros2wrapper
 )
 
 yarp_install(
-  TARGETS yarp_ros2wrapper
-  EXPORT yarp-device-ros2wrapper
-  COMPONENT yarp-device-ros2wrapper
+  TARGETS yarp_rangefinder2D_nws_ros2
+  EXPORT yarp-device-rangefinder2D_nws_ros2
+  COMPONENT yarp-device-rangefinder2D_nws_ros2
   LIBRARY DESTINATION ${YARP_DYNAMIC_PLUGINS_INSTALL_DIR}
   ARCHIVE DESTINATION ${YARP_STATIC_PLUGINS_INSTALL_DIR}
   YARP_INI DESTINATION ${YARP_PLUGIN_MANIFESTS_INSTALL_DIR}
 )
 
-set_property(TARGET yarp_ros2wrapper PROPERTY FOLDER "Plugins/Device")
+set_property(TARGET yarp_rangefinder2D_nws_ros2 PROPERTY FOLDER "Plugins/Device")

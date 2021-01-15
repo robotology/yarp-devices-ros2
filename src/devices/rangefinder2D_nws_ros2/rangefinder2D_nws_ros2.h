@@ -6,8 +6,8 @@
  * BSD-3-Clause license. See the accompanying LICENSE file for details.
  */
 
-#ifndef YARP_ROS2_ROS2WRAPPER_H
-#define YARP_ROS2_ROS2WRAPPER_H
+#ifndef YARP_ROS2_RANGEFINDER2D_NWS_ROS2_H
+#define YARP_ROS2_RANGEFINDER2D_NWS_ROS2_H
 
 #include <yarp/dev/IMultipleWrapper.h>
 #include <yarp/dev/IRangefinder2D.h>
@@ -32,18 +32,18 @@ public:
 };
 
 
-class Ros2Wrapper :
+class Rangefinder2D_nws_ros2 :
         public yarp::dev::DeviceDriver,
         public yarp::os::PeriodicThread,
         public yarp::dev::IMultipleWrapper
 {
 public:
-    Ros2Wrapper();
-    Ros2Wrapper(const Ros2Wrapper&) = delete;
-    Ros2Wrapper(Ros2Wrapper&&) noexcept = delete;
-    Ros2Wrapper& operator=(const Ros2Wrapper&) = delete;
-    Ros2Wrapper& operator=(Ros2Wrapper&&) noexcept = delete;
-    ~Ros2Wrapper() override = default;
+    Rangefinder2D_nws_ros2();
+    Rangefinder2D_nws_ros2(const Rangefinder2D_nws_ros2&) = delete;
+    Rangefinder2D_nws_ros2(Rangefinder2D_nws_ros2&&) noexcept = delete;
+    Rangefinder2D_nws_ros2& operator=(const Rangefinder2D_nws_ros2&) = delete;
+    Rangefinder2D_nws_ros2& operator=(Rangefinder2D_nws_ros2&&) noexcept = delete;
+    ~Rangefinder2D_nws_ros2() override = default;
 
     //IMultipleWrapper
     bool attachAll(const yarp::dev::PolyDriverList &p) override;
@@ -60,7 +60,7 @@ public:
     void run() override;
 
 private:
-	yarp::dev::PolyDriver m_driver;
+    yarp::dev::PolyDriver m_driver;
     yarp::dev::IRangefinder2D *m_iDevice =nullptr;
     rclcpp::Publisher<sensor_msgs::msg::LaserScan>::SharedPtr m_publisher;
     std::string m_topic;
