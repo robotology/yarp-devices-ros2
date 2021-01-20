@@ -8,6 +8,7 @@ yarp_prepare_plugin(rangefinder2D_nws_ros2
   CATEGORY device
   TYPE Rangefinder2D_nws_ros2
   INCLUDE rangefinder2D_nws_ros2.h
+  EXTRA_CONFIG WRAPPER=rangefinder2D_nws_ros2
   INTERNAL ON
 )
 
