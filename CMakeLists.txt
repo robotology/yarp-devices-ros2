@@ -59,6 +59,10 @@ find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(tf2_msgs REQUIRED)
+find_package(test_msgs REQUIRED)
+find_package(map2d_nws_ros2_msgs REQUIRED)
+find_package(visualization_msgs REQUIRED)
+
 
 add_subdirectory(src)
 
