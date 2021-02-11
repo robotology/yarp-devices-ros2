@@ -28,3 +28,5 @@ compile_commands.json
 *.srctrldb
 *.srctrlprj
 /.cache/
+/ros2_interfaces_ws/install/
+/ros2_interfaces_ws/log/
