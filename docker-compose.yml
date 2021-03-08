@@ -1,28 +1,121 @@
 version: "3.7"
 
 x-base: &base
-  image: randaz81/r1slam:ros2
+  image: robotology/yarp-ros2:default
   environment:
     - DISPLAY=${DISPLAY}
     - XAUTHORITY=/home/user1/.Xauthority
-    - YARP_COLORED_OUTPUT=1
     - QT_X11_NO_MITSHM=1
+    - DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user1/1000/bus
+    - XDG_RUNTIME_DIR=/run/user1/1000
+    - YARP_COLORED_OUTPUT=1
     - YARP_NAMESPACE=/root
+    - ROS_HOSTNAME=localhost
+    - ROS_MASTER_URI=http://localhost:11311
   volumes:
     - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
     - "${XAUTHORITY}:/home/user1/.Xauthority:rw"
+    - "${XDG_RUNTIME_DIR}/yarp:/run/user1/1000/yarp"
+    - "${XDG_RUNTIME_DIR}/dconf:/run/user1/1000/dconf"
+    - "${XDG_RUNTIME_DIR}/bus:/run/user1/1000/bus"
     - "${HOME}/.config/yarp:/home/user1/.config/yarp:rw"
     - "${HOME}/.local/share/yarp:/home/user1/.local/share/yarp:rw"
-    - "${HOME}/Workspace/iit/src/yarp-ros2:/home/user1/yarp-ros2"
+    - "${HOME}/.gitconfig:/home/user1/.gitconfig"
+    - ros1-volume:/home/user1/.ros
   network_mode: host
   ipc: host
   pid: host
   security_opt:
     - apparmor:unconfined
 
+x-base-ros1: &base_ros1
+  <<: *base
+  environment:
+    - DISPLAY=${DISPLAY}
+    - XAUTHORITY=/home/user1/.Xauthority
+    - QT_X11_NO_MITSHM=1
+    - DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user1/1000/bus
+    - XDG_RUNTIME_DIR=/run/user1/1000
+    - YARP_COLORED_OUTPUT=1
+    - YARP_NAMESPACE=/root
+    - ROS_DISTRO=noetic
+    - ROS_HOSTNAME=localhost
+    - ROS_MASTER_URI=http://localhost:11311
+    - AMENT_TRACE_SETUP_FILES=1
+
+
+x-base-ros2: &base_ros2
+  <<: *base
+  environment:
+    - DISPLAY=${DISPLAY}
+    - XAUTHORITY=/home/user1/.Xauthority
+    - QT_X11_NO_MITSHM=1
+    - DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user1/1000/bus
+    - XDG_RUNTIME_DIR=/run/user1/1000
+    - YARP_COLORED_OUTPUT=1
+    - YARP_NAMESPACE=/root
+    - ROS_DISTRO=foxy
+
 services:
+
+# Images
+  yarp-ros2-image:
+    image: robotology/yarp-ros2:default
+    build:
+      dockerfile: Dockerfile
+      context: .
+      args:
+        username: user1
+        uid: 1000
+        gid: 1000
+
+
 # Containers
+  roscore:
+    <<: *base_ros1
+    container_name: roscore
+    command: roscore -v
+
+  yarp-server:
+    <<: *base
+    container_name: yarp-server
+    # FIXME sleep
+    command: sh -c "sleep 3 && yarp namespace $${YARP_NAMESPACE}; yarp server --ros --read"
+    depends_on:
+      - roscore
+
+  gazebo:
+    <<: *base_ros2
+    container_name: gazebo
+    command: sh -c "yarp wait $${YARP_NAMESPACE}; gazebo"
+    depends_on:
+      - roscore
+      - yarp-server
+
+  yarpmotorgui:
+    <<: *base
+    container_name: yarpmotorgui
+    command: sh -c "yarp wait $${YARP_NAMESPACE}; yarp wait /SIM_CER_ROBOT/head/state:o; cd /home/user1/cer-sim/conf; yarpmotorgui --from yarpmotorgui.ini"
+    depends_on:
+      - yarp-server
+      - gazebo
+
+  cer_rviz:
+    <<: *base_ros1
+    container_name: cer_rviz
+    command: sh -c "sleep 3 && roslaunch cer_rviz cer.launch"
+    depends_on:
+      - roscore
+
+  cer_rviz2:
+    <<: *base_ros2
+    container_name: cer_rviz2
+    command: ros2 launch cer_rviz2 cer.launch
+
   terminator:
     <<: *base
     container_name: terminator
     command: terminator
+
+volumes:
+  ros1-volume:
