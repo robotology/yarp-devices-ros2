@@ -24,13 +24,13 @@ YARP_LOG_COMPONENT(RGBDSENSOR_NWS_ROS2, "yarp.ros2.rgbdSensor_nws_ros2", yarp::o
 
 constexpr double DEFAULT_THREAD_PERIOD = 0.03; // s
 
-// FIXME REMOVE "ROS_" from all parameter names
-const std::string frameId_param            = "ROS_frame_Id";
-const std::string nodeName_param           = "ROS_nodeName";
-const std::string colorTopicName_param     = "ROS_colorTopicName";
-const std::string depthTopicName_param     = "ROS_depthTopicName";
-const std::string depthInfoTopicName_param = "ROS_depthInfoTopicName";
-const std::string colorInfoTopicName_param = "ROS_colorInfoTopicName";
+// FIXME should be possible to set different frame_id for rgb and depth
+const std::string frameId_param            = "frame_Id";
+const std::string nodeName_param           = "nodeName";
+const std::string colorTopicName_param     = "colorTopicName";
+const std::string depthTopicName_param     = "depthTopicName";
+const std::string depthInfoTopicName_param = "depthInfoTopicName";
+const std::string colorInfoTopicName_param = "colorInfoTopicName";
 
 
 
@@ -132,8 +132,7 @@ bool RgbdSensor_nws_ros2::fromConfig(yarp::os::Searchable &config)
     if (!config.check("period", "refresh period of the broadcasted values in ms")) {
         yCDebug(RGBDSENSOR_NWS_ROS2) << "Using default 'period' parameter of " << DEFAULT_THREAD_PERIOD << "s";
     } else {
-        // FIXME DRDANZ FIXME This should be in seconds
-        setPeriod(config.find("period").asInt32() / 1000.0);
+        setPeriod(config.find("period").asFloat64());
     }
 
     //check if param exist and assign it to corresponding variable.. if it doesn't, initialize the variable with default value.
@@ -354,7 +353,7 @@ bool RgbdSensor_nws_ros2::openAndAttachSubDevice(yarp::os::Searchable& prop)
 
 bool RgbdSensor_nws_ros2::setCamInfo(sensor_msgs::msg::CameraInfo& cameraInfo,
                                      const std::string& frame_id,
-                                     const std::uint32_t& seq,
+                                     const yarp::os::Stamp& stamp,
                                      const SensorType& sensorType)
 {
     double phyF = 0.0;
@@ -367,7 +366,6 @@ bool RgbdSensor_nws_ros2::setCamInfo(sensor_msgs::msg::CameraInfo& cameraInfo,
     double t1 = 0.0;
     double t2 = 0.0;
     double k3 = 0.0;
-    double stamp = 0.0;
 
     std::string                  distModel;
     std::string currentSensor;
@@ -410,7 +408,6 @@ bool RgbdSensor_nws_ros2::setCamInfo(sensor_msgs::msg::CameraInfo& cameraInfo,
     parVector.emplace_back(t1,"t1");
     parVector.emplace_back(t2,"t2");
     parVector.emplace_back(k3,"k3");
-    parVector.emplace_back(stamp,"stamp");
 
     for(auto& par : parVector) {
         if(!camData.check(par.parname)) {
@@ -420,25 +417,23 @@ bool RgbdSensor_nws_ros2::setCamInfo(sensor_msgs::msg::CameraInfo& cameraInfo,
         *(par.var) = camData.find(par.parname).asFloat64();
     }
 
-    cameraInfo.header.stamp = Ros2Init::get().node->get_clock()->now();    // FIXME stamp from parVector
-    cameraInfo.header.frame_id    = frame_id;
-// FIXME    cameraInfo.header.seq         = seq;
-    cameraInfo.width              = sensorType == COLOR_SENSOR ? sensor_p->getRgbWidth() : sensor_p->getDepthWidth();
-    cameraInfo.height             = sensorType == COLOR_SENSOR ? sensor_p->getRgbHeight() : sensor_p->getDepthHeight();
-    cameraInfo.distortion_model   = distModel;
+    cameraInfo.header.frame_id      = frame_id;
+//     cameraInfo.header.stamp.sec     = static_cast<int>(stamp.getTime()); // FIXME
+//     cameraInfo.header.stamp.nanosec = static_cast<int>(1000000 * (stamp.getTime() - int(stamp.getTime()))); // FIXME
+    cameraInfo.width                = sensorType == COLOR_SENSOR ? sensor_p->getRgbWidth() : sensor_p->getDepthWidth();
+    cameraInfo.height               = sensorType == COLOR_SENSOR ? sensor_p->getRgbHeight() : sensor_p->getDepthHeight();
+    cameraInfo.distortion_model     = distModel;
 
-#ifdef DRDANZ_DISABLED // FIXME
-    cameraInfo.D.resize(5);
-    cameraInfo.D[0] = k1;
-    cameraInfo.D[1] = k2;
-    cameraInfo.D[2] = t1;
-    cameraInfo.D[3] = t2;
-    cameraInfo.D[4] = k3;
+    cameraInfo.d.resize(5);
+    cameraInfo.d[0] = k1;
+    cameraInfo.d[1] = k2;
+    cameraInfo.d[2] = t1;
+    cameraInfo.d[3] = t2;
+    cameraInfo.d[4] = k3;
 
-    cameraInfo.K.resize(9);
-    cameraInfo.K[0]  = fx;       cameraInfo.K[1] = 0;        cameraInfo.K[2] = cx;
-    cameraInfo.K[3]  = 0;        cameraInfo.K[4] = fy;       cameraInfo.K[5] = cy;
-    cameraInfo.K[6]  = 0;        cameraInfo.K[7] = 0;        cameraInfo.K[8] = 1;
+    cameraInfo.k[0]  = fx;       cameraInfo.k[1] = 0;        cameraInfo.k[2] = cx;
+    cameraInfo.k[3]  = 0;        cameraInfo.k[4] = fy;       cameraInfo.k[5] = cy;
+    cameraInfo.k[6]  = 0;        cameraInfo.k[7] = 0;        cameraInfo.k[8] = 1;
 
     /*
      * ROS documentation on cameraInfo message:
@@ -449,14 +444,13 @@ bool RgbdSensor_nws_ros2::setCamInfo(sensor_msgs::msg::CameraInfo& cameraInfo,
      * useless in our case, it will be an identity matrix
      */
 
-    cameraInfo.R.assign(9, 0);
-    cameraInfo.R.at(0) = cameraInfo.R.at(4) = cameraInfo.R.at(8) = 1;
+    cameraInfo.r[0]  = 1;        cameraInfo.r[1] = 0;        cameraInfo.r[2] = 0;
+    cameraInfo.r[3]  = 0;        cameraInfo.r[4] = 1;        cameraInfo.r[5] = 0;
+    cameraInfo.r[6]  = 0;        cameraInfo.r[7] = 0;        cameraInfo.r[8] = 1;
 
-    cameraInfo.P.resize(12);
-    cameraInfo.P[0]  = fx;      cameraInfo.P[1] = 0;    cameraInfo.P[2]  = cx;  cameraInfo.P[3]  = 0;
-    cameraInfo.P[4]  = 0;       cameraInfo.P[5] = fy;   cameraInfo.P[6]  = cy;  cameraInfo.P[7]  = 0;
-    cameraInfo.P[8]  = 0;       cameraInfo.P[9] = 0;    cameraInfo.P[10] = 1;   cameraInfo.P[11] = 0;
-#endif
+    cameraInfo.p[0]  = fx;      cameraInfo.p[1] = 0;    cameraInfo.p[2]  = cx;  cameraInfo.p[3]  = 0;
+    cameraInfo.p[4]  = 0;       cameraInfo.p[5] = fy;   cameraInfo.p[6]  = cy;  cameraInfo.p[7]  = 0;
+    cameraInfo.p[8]  = 0;       cameraInfo.p[9] = 0;    cameraInfo.p[10] = 1;   cameraInfo.p[11] = 0;
 
     cameraInfo.binning_x  = cameraInfo.binning_y = 0;
     cameraInfo.roi.height = cameraInfo.roi.width = cameraInfo.roi.x_offset = cameraInfo.roi.y_offset = 0;
@@ -470,8 +464,6 @@ bool RgbdSensor_nws_ros2::writeData()
     yarp::sig::ImageOf<yarp::sig::PixelFloat> depthImage;
     yarp::os::Stamp colorStamp;
     yarp::os::Stamp depthStamp;
-
-    std::uint32_t                  nodeSeq {0};
 
     if (!sensor_p->getImages(colorImage, depthImage, &colorStamp, &depthStamp)) {
         return false;
@@ -505,15 +497,15 @@ bool RgbdSensor_nws_ros2::writeData()
         memcpy(rColorImage.data.data(), colorImage.getRawImage(), colorImage.getRawImageSize());
         rColorImage.encoding = yarp2RosPixelCode(colorImage.getPixelCode());
         rColorImage.step = colorImage.getRowSize();
-// FIXME    rColorImage.header.frame_id = frame_id;
-// FIXME    rColorImage.header.stamp = timeStamp;
-// FIXME    rColorImage.header.seq = seq;
+        rColorImage.header.frame_id = rosFrameId;
+//         rColorImage.header.stamp.sec = static_cast<int>(colorStamp.getTime()); // FIXME
+//         rColorImage.header.stamp.nanosec = static_cast<int>(1000000 * (colorStamp.getTime() - int(colorStamp.getTime()))); // FIXME
         rColorImage.is_bigendian = 0;
 
         rosPublisher_color->publish(rColorImage);
 
         sensor_msgs::msg::CameraInfo camInfoC;
-        if (setCamInfo(camInfoC, rosFrameId, nodeSeq, COLOR_SENSOR)) {
+        if (setCamInfo(camInfoC, rosFrameId, colorStamp, COLOR_SENSOR)) {
             if(forceInfoSync) {
                 camInfoC.header.stamp = rColorImage.header.stamp;
             }
@@ -532,16 +524,15 @@ bool RgbdSensor_nws_ros2::writeData()
         memcpy(rDepthImage.data.data(), depthImage.getRawImage(), depthImage.getRawImageSize());
         rDepthImage.encoding = yarp2RosPixelCode(depthImage.getPixelCode());
         rDepthImage.step = depthImage.getRowSize();
-// FIXME    rDepthImage.header.frame_id = frame_id;
-// FIXME    rDepthImage.header.stamp = timeStamp;
-// FIXME    rDepthImage.header.seq = seq;
+        rDepthImage.header.frame_id = rosFrameId;
+//         rDepthImage.header.stamp.sec = static_cast<int>(depthStamp.getTime()); // FIXME
+//         rDepthImage.header.stamp.nanosec = static_cast<int>(1000000 * (depthStamp.getTime() - int(depthStamp.getTime()))); // FIXME
         rDepthImage.is_bigendian = 0;
 
         rosPublisher_depth->publish(rDepthImage);
 
-//         TickTime                 dRosStamp       = depthStamp.getTime();
         sensor_msgs::msg::CameraInfo camInfoD;
-        if (setCamInfo(camInfoD, rosFrameId, nodeSeq, DEPTH_SENSOR)) {
+        if (setCamInfo(camInfoD, rosFrameId, depthStamp, DEPTH_SENSOR)) {
             if(forceInfoSync) {
                 camInfoD.header.stamp = rDepthImage.header.stamp;
             }
@@ -550,8 +541,6 @@ bool RgbdSensor_nws_ros2::writeData()
             yCWarning(RGBDSENSOR_NWS_ROS2, "Missing depth camera parameters... camera info messages will be not sent");
         }
     }
-
-    nodeSeq++;
 
     return true;
 }

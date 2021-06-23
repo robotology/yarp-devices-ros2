@@ -25,7 +25,7 @@
 #include <yarp/os/PeriodicThread.h>
 
 #include <yarp/dev/IRGBDSensor.h>
-#include <yarp/dev/FrameGrabberControlImpl.h>
+#include <yarp/dev/IFrameGrabberControls.h>
 
 #include <rclcpp/rclcpp.hpp>
 #include <std_msgs/msg/string.hpp>
@@ -125,7 +125,7 @@ private:
     bool writeData();
     bool setCamInfo(sensor_msgs::msg::CameraInfo& cameraInfo,
                     const std::string& frame_id,
-                    const std::uint32_t& seq,
+                    const yarp::os::Stamp& stamp,
                     const SensorType& sensorType);
 
 //     static std::string yarp2RosPixelCode(int code);
