@@ -87,7 +87,7 @@ services:
   gazebo:
     <<: *base_ros2
     container_name: gazebo
-    command: sh -c "yarp wait $${YARP_NAMESPACE}; gazebo"
+    command: sh -c "yarp wait $${YARP_NAMESPACE}; gazebo /home/user1/yarp-ros2/r1_minimal.world"
     depends_on:
       - roscore
       - yarp-server
