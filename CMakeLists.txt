@@ -69,6 +69,7 @@ if(YARP_ROS2_USE_SYSTEM_map2d_nws_ros2_msgs)
   find_package(map2d_nws_ros2_msgs REQUIRED)
 else()
   add_subdirectory(ros2_interfaces_ws/src/map2d_nws_ros2_msgs)
+  # Temporary workaround for https://github.com/ament/ament_cmake/pull/349
   if(NOT TARGET map2d_nws_ros2_msgs::map2d_nws_ros2_msgs__rosidl_typesupport_cpp)
     add_library(map2d_nws_ros2_msgs::map2d_nws_ros2_msgs__rosidl_typesupport_cpp ALIAS map2d_nws_ros2_msgs__rosidl_typesupport_cpp)
   endif()
