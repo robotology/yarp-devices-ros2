@@ -47,3 +47,8 @@ rosidl_generate_interfaces(${PROJECT_NAME}
 ament_export_dependencies(rosidl_default_runtime)
 
 ament_package()
+
+# Temporary workaround for https://github.com/ros2/rosidl/pull/605
+if(NOT TARGET map2d_nws_ros2_msgs::map2d_nws_ros2_msgs__rosidl_typesupport_cpp)
+  add_library(map2d_nws_ros2_msgs::map2d_nws_ros2_msgs__rosidl_typesupport_cpp ALIAS map2d_nws_ros2_msgs__rosidl_typesupport_cpp)
+endif()
