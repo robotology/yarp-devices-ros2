@@ -49,18 +49,14 @@
 #include <yarp/dev/api.h>
 
 #include <rclcpp/rclcpp.hpp>
-#include <nav_msgs/msg/rosidl_typesupport_fastrtps_cpp__visibility_control.h>
-#include <nav_msgs/msg/rosidl_typesupport_connext_cpp__visibility_control.h>
+
 #include <nav_msgs/msg/occupancy_grid.hpp>
 #include <nav_msgs/srv/get_map.hpp>
-#include <nav2_msgs/msg/rosidl_typesupport_connext_cpp__visibility_control.h>
-#include <nav2_msgs/msg/rosidl_typesupport_fastrtps_cpp__visibility_control.h>
 #include <test_msgs/srv/basic_types.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
 #include <visualization_msgs/msg/marker.hpp>
 
 //Custom ros2 interfaces
-#include <map2d_nws_ros2_msgs/msg/rosidl_typesupport_fastrtps_cpp__visibility_control.h>
 #include <map2d_nws_ros2_msgs/srv/get_map_by_name.hpp>
 
 
