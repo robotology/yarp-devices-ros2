@@ -84,7 +84,8 @@ jobs:
 
     - name: Configure [Windows]
       if: contains(matrix.os, 'windows')
-      shell: bash -l {0}
+      # Command prompt is used as a workaround for https://github.com/RoboStack/ros-noetic/issues/21
+      shell: cmd /C CALL {0}
       run: |
         mkdir -p build
         cd build
@@ -95,11 +96,15 @@ jobs:
     - name: Build
       shell: bash -l {0}
       run: |
+        # Workaround for https://github.com/RoboStack/ros-galactic/issues/39
+        unset DYLD_LIBRARY_PATH
         cd build
         cmake --build . --config ${{ matrix.build_type }}
 
     - name: Test
       shell: bash -l {0}
       run: |
+        # Workaround for https://github.com/RoboStack/ros-galactic/issues/39
+        unset DYLD_LIBRARY_PATH
         cd build
         ctest --output-on-failure -C ${{ matrix.build_type }}
