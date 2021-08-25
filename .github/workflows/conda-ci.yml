@@ -78,8 +78,9 @@ jobs:
         unset DYLD_LIBRARY_PATH
         mkdir -p build
         cd build
+        # Python3_EXECUTABLE is set as a workaround for https://github.com/ros2/python_cmake_module/issues/6
         cmake -GNinja -DBUILD_TESTING:BOOL=ON -DYARP_ROS2_USE_SYSTEM_map2d_nws_ros2_msgs:BOOL=OFF \
-              -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
+              -DPython3_EXECUTABLE:PATH=$CONDA_PREFIX/bin/python3 -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
 
     - name: Configure [Windows]
       if: contains(matrix.os, 'windows')
@@ -89,7 +90,7 @@ jobs:
         cd build
         # PYTHON_EXECUTABLE is set as a workaround for https://github.com/ros2/python_cmake_module/issues/6
         cmake -G"Visual Studio 16 2019" -DBUILD_TESTING:BOOL=ON -DYARP_ROS2_USE_SYSTEM_map2d_nws_ros2_msgs:BOOL=OFF \
-              -DPYTHON_EXECUTABLE=$CONDA_PREFIX/python.exe -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
+              -DPYTHON_EXECUTABLE:PATH=$CONDA_PREFIX/python.exe -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
 
     - name: Build
       shell: bash -l {0}
