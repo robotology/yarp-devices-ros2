@@ -6,15 +6,20 @@
  * BSD-3-Clause license. See the accompanying LICENSE file for details.
  */
 
+#ifndef _USE_MATH_DEFINES
+#define _USE_MATH_DEFINES
+#endif
+
 #include "rangefinder2D_nws_ros2.h"
 
 #include <yarp/os/LogComponent.h>
 #include <yarp/os/LogStream.h>
 
+#include <cmath>
+
 using namespace std::chrono_literals;
 using namespace yarp::os;
 using namespace yarp::dev;
-
 
 YARP_LOG_COMPONENT(RANGEFINDER2D_NWS_ROS2, "yarp.ros2.rangefinder2D_nws_ros2", yarp::os::Log::TraceType);
 

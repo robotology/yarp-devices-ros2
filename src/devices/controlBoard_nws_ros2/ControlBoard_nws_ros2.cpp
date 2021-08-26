@@ -6,6 +6,10 @@
  * BSD-3-Clause license. See the accompanying LICENSE file for details.
  */
 
+#ifndef _USE_MATH_DEFINES
+#define _USE_MATH_DEFINES
+#endif
+
 #include "ControlBoard_nws_ros2.h"
 
 #include <chrono>
