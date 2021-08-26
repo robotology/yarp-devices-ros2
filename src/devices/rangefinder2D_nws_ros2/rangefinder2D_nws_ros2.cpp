@@ -21,6 +21,7 @@ using namespace std::chrono_literals;
 using namespace yarp::os;
 using namespace yarp::dev;
 
+
 YARP_LOG_COMPONENT(RANGEFINDER2D_NWS_ROS2, "yarp.ros2.rangefinder2D_nws_ros2", yarp::os::Log::TraceType);
 
 
