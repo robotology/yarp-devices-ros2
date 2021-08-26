@@ -10,7 +10,7 @@ yarp_prepare_plugin(
   frameGrabber_nws_ros2
   CATEGORY device
   TYPE FrameGrabber_nws_ros2
-  INCLUDE frameGrabber_nws_ros2.h
+  INCLUDE FrameGrabber_nws_ros2.h
   EXTRA_CONFIG WRAPPER=controlBoard_nws_ros2
   DEFAULT ON
   INTERNAL ON
@@ -27,8 +27,8 @@ if(NOT SKIP_frameGrabber_nws_ros2)
 
   target_sources(yarp_frameGrabber_nws_ros2
     PRIVATE
-      frameGrabber_nws_ros2.cpp
-      frameGrabber_nws_ros2.h
+      FrameGrabber_nws_ros2.cpp
+      FrameGrabber_nws_ros2.h
   )
 
   target_link_libraries(yarp_frameGrabber_nws_ros2

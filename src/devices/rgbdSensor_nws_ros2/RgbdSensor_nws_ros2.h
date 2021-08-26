@@ -100,16 +100,15 @@ private:
     rclcpp::Publisher<sensor_msgs::msg::CameraInfo>::SharedPtr rosPublisher_colorCaminfo;
     rclcpp::Publisher<sensor_msgs::msg::CameraInfo>::SharedPtr rosPublisher_depthCaminfo;
 
-    std::string nodeName;
-    std::string depthTopicName;
-    std::string colorTopicName;
-    std::string dInfoTopicName;
-    std::string cInfoTopicName;
-    std::string rosFrameId;
+    std::string m_node_name;
 
-//     yarp::sig::FlexImage  colorImage;
-//     DepthImage            depthImage;
-//     UInt                  nodeSeq {0};
+    std::string m_depth_topic_name;
+    std::string m_depth_info_topic_name;
+    std::string m_depth_frame_id;
+
+    std::string m_color_topic_name;
+    std::string m_color_info_topic_name;
+    std::string m_color_frame_id;
 
     yarp::dev::IRGBDSensor* sensor_p {nullptr};
     yarp::dev::IFrameGrabberControls* fgCtrl {nullptr};
