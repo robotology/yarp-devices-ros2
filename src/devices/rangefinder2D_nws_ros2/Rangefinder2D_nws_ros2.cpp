@@ -10,7 +10,7 @@
 #define _USE_MATH_DEFINES
 #endif
 
-#include "rangefinder2D_nws_ros2.h"
+#include "Rangefinder2D_nws_ros2.h"
 
 #include <yarp/os/LogComponent.h>
 #include <yarp/os/LogStream.h>
