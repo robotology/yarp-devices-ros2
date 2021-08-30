@@ -7,7 +7,7 @@
 yarp_prepare_plugin(rangefinder2D_nws_ros2
   CATEGORY device
   TYPE Rangefinder2D_nws_ros2
-  INCLUDE rangefinder2D_nws_ros2.h
+  INCLUDE Rangefinder2D_nws_ros2.h
   EXTRA_CONFIG WRAPPER=rangefinder2D_nws_ros2
   INTERNAL ON
 )
@@ -16,8 +16,8 @@ yarp_add_plugin(yarp_rangefinder2D_nws_ros2)
 
 target_sources(yarp_rangefinder2D_nws_ros2
   PRIVATE
-    rangefinder2D_nws_ros2.cpp
-    rangefinder2D_nws_ros2.h
+    Rangefinder2D_nws_ros2.cpp
+    Rangefinder2D_nws_ros2.h
 )
 
 target_link_libraries(yarp_rangefinder2D_nws_ros2
@@ -26,7 +26,7 @@ target_link_libraries(yarp_rangefinder2D_nws_ros2
     YARP::YARP_sig
     YARP::YARP_dev
     rclcpp::rclcpp
-    std_msgs::std_msgs__rosidl_typesupport_c
+    std_msgs::std_msgs__rosidl_typesupport_cpp
     sensor_msgs::sensor_msgs__rosidl_typesupport_cpp
 )
 

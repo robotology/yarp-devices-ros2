@@ -10,7 +10,7 @@
 #define _USE_MATH_DEFINES
 #endif
 
-#include "rangefinder2D_nws_ros2.h"
+#include "Rangefinder2D_nws_ros2.h"
 
 #include <yarp/os/LogComponent.h>
 #include <yarp/os/LogStream.h>
@@ -191,8 +191,8 @@ bool Rangefinder2D_nws_ros2::open(yarp::os::Searchable &config)
     }
  
     //wrapper params
-    m_topic    = config.check("topic",  yarp::os::Value("laser_topic"), "Name of the ROS2 topic").asString();
-    m_frame_id = config.check("frame",  yarp::os::Value("laser_frame"), "Name of the frameId").asString();
+    m_topic    = config.check("topic_name",  yarp::os::Value("laser_topic"), "Name of the ROS2 topic").asString();
+    m_frame_id = config.check("frame_id",  yarp::os::Value("laser_frame"), "Name of the frameId").asString();
     m_period   = config.check("period", yarp::os::Value(0.010), "Period of the thread").asFloat64();
        
     //create the topic

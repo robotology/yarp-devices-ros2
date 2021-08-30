@@ -6,7 +6,7 @@
  * BSD-3-Clause license. See the accompanying LICENSE file for details.
  */
 
-#include "rgbdSensor_nws_ros2.h"
+#include "RgbdSensor_nws_ros2.h"
 
 #include <yarp/os/LogComponent.h>
 #include <yarp/os/LogStream.h>
@@ -23,18 +23,6 @@ namespace
 YARP_LOG_COMPONENT(RGBDSENSOR_NWS_ROS2, "yarp.ros2.rgbdSensor_nws_ros2", yarp::os::Log::TraceType);
 
 constexpr double DEFAULT_THREAD_PERIOD = 0.03; // s
-
-// FIXME should be possible to set different frame_id for rgb and depth
-const std::string frameId_param            = "frame_Id";
-const std::string nodeName_param           = "nodeName";
-const std::string colorTopicName_param     = "colorTopicName";
-const std::string depthTopicName_param     = "depthTopicName";
-const std::string depthInfoTopicName_param = "depthInfoTopicName";
-const std::string colorInfoTopicName_param = "colorInfoTopicName";
-
-
-
-
 
 std::string yarp2RosPixelCode(int code)
 {
@@ -135,23 +123,57 @@ bool RgbdSensor_nws_ros2::fromConfig(yarp::os::Searchable &config)
         setPeriod(config.find("period").asFloat64());
     }
 
-    //check if param exist and assign it to corresponding variable.. if it doesn't, initialize the variable with default value.
-    std::vector<param<std::string>> rosStringParam;
-
-    rosStringParam.emplace_back(nodeName,       nodeName_param          );
-    rosStringParam.emplace_back(rosFrameId,     frameId_param           );
-    rosStringParam.emplace_back(colorTopicName, colorTopicName_param    );
-    rosStringParam.emplace_back(depthTopicName, depthTopicName_param    );
-    rosStringParam.emplace_back(cInfoTopicName, colorInfoTopicName_param);
-    rosStringParam.emplace_back(dInfoTopicName, depthInfoTopicName_param);
-
-    for (auto &prm : rosStringParam) {
-        if (!config.check(prm.parname)) {
-            yCError(RGBDSENSOR_NWS_ROS2) << "Missing " << prm.parname << "check your configuration file";
-            return false;
-        }
-        *(prm.var) = config.find(prm.parname).asString();
+    // node_name check
+    if (!config.check("node_name")) {
+        yCError(RGBDSENSOR_NWS_ROS2) << "missing node_name parameter";
+        return false;
     }
+    m_node_name = config.find("node_name").asString();
+    if(m_node_name[0] != '/'){
+        yCError(RGBDSENSOR_NWS_ROS2) << "node_name must begin with an initial /";
+        return false;
+    }
+    // FIXME node_name is not currently used.
+    yCWarning(RGBDSENSOR_NWS_ROS2, "FIXME: node_name is not currently used!");
+
+    // depth topic base name check
+    if (!config.check("depth_topic_name")) {
+        yCError(RGBDSENSOR_NWS_ROS2) << "missing depth_topic_name parameter";
+        return false;
+    }
+    m_depth_topic_name = config.find("depth_topic_name").asString();
+    if(m_depth_topic_name[0] != '/'){
+        yCError(RGBDSENSOR_NWS_ROS2) << "depth_topic_name must begin with an initial /";
+        return false;
+    }
+    m_depth_info_topic_name = m_depth_topic_name.substr(0, m_depth_topic_name.rfind('/')) + "/camera_info";
+
+    // color topic base name check
+    if (!config.check("color_topic_name")) {
+        yCError(RGBDSENSOR_NWS_ROS2) << "missing color_topic_name parameter";
+        return false;
+    }
+    m_color_topic_name = config.find("color_topic_name").asString();
+    if(m_color_topic_name[0] != '/'){
+        yCError(RGBDSENSOR_NWS_ROS2) << "color_topic_name must begin with an initial /";
+        return false;
+    }
+    m_color_info_topic_name = m_color_topic_name.substr(0, m_color_topic_name.rfind('/')) + "/camera_info";
+
+    // depth_frame_id check
+    if (!config.check("depth_frame_id")) {
+        yCError(RGBDSENSOR_NWS_ROS2) << "missing depth_frame_id parameter";
+        return false;
+    }
+    m_depth_frame_id = config.find("depth_frame_id").asString();
+
+    // color_frame_id check
+    if (!config.check("color_frame_id")) {
+        yCError(RGBDSENSOR_NWS_ROS2) << "missing color_frame_id parameter";
+        return false;
+    }
+    m_color_frame_id = config.find("color_frame_id").asString();
+
 
     if (config.check("forceInfoSync"))
     {
@@ -170,10 +192,10 @@ bool RgbdSensor_nws_ros2::fromConfig(yarp::os::Searchable &config)
 
 bool RgbdSensor_nws_ros2::initialize_ROS2(yarp::os::Searchable &params)
 {
-    rosPublisher_color = Ros2Init::get().node->create_publisher<sensor_msgs::msg::Image>(colorTopicName, 10);
-    rosPublisher_depth = Ros2Init::get().node->create_publisher<sensor_msgs::msg::Image>(depthTopicName, 10);
-    rosPublisher_colorCaminfo = Ros2Init::get().node->create_publisher<sensor_msgs::msg::CameraInfo>(cInfoTopicName, 10);
-    rosPublisher_depthCaminfo = Ros2Init::get().node->create_publisher<sensor_msgs::msg::CameraInfo>(dInfoTopicName, 10);
+    rosPublisher_color = Ros2Init::get().node->create_publisher<sensor_msgs::msg::Image>(m_color_topic_name, 10);
+    rosPublisher_depth = Ros2Init::get().node->create_publisher<sensor_msgs::msg::Image>(m_depth_topic_name, 10);
+    rosPublisher_colorCaminfo = Ros2Init::get().node->create_publisher<sensor_msgs::msg::CameraInfo>(m_color_info_topic_name, 10);
+    rosPublisher_depthCaminfo = Ros2Init::get().node->create_publisher<sensor_msgs::msg::CameraInfo>(m_depth_info_topic_name, 10);
     return true;
 }
 
@@ -395,9 +417,6 @@ bool RgbdSensor_nws_ros2::setCamInfo(sensor_msgs::msg::CameraInfo& cameraInfo,
         return false;
     }
 
-    //std::vector<param<string> >     rosStringParam;
-    //rosStringParam.push_back(param<string>(nodeName, "asd"));
-
     parVector.emplace_back(phyF,"physFocalLength");
     parVector.emplace_back(fx,"focalLengthX");
     parVector.emplace_back(fy,"focalLengthY");
@@ -497,7 +516,7 @@ bool RgbdSensor_nws_ros2::writeData()
         memcpy(rColorImage.data.data(), colorImage.getRawImage(), colorImage.getRawImageSize());
         rColorImage.encoding = yarp2RosPixelCode(colorImage.getPixelCode());
         rColorImage.step = colorImage.getRowSize();
-        rColorImage.header.frame_id = rosFrameId;
+        rColorImage.header.frame_id = m_color_frame_id;
 //         rColorImage.header.stamp.sec = static_cast<int>(colorStamp.getTime()); // FIXME
 //         rColorImage.header.stamp.nanosec = static_cast<int>(1000000 * (colorStamp.getTime() - int(colorStamp.getTime()))); // FIXME
         rColorImage.is_bigendian = 0;
@@ -505,7 +524,7 @@ bool RgbdSensor_nws_ros2::writeData()
         rosPublisher_color->publish(rColorImage);
 
         sensor_msgs::msg::CameraInfo camInfoC;
-        if (setCamInfo(camInfoC, rosFrameId, colorStamp, COLOR_SENSOR)) {
+        if (setCamInfo(camInfoC, m_color_frame_id, colorStamp, COLOR_SENSOR)) {
             if(forceInfoSync) {
                 camInfoC.header.stamp = rColorImage.header.stamp;
             }
@@ -524,7 +543,7 @@ bool RgbdSensor_nws_ros2::writeData()
         memcpy(rDepthImage.data.data(), depthImage.getRawImage(), depthImage.getRawImageSize());
         rDepthImage.encoding = yarp2RosPixelCode(depthImage.getPixelCode());
         rDepthImage.step = depthImage.getRowSize();
-        rDepthImage.header.frame_id = rosFrameId;
+        rDepthImage.header.frame_id = m_depth_frame_id;
 //         rDepthImage.header.stamp.sec = static_cast<int>(depthStamp.getTime()); // FIXME
 //         rDepthImage.header.stamp.nanosec = static_cast<int>(1000000 * (depthStamp.getTime() - int(depthStamp.getTime()))); // FIXME
         rDepthImage.is_bigendian = 0;
@@ -532,7 +551,7 @@ bool RgbdSensor_nws_ros2::writeData()
         rosPublisher_depth->publish(rDepthImage);
 
         sensor_msgs::msg::CameraInfo camInfoD;
-        if (setCamInfo(camInfoD, rosFrameId, depthStamp, DEPTH_SENSOR)) {
+        if (setCamInfo(camInfoD, m_depth_frame_id, depthStamp, DEPTH_SENSOR)) {
             if(forceInfoSync) {
                 camInfoD.header.stamp = rDepthImage.header.stamp;
             }

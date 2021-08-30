@@ -108,24 +108,31 @@ bool ControlBoard_nws_ros2::open(Searchable& config)
         subdevice_ready = true;
     }
 
-    // check for nodeName parameter
-    if (!config.check("nodeName")) {
-        yCError(CONTROLBOARD) << nodeName << " cannot find nodeName parameter";
+    // check for node_name parameter
+    if (!config.check("node_name")) {
+        yCError(CONTROLBOARD) << nodeName << " cannot find node_name parameter";
         return false;
     }
-    nodeName = config.find("nodeName").asString(); // TODO: check name is correct
-    yCInfo(CONTROLBOARD) << "nodeName is " << nodeName;
-
-    // FIXME nodeName is not currently used.
-    yCWarning(CONTROLBOARD, "FIXME: nodeName is not currently used!");
-
-    // check for topicName parameter
-    if (!config.check("topicName")) {
-        yCError(CONTROLBOARD) << nodeName << " cannot find topicName parameter";
+    nodeName = config.find("node_name").asString();
+    if(nodeName[0] != '/'){
+        yCError(CONTROLBOARD) << "node_name must begin with an initial /";
         return false;
     }
-    topicName = config.find("topicName").asString();
-    yCInfo(CONTROLBOARD) << "topicName is " << topicName;
+
+    // FIXME node_name is not currently used.
+    yCWarning(CONTROLBOARD, "FIXME: node_name is not currently used!");
+
+    // check for topic_name parameter
+    if (!config.check("topic_name")) {
+        yCError(CONTROLBOARD) << nodeName << " cannot find topic_name parameter";
+        return false;
+    }
+    topicName = config.find("topic_name").asString();
+    if(topicName[0] != '/'){
+        yCError(CONTROLBOARD) << "topic_name must begin with an initial /";
+        return false;
+    }
+    yCInfo(CONTROLBOARD) << "topic_name is " << topicName;
 
     m_publisher = Ros2Init::get().node->create_publisher<sensor_msgs::msg::JointState>(topicName, 10);
 

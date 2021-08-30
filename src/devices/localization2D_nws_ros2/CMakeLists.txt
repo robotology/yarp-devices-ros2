@@ -25,7 +25,7 @@ target_link_libraries(yarp_localization2D_nws_ros2
     YARP::YARP_sig
     YARP::YARP_dev
     rclcpp::rclcpp
-    std_msgs::std_msgs__rosidl_typesupport_c
+    std_msgs::std_msgs__rosidl_typesupport_cpp
     sensor_msgs::sensor_msgs__rosidl_typesupport_cpp
     nav_msgs::nav_msgs__rosidl_typesupport_cpp
     geometry_msgs::geometry_msgs__rosidl_typesupport_cpp
