@@ -54,7 +54,7 @@ x-base-ros2: &base_ros2
     - XDG_RUNTIME_DIR=/run/user1/1000
     - YARP_COLORED_OUTPUT=1
     - YARP_NAMESPACE=/root
-    - ROS_DISTRO=foxy
+    - ROS_DISTRO=galactic
 
 services:
 
@@ -87,7 +87,8 @@ services:
   gazebo:
     <<: *base_ros2
     container_name: gazebo
-    command: sh -c "yarp wait $${YARP_NAMESPACE}; gazebo /home/user1/yarp-ros2/r1_minimal.world"
+    #command: sh -c "yarp wait $${YARP_NAMESPACE}; gazebo /home/user1/yarp-ros2/r1_minimal.world"
+    command: sh -c "yarp wait $${YARP_NAMESPACE}; gazebo"
     depends_on:
       - roscore
       - yarp-server
@@ -107,15 +108,36 @@ services:
     depends_on:
       - roscore
 
-  cer_rviz2:
+  robot_state_publisher_ros2:
     <<: *base_ros2
-    container_name: cer_rviz2
-    command: ros2 launch cer_rviz2 cer.launch
+    container_name: robot_state_publisher_ros2
+    command: ros2 launch cer_rviz2 robot_state_publisher.launch
+
+  rviz2:
+    <<: *base_ros2
+    container_name: rviz2
+    command: ros2 launch cer_rviz2 rviz2.launch
+
+  #cer_rviz2:
+    #<<: *base_ros2
+    #container_name: cer_rviz2
+    #command: ros2 launch cer_rviz2 cer.launch
 
   terminator:
     <<: *base
     container_name: terminator
-    command: terminator
+    command: terminator --no-dbus -T YARP -i /home/user1/yarp/doc/images/yarp-robot-64.png
+
+  ros1_terminator:
+    <<: *base_ros1
+    container_name: ros1_terminator
+    command: terminator --no-dbus -T "ROS 1 (noetic)" -i /opt/ros/noetic/share/turtlesim/images/noetic.png
+
+  ros2_terminator:
+    <<: *base_ros2
+    container_name: ros2_terminator
+    command: terminator --no-dbus -T "ROS 2 (galactic)" -i /opt/ros/galactic/share/turtlesim/images/galactic.png
+
 
 volumes:
   ros1-volume:
