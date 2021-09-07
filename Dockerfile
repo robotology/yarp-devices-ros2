@@ -26,6 +26,7 @@ RUN groupmod -g $gid $username && \
 
 # Install extra packages
 RUN \
+    apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive apt-get remove --purge -y \
         ros-foxy-* \
         && \
@@ -40,7 +41,8 @@ RUN \
         ros-galactic-image-publisher \
         ros-galactic-image-view \
         ros-galactic-joint-state-publisher \
-        ros-galactic-test-msgs
+        ros-galactic-test-msgs \
+        gazebo11-dbg
 
 # RUN cd /home/$username/ycm/build && \
 #     make uninstall && \
