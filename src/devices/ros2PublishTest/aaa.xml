@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE robot PUBLIC "-//YARP//DTD yarprobotinterface 3.0//EN" "http://www.yarp.it/DTD/yarprobotinterfaceV3.0.dtd">
+<robot name="CER-SIM-DEPTH" prefix="CER-SIM-DEPTH" xmlns:xi="http://www.w3.org/2001/XInclude">
+   <devices>
+
+       <device xmlns:xi="http://www.w3.org/2001/XInclude"  name="subscriber1" type="ros2SubscriptionTest">
+           <param name="node_name">node1</param>
+           <param name="topic_name">topic_node1</param>
+
+       </device>
+       
+       <device xmlns:xi="http://www.w3.org/2001/XInclude"  name="subscriber21" type="ros2SubscriptionTest">
+           <param name="node_name">node2</param>
+           <param name="topic_name">topic_node2</param>
+
+       </device>
+       <device xmlns:xi="http://www.w3.org/2001/XInclude"  name="publisher1" type="ros2PublishTest">
+           <param name="node_name">node3</param>
+           <param name="topic_name">topic_node1</param>
+
+       </device>
+       <device xmlns:xi="http://www.w3.org/2001/XInclude"  name="publisher1" type="ros2PublishTest">
+           <param name="node_name">node4</param>
+           <param name="topic_name">topic_node2</param>
+
+       </device>
+       
+       
+   </devices>
+</robot>
+
