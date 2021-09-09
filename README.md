@@ -5,6 +5,8 @@ This is a work in progress.
 
 This repository contains the YARP devices and utilities for ROS2.
 
+Milestones of this repository and progress https://github.com/hsp-iit/research-development/issues/59
+
 ### Build with ROS msgs compiled in separate colcon workspace
 
 ~~~bash
