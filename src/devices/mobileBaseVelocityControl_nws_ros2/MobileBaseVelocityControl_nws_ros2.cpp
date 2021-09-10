@@ -30,16 +30,20 @@ namespace {
 
 
 
-Ros2InitMobVel::Ros2InitMobVel()
+
+
+
+MinimalSubscriberMobileVelocity::MinimalSubscriberMobileVelocity(std::string name, MobileBaseVelocityControl_nws_ros2 *subscription, std::string topic)
+: Node(name)
 {
-    rclcpp::init(/*argc*/ 0, /*argv*/ nullptr);
-    node = std::make_shared<rclcpp::Node>("yarprobotinterface_node");
+    m_ros2_subscriber = this->create_subscription<geometry_msgs::msg::Twist>(
+        topic, 10, std::bind(&MinimalSubscriberMobileVelocity::topic_callback, this, _1));
+    m_subscription = subscription;
 }
 
-Ros2InitMobVel& Ros2InitMobVel::get()
+void MinimalSubscriberMobileVelocity::topic_callback(const geometry_msgs::msg::Twist::SharedPtr msg)
 {
-    static Ros2InitMobVel instance;
-    return instance;
+    m_subscription->twist_callback(msg);
 }
 
 
@@ -54,26 +58,21 @@ bool MobileBaseVelocityControl_nws_ros2::open(yarp::os::Searchable& config)
     {
         m_ros2_topic_name = config.find("topic_name").asString();
     }
-    m_ros2_subscriber = Ros2InitMobVel::get()
-                            .node->create_subscription<geometry_msgs::msg::Twist>(m_ros2_topic_name,
-                                                                                10,
-                                                                                std::bind(&MobileBaseVelocityControl_nws_ros2::twist_callback, this, _1));
 
-    if (!m_ros2_subscriber)
-    {
-        yCError(MOBVEL_NWS_ROS2) << " opening " << m_ros2_topic_name << " Topic, check your ROS2 network configuration\n";
-        return false;
-    }
+    start();
 
     return true;
 }
 
 void MobileBaseVelocityControl_nws_ros2::twist_callback(const geometry_msgs::msg::Twist::SharedPtr msg)
 {
-    this->m_iNavVel->applyVelocityCommand(msg->linear.x,
-                                          msg->linear.y,
-                                          msg->angular.z * 180 / M_PI);
-
+    if (this->m_iNavVel != nullptr) {
+        this->m_iNavVel->applyVelocityCommand(msg->linear.x,
+                                              msg->linear.y,
+                                              msg->angular.z * 180 / M_PI);
+    } else {
+        yCError(MOBVEL_NWS_ROS2) << "no INavigation2DVelocityActions device attached present";
+    }
 }
 
 bool MobileBaseVelocityControl_nws_ros2::detach()
@@ -109,5 +108,10 @@ bool MobileBaseVelocityControl_nws_ros2::close()
 void MobileBaseVelocityControl_nws_ros2::run()
 {
     yCInfo(MOBVEL_NWS_ROS2, "starting");
-    rclcpp::spin(Ros2InitMobVel::get().node);
+    if(!rclcpp::ok())
+    {
+        rclcpp::init(/*argc*/ 0, /*argv*/ nullptr);
+    }
+    rclcpp::spin(std::make_shared<MinimalSubscriberMobileVelocity>(m_ros2_node_name, this, m_ros2_topic_name));
+    rclcpp::shutdown();
 }

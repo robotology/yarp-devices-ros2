@@ -36,15 +36,6 @@
   * | topic_name     |     -          | string  | -              | /velocity_input                | No           | Full name of the opened ros2 topic                                 |       |
   */
 
- class Ros2InitMobVel
- {
- public:
-     Ros2InitMobVel();
-
-     std::shared_ptr<rclcpp::Node> node;
-
-     static Ros2InitMobVel& get();
- };
 
 class MobileBaseVelocityControl_nws_ros2 :
     public yarp::dev::DeviceDriver,
@@ -65,13 +56,26 @@ public:
     /* DeviceDriver methods */
     bool open(yarp::os::Searchable& config) override;
     bool close() override;
+    void twist_callback(const geometry_msgs::msg::Twist::SharedPtr msg);
 
 private:
     bool detach() override;
     bool attach(yarp::dev::PolyDriver* driver) override;
     void run() override;
-    void twist_callback(const geometry_msgs::msg::Twist::SharedPtr msg);
 
 };
 
 #endif // YARP_DEV_MOBILEBASEVELOCITYCONTROL_NWS_ROS2
+
+class MinimalSubscriberMobileVelocity : public rclcpp::Node
+{
+public:
+    MinimalSubscriberMobileVelocity(std::string name, MobileBaseVelocityControl_nws_ros2 *subscription, std::string topic);
+
+
+private:
+    void topic_callback(const geometry_msgs::msg::Twist::SharedPtr msg);
+    MobileBaseVelocityControl_nws_ros2 *m_subscription;
+    rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr m_ros2_subscriber;
+};
+
