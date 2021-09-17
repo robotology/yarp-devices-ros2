@@ -27,7 +27,7 @@ using namespace yarp::dev;
 using namespace yarp::sig;
 
 namespace {
-YARP_LOG_COMPONENT(CONTROLBOARD, "yarp.ros2.controlBoard_nws_ros2", yarp::os::Log::TraceType);
+YARP_LOG_COMPONENT(CONTROLBOARD_ROS2, "yarp.ros2.controlBoard_nws_ros2", yarp::os::Log::TraceType);
 
 /** convert degrees to radiants for ROS messages */
 inline double convertDegreesToRadians(double degrees)
@@ -35,19 +35,6 @@ inline double convertDegreesToRadians(double degrees)
     return degrees / 180.0 * M_PI;
 }
 } // namespace
-
-
-Ros2Init::Ros2Init()
-{
-    rclcpp::init(/*argc*/ 0, /*argv*/ nullptr);
-    node = std::make_shared<rclcpp::Node>("yarprobotinterface_node");
-}
-
-Ros2Init& Ros2Init::get()
-{
-    static Ros2Init instance;
-    return instance;
-}
 
 
 ControlBoard_nws_ros2::ControlBoard_nws_ros2() :
@@ -58,7 +45,7 @@ ControlBoard_nws_ros2::ControlBoard_nws_ros2() :
 void ControlBoard_nws_ros2::closePorts()
 {
     // FIXME
-    yCWarning(CONTROLBOARD, "FIXME: closePorts() is not implemented yet!");
+    yCWarning(CONTROLBOARD_ROS2, "FIXME: closePorts() is not implemented yet!");
     YARP_UNUSED(this);
 }
 
@@ -84,16 +71,16 @@ bool ControlBoard_nws_ros2::open(Searchable& config)
     // Check parameter, so if both are present we use the correct one
     if (prop.check("period")) {
         if (!prop.find("period").isFloat64()) {
-            yCError(CONTROLBOARD) << "'period' parameter is not a double value";
+            yCError(CONTROLBOARD_ROS2) << "'period' parameter is not a double value";
             return false;
         }
         period = prop.find("period").asFloat64();
         if (period <= 0) {
-            yCError(CONTROLBOARD) << "'period' parameter is not valid, read value is" << period;
+            yCError(CONTROLBOARD_ROS2) << "'period' parameter is not valid, read value is" << period;
             return false;
         }
     } else {
-        yCDebug(CONTROLBOARD) << "'period' parameter missing, using default thread period = 0.02s";
+        yCDebug(CONTROLBOARD_ROS2) << "'period' parameter missing, using default thread period = 0.02s";
         period = default_period;
     }
 
@@ -102,7 +89,7 @@ bool ControlBoard_nws_ros2::open(Searchable& config)
     if (prop.check("subdevice")) {
         prop.setMonitor(config.getMonitor());
         if (!openAndAttachSubDevice(prop)) {
-            yCError(CONTROLBOARD, "Error while opening subdevice");
+            yCError(CONTROLBOARD_ROS2, "Error while opening subdevice");
             return false;
         }
         subdevice_ready = true;
@@ -110,38 +97,39 @@ bool ControlBoard_nws_ros2::open(Searchable& config)
 
     // check for node_name parameter
     if (!config.check("node_name")) {
-        yCError(CONTROLBOARD) << nodeName << " cannot find node_name parameter";
+        yCError(CONTROLBOARD_ROS2) << " cannot find node_name parameter";
         return false;
     }
-    nodeName = config.find("node_name").asString();
-    if(nodeName[0] != '/'){
-        yCError(CONTROLBOARD) << "node_name must begin with an initial /";
+    m_nodeName = config.find("node_name").asString();
+    if(m_nodeName[0] == '/'){
+        yCError(CONTROLBOARD_ROS2) << "node_name cannot have an initial /";
         return false;
     }
-
-    // FIXME node_name is not currently used.
-    yCWarning(CONTROLBOARD, "FIXME: node_name is not currently used!");
-
     // check for topic_name parameter
     if (!config.check("topic_name")) {
-        yCError(CONTROLBOARD) << nodeName << " cannot find topic_name parameter";
+        yCError(CONTROLBOARD_ROS2) << " cannot find topic_name parameter";
         return false;
     }
     topicName = config.find("topic_name").asString();
     if(topicName[0] != '/'){
-        yCError(CONTROLBOARD) << "topic_name must begin with an initial /";
+        yCError(CONTROLBOARD_ROS2) << "topic_name must begin with an initial /";
         return false;
     }
-    yCInfo(CONTROLBOARD) << "topic_name is " << topicName;
+    yCInfo(CONTROLBOARD_ROS2) << "topic_name is " << topicName;
 
-    m_publisher = Ros2Init::get().node->create_publisher<sensor_msgs::msg::JointState>(topicName, 10);
+    if(!rclcpp::ok())
+    {
+        rclcpp::init(/*argc*/ 0, /*argv*/ nullptr);
+    }
+    m_node = std::make_shared<rclcpp::Node>(m_nodeName);
+    m_publisher = m_node->create_publisher<sensor_msgs::msg::JointState>(topicName, 10);
 
     // In case attach is not deferred and the controlboard already owns a valid device
     // we can start the thread. Otherwise this will happen when attach is called
     if (subdevice_ready) {
         setPeriod(period);
         if (!start()) {
-            yCError(CONTROLBOARD) << "Error starting thread";
+            yCError(CONTROLBOARD_ROS2) << "Error starting thread";
             return false;
         }
     }
@@ -164,11 +152,11 @@ bool ControlBoard_nws_ros2::openAndAttachSubDevice(Property& prop)
     p.put("device", subdevice); // subdevice was already checked before
 
     // if errors occurred during open, quit here.
-    yCDebug(CONTROLBOARD, "opening subdevice");
+    yCDebug(CONTROLBOARD_ROS2, "opening subdevice");
     subDeviceOwned->open(p);
 
     if (!subDeviceOwned->isValid()) {
-        yCError(CONTROLBOARD, "opening subdevice... FAILED");
+        yCError(CONTROLBOARD_ROS2, "opening subdevice... FAILED");
         return false;
     }
 
@@ -178,7 +166,7 @@ bool ControlBoard_nws_ros2::openAndAttachSubDevice(Property& prop)
 
 bool ControlBoard_nws_ros2::setDevice(yarp::dev::DeviceDriver* driver, bool owned)
 {
-    yCAssert(CONTROLBOARD, driver);
+    yCAssert(CONTROLBOARD_ROS2, driver);
 
     // Save the pointer and subDeviceOwned
     subdevice_ptr = driver;
@@ -186,35 +174,35 @@ bool ControlBoard_nws_ros2::setDevice(yarp::dev::DeviceDriver* driver, bool owne
 
     subdevice_ptr->view(iPositionControl);
     if (!iPositionControl) {
-        yCError(CONTROLBOARD, "<%s - %s>: IPositionControl interface was not found in subdevice. Quitting", nodeName.c_str(), topicName.c_str());
+        yCError(CONTROLBOARD_ROS2, "<%s - %s>: IPositionControl interface was not found in subdevice. Quitting",  m_nodeName.c_str(), topicName.c_str());
         return false;
     }
 
     subdevice_ptr->view(iEncodersTimed);
     if (!iEncodersTimed) {
-        yCError(CONTROLBOARD, "<%s - %s>: IEncodersTimed interface was not found in subdevice. Quitting", nodeName.c_str(), topicName.c_str());
+        yCError(CONTROLBOARD_ROS2, "<%s - %s>: IEncodersTimed interface was not found in subdevice. Quitting",  m_nodeName.c_str(), topicName.c_str());
         return false;
     }
 
     subdevice_ptr->view(iTorqueControl);
     if (!iTorqueControl) {
-        yCWarning(CONTROLBOARD, "<%s - %s>: ITorqueControl interface was not found in subdevice.", nodeName.c_str(), topicName.c_str());
+        yCWarning(CONTROLBOARD_ROS2, "<%s - %s>: ITorqueControl interface was not found in subdevice.",  m_nodeName.c_str(), topicName.c_str());
     }
 
     subdevice_ptr->view(iAxisInfo);
     if (!iAxisInfo) {
-        yCError(CONTROLBOARD, "<%s - %s>: IAxisInfo interface was not found in subdevice. Quitting", nodeName.c_str(), topicName.c_str());
+        yCError(CONTROLBOARD_ROS2, "<%s - %s>: IAxisInfo interface was not found in subdevice. Quitting",  m_nodeName.c_str(), topicName.c_str());
         return false;
     }
 
     // Get the number of controlled joints
     int tmp_axes;
     if (!iPositionControl->getAxes(&tmp_axes)) {
-        yCError(CONTROLBOARD, "<%s - %s>: Failed to get axes number for subdevice ", nodeName.c_str(), topicName.c_str());
+        yCError(CONTROLBOARD_ROS2, "<%s - %s>: Failed to get axes number for subdevice ",  m_nodeName.c_str(), topicName.c_str());
         return false;
     }
     if (tmp_axes <= 0) {
-        yCError(CONTROLBOARD, "<%s - %s>: attached device has an invalid number of joints (%d)", nodeName.c_str(), topicName.c_str(), tmp_axes);
+        yCError(CONTROLBOARD_ROS2, "<%s - %s>: attached device has an invalid number of joints (%d)",  m_nodeName.c_str(), topicName.c_str(), tmp_axes);
         return false;
     }
     subdevice_joints = static_cast<size_t>(tmp_axes);
@@ -236,7 +224,7 @@ void ControlBoard_nws_ros2::closeDevice()
 {
     // If the subdevice is owned, close and delete the device
     if (subdevice_owned) {
-        yCAssert(CONTROLBOARD, subdevice_ptr);
+        yCAssert(CONTROLBOARD_ROS2, subdevice_ptr);
         subdevice_ptr->close();
         delete subdevice_ptr;
     }
@@ -267,7 +255,7 @@ bool ControlBoard_nws_ros2::attach(yarp::dev::PolyDriver* poly)
 
     setPeriod(period);
     if (!start()) {
-        yCError(CONTROLBOARD) << "Error starting thread";
+        yCError(CONTROLBOARD_ROS2) << "Error starting thread";
         return false;
     }
 
@@ -296,20 +284,20 @@ bool ControlBoard_nws_ros2::updateAxisName()
     // IMPORTANT!! This function has to be called BEFORE the thread starts,
     // the name has to be correct right from the first message!!
 
-    yCAssert(CONTROLBOARD, iAxisInfo);
+    yCAssert(CONTROLBOARD_ROS2, iAxisInfo);
 
     std::vector<std::string> tmpVect;
     for (size_t i = 0; i < subdevice_joints; i++) {
         std::string tmp;
         bool ret = iAxisInfo->getAxisName(i, tmp);
         if (!ret) {
-            yCError(CONTROLBOARD, "Joint name for axis %zu not found!", i);
+            yCError(CONTROLBOARD_ROS2, "Joint name for axis %zu not found!", i);
             return false;
         }
         tmpVect.emplace_back(tmp);
     }
 
-    yCAssert(CONTROLBOARD, tmpVect.size() == subdevice_joints);
+    yCAssert(CONTROLBOARD_ROS2, tmpVect.size() == subdevice_joints);
 
     jointNames = tmpVect;
 
@@ -318,8 +306,8 @@ bool ControlBoard_nws_ros2::updateAxisName()
 
 void ControlBoard_nws_ros2::run()
 {
-    yCAssert(CONTROLBOARD, iEncodersTimed);
-    yCAssert(CONTROLBOARD, iAxisInfo);
+    yCAssert(CONTROLBOARD_ROS2, iEncodersTimed);
+    yCAssert(CONTROLBOARD_ROS2, iAxisInfo);
 
     bool positionsOk = iEncodersTimed->getEncodersTimed(ros_struct.position.data(), times.data());
     YARP_UNUSED(positionsOk);
@@ -348,7 +336,7 @@ void ControlBoard_nws_ros2::run()
 
     ros_struct.name = jointNames;
 
-    ros_struct.header.stamp = Ros2Init::get().node->get_clock()->now();    //@@@@@@@@@@@ FIXME: averageTime.getTime();
+    ros_struct.header.stamp = m_node->get_clock()->now();    //@@@@@@@@@@@ FIXME: averageTime.getTime();
 //     ros_struct.header.frame_id = m_frame_id; // FIXME
 
 
