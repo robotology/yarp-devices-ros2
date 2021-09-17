@@ -27,15 +27,6 @@
 #include <sensor_msgs/msg/image.hpp>
 #include <sensor_msgs/msg/camera_info.hpp>
 
-class Ros2Init
-{
-public:
-    Ros2Init();
-
-    std::shared_ptr<rclcpp::Node> node;
-
-    static Ros2Init& get();
-};
 
 class FrameGrabber_nws_ros2 :
         public yarp::dev::DeviceDriver,
@@ -47,10 +38,9 @@ private:
     typedef rclcpp::Publisher<sensor_msgs::msg::Image> ImageTopicType;
     typedef rclcpp::Publisher<sensor_msgs::msg::CameraInfo> CameraInfoTopicType;
 
-    yarp::os::Node* node {nullptr};
     ImageTopicType::SharedPtr publisher_image;
     CameraInfoTopicType::SharedPtr publisher_cameraInfo;
-
+    rclcpp::Node::SharedPtr m_node;
     // Subdevice
     yarp::dev::PolyDriver* subdevice {nullptr};
     bool isSubdeviceOwned {false};
@@ -67,6 +57,7 @@ private:
     bool m_active {false};
     yarp::os::Stamp m_stamp;
     std::string m_frameId;
+    std::string m_nodeName;
 
     // Options
     static constexpr double s_default_period = 0.03; // seconds
