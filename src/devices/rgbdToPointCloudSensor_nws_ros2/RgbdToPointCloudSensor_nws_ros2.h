@@ -72,16 +72,6 @@ const std::string pointCloudTopicName_param = "topic_name";
  * node_name /<robotName>/RGBDToPointCloudSensorNode
  * \endcode
  */
-class Ros2Init
-{
-public:
-    Ros2Init();
-
-    std::shared_ptr<rclcpp::Node> node;
-
-    static Ros2Init& get();
-};
-
 
 class RgbdToPointCloudSensor_nws_ros2 :
         public yarp::dev::DeviceDriver,
@@ -94,6 +84,7 @@ private:
     typedef yarp::sig::ImageOf<yarp::sig::PixelFloat> DepthImage;
     typedef unsigned int UInt;
     rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr rosPublisher_pointCloud2;
+    rclcpp::Node::SharedPtr m_node;
 
     enum SensorType
     {

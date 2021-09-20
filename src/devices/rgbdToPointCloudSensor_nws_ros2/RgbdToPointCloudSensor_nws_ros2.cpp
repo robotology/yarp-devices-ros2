@@ -26,20 +26,6 @@ using namespace yarp::os;
 using namespace RGBDToPointCloudRos2Impl;
 YARP_LOG_COMPONENT(RGBDTOPOINTCLOUDSENSOR_NWS_ROS2, "yarp.ros2.RgbdToPointCloudSensor_nws_ros2", yarp::os::Log::TraceType);
 
-
-Ros2Init::Ros2Init()
-{
-    rclcpp::init(/*argc*/ 0, /*argv*/ nullptr);
-    node = std::make_shared<rclcpp::Node>("yarprobotinterface_node");
-}
-
-Ros2Init& Ros2Init::get()
-{
-    static Ros2Init instance;
-    return instance;
-}
-
-
 RgbdToPointCloudSensor_nws_ros2::RgbdToPointCloudSensor_nws_ros2() :
         yarp::os::PeriodicThread(DEFAULT_THREAD_PERIOD)
 {
@@ -112,7 +98,13 @@ bool RgbdToPointCloudSensor_nws_ros2::fromConfig(yarp::os::Searchable &config)
 
 bool RgbdToPointCloudSensor_nws_ros2::initialize_ROS2(yarp::os::Searchable &params)
 {
-    rosPublisher_pointCloud2 = Ros2Init::get().node->create_publisher<sensor_msgs::msg::PointCloud2>(pointCloudTopicName, 10);
+
+    if(!rclcpp::ok())
+    {
+        rclcpp::init(/*argc*/ 0, /*argv*/ nullptr);
+    }
+    m_node = std::make_shared<rclcpp::Node>(nodeName);
+    rosPublisher_pointCloud2 = m_node->create_publisher<sensor_msgs::msg::PointCloud2>(pointCloudTopicName, 10);
     return true;
 }
 
