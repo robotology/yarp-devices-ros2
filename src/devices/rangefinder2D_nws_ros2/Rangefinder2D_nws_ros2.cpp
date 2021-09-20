@@ -15,7 +15,9 @@
 #include <yarp/os/LogComponent.h>
 #include <yarp/os/LogStream.h>
 
+
 #include <cmath>
+#include <iostream>
 
 using namespace std::chrono_literals;
 using namespace yarp::os;
@@ -23,19 +25,6 @@ using namespace yarp::dev;
 
 
 YARP_LOG_COMPONENT(RANGEFINDER2D_NWS_ROS2, "yarp.ros2.rangefinder2D_nws_ros2", yarp::os::Log::TraceType);
-
-
-Ros2Init::Ros2Init()
-{
-    rclcpp::init(/*argc*/ 0, /*argv*/ nullptr);
-    node = std::make_shared<rclcpp::Node>("yarprobotinterface_node");
-}
-
-Ros2Init& Ros2Init::get()
-{
-    static Ros2Init instance;
-    return instance;
-}
 
 
 Rangefinder2D_nws_ros2::Rangefinder2D_nws_ros2() :
@@ -108,7 +97,7 @@ void Rangefinder2D_nws_ros2::run()
 
             sensor_msgs::msg::LaserScan rosData;
 
-            rosData.header.stamp = Ros2Init::get().node->get_clock()->now();    //@@@@@@@@@@@ CHECK HERE: simulation time?
+            rosData.header.stamp = m_node->get_clock()->now();    //@@@@@@@@@@@ CHECK HERE: simulation time?
             rosData.header.frame_id = m_frame_id;
             rosData.angle_min = m_minAngle * M_PI / 180.0;
             rosData.angle_max = m_maxAngle * M_PI / 180.0;
@@ -169,12 +158,21 @@ bool Rangefinder2D_nws_ros2::open(yarp::os::Searchable &config)
     //wrapper params
     m_topic    = config.check("topic_name",  yarp::os::Value("laser_topic"), "Name of the ROS2 topic").asString();
     m_frame_id = config.check("frame_id",  yarp::os::Value("laser_frame"), "Name of the frameId").asString();
+    m_node_name = config.check("node_name",  yarp::os::Value("laser_node"), "Name of the node").asString();
     m_period   = config.check("period", yarp::os::Value(0.010), "Period of the thread").asFloat64();
        
     //create the topic
-    yCTrace(RANGEFINDER2D_NWS_ROS2);
+    try {
+        if (!rclcpp::ok()) {
+            rclcpp::init(/*argc*/ 0, /*argv*/ nullptr);
+        }
+        m_node = std::make_shared<rclcpp::Node>(m_node_name);
 
-    m_publisher = Ros2Init::get().node->create_publisher<sensor_msgs::msg::LaserScan>(m_topic, 10);
+        m_publisher = m_node->create_publisher<sensor_msgs::msg::LaserScan>(m_topic, 10);
+    } catch (const std::exception& e) {
+        std::cout << const_cast<char *>(e.what());
+        return false;
+    }
     yCInfo(RANGEFINDER2D_NWS_ROS2, "Opened topic: %s", m_topic.c_str());
         
     //start the publishig thread

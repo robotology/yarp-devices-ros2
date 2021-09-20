@@ -21,17 +21,6 @@
 #include <mutex>
 
 
-class Ros2Init
-{
-public:
-    Ros2Init();
-
-    std::shared_ptr<rclcpp::Node> node;
-
-    static Ros2Init& get();
-};
-
-
 class Rangefinder2D_nws_ros2 :
         public yarp::dev::DeviceDriver,
         public yarp::os::PeriodicThread,
@@ -59,14 +48,17 @@ public:
 private:
     yarp::dev::PolyDriver m_driver;
     yarp::dev::IRangefinder2D *m_iDevice =nullptr;
+    rclcpp::Node::SharedPtr m_node;
     rclcpp::Publisher<sensor_msgs::msg::LaserScan>::SharedPtr m_publisher;
-    std::string m_topic;
     bool m_isDeviceOwned = false;
-    
+
     double m_minAngle, m_maxAngle;
     double m_minDistance, m_maxDistance;
     double m_resolution;
     double m_period;
+
+    std::string m_topic;
+    std::string m_node_name;
     std::string m_frame_id;
 };
 
