@@ -23,18 +23,6 @@
 
 #include <mutex>
 
-class Ros2Init
-{
-public:
-    Ros2Init();
-
-    std::shared_ptr<rclcpp::Node> node;
-
-    static Ros2Init& get();
-};
-
-
-
 
 class RgbdSensor_nws_ros2 :
         public yarp::dev::DeviceDriver,
@@ -79,6 +67,7 @@ private:
         std::string parname;
     };
 
+    rclcpp::Node::SharedPtr m_node;
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr rosPublisher_color;
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr rosPublisher_depth;
     rclcpp::Publisher<sensor_msgs::msg::CameraInfo>::SharedPtr rosPublisher_colorCaminfo;

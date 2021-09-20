@@ -13,6 +13,7 @@
 
 #include <string>
 #include <vector>
+#include <iostream>
 
 #include <sensor_msgs/image_encodings.hpp>
 
@@ -76,19 +77,6 @@ std::string yarp2RosPixelCode(int code)
 } // namespace
 
 
-Ros2Init::Ros2Init()
-{
-    rclcpp::init(/*argc*/ 0, /*argv*/ nullptr);
-    node = std::make_shared<rclcpp::Node>("yarprobotinterface_node");
-}
-
-Ros2Init& Ros2Init::get()
-{
-    static Ros2Init instance;
-    return instance;
-}
-
-
 RgbdSensor_nws_ros2::RgbdSensor_nws_ros2() :
         yarp::os::PeriodicThread(DEFAULT_THREAD_PERIOD)
 {
@@ -136,8 +124,8 @@ bool RgbdSensor_nws_ros2::fromConfig(yarp::os::Searchable &config)
         return false;
     }
     m_node_name = config.find("node_name").asString();
-    if(m_node_name[0] != '/'){
-        yCError(RGBDSENSOR_NWS_ROS2) << "node_name must begin with an initial /";
+    if(m_node_name[0] == '/'){
+        yCError(RGBDSENSOR_NWS_ROS2) << "node_name cannot begin with an initial /";
         return false;
     }
     // FIXME node_name is not currently used.
@@ -199,10 +187,19 @@ bool RgbdSensor_nws_ros2::fromConfig(yarp::os::Searchable &config)
 
 bool RgbdSensor_nws_ros2::initialize_ROS2(yarp::os::Searchable &params)
 {
-    rosPublisher_color = Ros2Init::get().node->create_publisher<sensor_msgs::msg::Image>(m_color_topic_name, 10);
-    rosPublisher_depth = Ros2Init::get().node->create_publisher<sensor_msgs::msg::Image>(m_depth_topic_name, 10);
-    rosPublisher_colorCaminfo = Ros2Init::get().node->create_publisher<sensor_msgs::msg::CameraInfo>(m_color_info_topic_name, 10);
-    rosPublisher_depthCaminfo = Ros2Init::get().node->create_publisher<sensor_msgs::msg::CameraInfo>(m_depth_info_topic_name, 10);
+    try {
+        if (!rclcpp::ok()) {
+            rclcpp::init(/*argc*/ 0, /*argv*/ nullptr);
+        }
+        m_node = std::make_shared<rclcpp::Node>(m_node_name);
+    } catch  (const std::exception& e) {
+        std::cout << const_cast<char *>(e.what());
+        return false;
+    }
+    rosPublisher_color = m_node->create_publisher<sensor_msgs::msg::Image>(m_color_topic_name, 10);
+    rosPublisher_depth = m_node->create_publisher<sensor_msgs::msg::Image>(m_depth_topic_name, 10);
+    rosPublisher_colorCaminfo = m_node->create_publisher<sensor_msgs::msg::CameraInfo>(m_color_info_topic_name, 10);
+    rosPublisher_depthCaminfo = m_node->create_publisher<sensor_msgs::msg::CameraInfo>(m_depth_info_topic_name, 10);
     return true;
 }
 
@@ -397,8 +394,8 @@ bool RgbdSensor_nws_ros2::setCamInfo(sensor_msgs::msg::CameraInfo& cameraInfo,
     }
 
     cameraInfo.header.frame_id      = frame_id;
-//     cameraInfo.header.stamp.sec     = static_cast<int>(stamp.getTime()); // FIXME
-//     cameraInfo.header.stamp.nanosec = static_cast<int>(1000000 * (stamp.getTime() - int(stamp.getTime()))); // FIXME
+    cameraInfo.header.stamp.sec     = static_cast<int>(stamp.getTime()); // FIXME
+    cameraInfo.header.stamp.nanosec = static_cast<int>(1000000 * (stamp.getTime() - int(stamp.getTime()))); // FIXME
     cameraInfo.width                = sensorType == COLOR_SENSOR ? sensor_p->getRgbWidth() : sensor_p->getDepthWidth();
     cameraInfo.height               = sensorType == COLOR_SENSOR ? sensor_p->getRgbHeight() : sensor_p->getDepthHeight();
     cameraInfo.distortion_model     = distModel;
@@ -478,8 +475,8 @@ bool RgbdSensor_nws_ros2::writeData()
         rColorImage.encoding = yarp2RosPixelCode(colorImage.getPixelCode());
         rColorImage.step = colorImage.getRowSize();
         rColorImage.header.frame_id = m_color_frame_id;
-//         rColorImage.header.stamp.sec = static_cast<int>(colorStamp.getTime()); // FIXME
-//         rColorImage.header.stamp.nanosec = static_cast<int>(1000000 * (colorStamp.getTime() - int(colorStamp.getTime()))); // FIXME
+        rColorImage.header.stamp.sec = static_cast<int>(colorStamp.getTime()); // FIXME
+        rColorImage.header.stamp.nanosec = static_cast<int>(1000000 * (colorStamp.getTime() - int(colorStamp.getTime()))); // FIXME
         rColorImage.is_bigendian = 0;
 
         rosPublisher_color->publish(rColorImage);
@@ -505,8 +502,8 @@ bool RgbdSensor_nws_ros2::writeData()
         rDepthImage.encoding = yarp2RosPixelCode(depthImage.getPixelCode());
         rDepthImage.step = depthImage.getRowSize();
         rDepthImage.header.frame_id = m_depth_frame_id;
-//         rDepthImage.header.stamp.sec = static_cast<int>(depthStamp.getTime()); // FIXME
-//         rDepthImage.header.stamp.nanosec = static_cast<int>(1000000 * (depthStamp.getTime() - int(depthStamp.getTime()))); // FIXME
+        rDepthImage.header.stamp.sec = static_cast<int>(depthStamp.getTime()); // FIXME
+        rDepthImage.header.stamp.nanosec = static_cast<int>(1000000 * (depthStamp.getTime() - int(depthStamp.getTime()))); // FIXME
         rDepthImage.is_bigendian = 0;
 
         rosPublisher_depth->publish(rDepthImage);
