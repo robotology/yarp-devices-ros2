@@ -29,20 +29,6 @@ namespace {
 //------------------------------------------------------------------------------------------------------------------------------
 
 
-
-Ros2InitMobVel::Ros2InitMobVel()
-{
-    rclcpp::init(/*argc*/ 0, /*argv*/ nullptr);
-    node = std::make_shared<rclcpp::Node>("yarprobotinterface_node");
-}
-
-Ros2InitMobVel& Ros2InitMobVel::get()
-{
-    static Ros2InitMobVel instance;
-    return instance;
-}
-
-
 bool MobileBaseVelocityControl_nws_ros2::open(yarp::os::Searchable& config)
 {
     if (config.check("node_name"))
@@ -54,8 +40,16 @@ bool MobileBaseVelocityControl_nws_ros2::open(yarp::os::Searchable& config)
     {
         m_ros2_topic_name = config.find("topic_name").asString();
     }
-    m_ros2_subscriber = Ros2InitMobVel::get()
-                            .node->create_subscription<geometry_msgs::msg::Twist>(m_ros2_topic_name,
+    try {
+        if (!rclcpp::ok()) {
+            rclcpp::init(/*argc*/ 0, /*argv*/ nullptr);
+        }
+        m_node = std::make_shared<rclcpp::Node>(m_ros2_node_name);
+    } catch (const std::exception& e) {
+        std::cout << const_cast<char *>(e.what());
+        return false;
+    }
+    m_ros2_subscriber = m_node->create_subscription<geometry_msgs::msg::Twist>(m_ros2_topic_name,
                                                                                 10,
                                                                                 std::bind(&MobileBaseVelocityControl_nws_ros2::twist_callback, this, _1));
 
@@ -109,5 +103,5 @@ bool MobileBaseVelocityControl_nws_ros2::close()
 void MobileBaseVelocityControl_nws_ros2::run()
 {
     yCInfo(MOBVEL_NWS_ROS2, "starting");
-    rclcpp::spin(Ros2InitMobVel::get().node);
+    rclcpp::spin(m_node);
 }

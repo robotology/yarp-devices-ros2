@@ -56,7 +56,7 @@ protected:
     std::string                   m_ros2_node_name = "/mobileBase_VelControl_nws_ros2";
     std::string                   m_ros2_topic_name = "/velocity_input";
     rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr m_ros2_subscriber;
-
+    rclcpp::Node::SharedPtr m_node;
     yarp::dev::Nav2D::INavigation2DVelocityActions* m_iNavVel = nullptr;
 
 public:
