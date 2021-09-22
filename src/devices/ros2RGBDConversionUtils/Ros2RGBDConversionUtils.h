@@ -6,8 +6,8 @@
  * BSD-3-Clause license. See the accompanying LICENSE file for details.
  */
 
-#ifndef ROS2_UTILS_H
-#define ROS2_UTILS_H
+#ifndef ROS2_RGBD_CONVERSION_UTILS_H
+#define ROS2_RGBD_CONVERSION_UTILS_H
 
 #include <iostream>
 #include <cstring>
@@ -30,7 +30,7 @@ typedef yarp::sig::ImageOf<yarp::sig::PixelFloat> DepthImage;
 
 namespace yarp {
     namespace dev {
-        namespace Ros2ConversionUtils {
+        namespace Ros2RGBDConversionUtils {
 
     void convertTimeStampRos2ToYarp(const std_msgs::msg::Header& ros_stamp,
                                     yarp::os::Stamp& yarp_stamp);
@@ -49,8 +49,8 @@ namespace yarp {
     void deepCopyFlexImage(const yarp::sig::FlexImage& src, yarp::sig::FlexImage& dest);
 
     void deepCopyImageOf(const DepthImage& src, DepthImage& dest);
-} // namespace Ros2ConversionUtils
+} // namespace Ros2RGBDConversionUtils
 } // namespace dev 
 } // namespace yarp
 
-#endif //ROS2_UTILS_H
+#endif //ROS2_RGBD_CONVERSION_UTILS_H

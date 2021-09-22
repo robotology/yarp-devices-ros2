@@ -6,41 +6,42 @@
  * BSD-3-Clause license. See the accompanying LICENSE file for details.
  */
 
-#include <cmath>
-#include <algorithm>
-#include <iomanip>
-#include <cstdint>
+#include "Ros2RGBDConversionUtils.h"
 
 #include <yarp/os/LogComponent.h>
 #include <yarp/os/Value.h>
+
 #include <yarp/sig/ImageUtils.h>
 
-#include "Ros2ConversionUtils.h"
+#include <algorithm>
+#include <cmath>
+#include <cstdint>
+#include <iomanip>
 
 using namespace yarp::dev;
 using namespace yarp::sig;
 using namespace yarp::os;
-using namespace yarp::dev::Ros2ConversionUtils;
+using namespace yarp::dev::Ros2RGBDConversionUtils;
 using namespace std;
 
 namespace {
-YARP_LOG_COMPONENT(ROS2_CONVERSION_UTILS, "yarp.device.Ros2ConversionUtils");
+YARP_LOG_COMPONENT(ROS2_RGBD_CONVERSION_UTILS, "yarp.device.Ros2RGBDConversionUtils");
 }
 
 
-void yarp::dev::Ros2ConversionUtils::convertTimeStampRos2ToYarp(const std_msgs::msg::Header& ros_header, yarp::os::Stamp& yarp_stamp)
+void yarp::dev::Ros2RGBDConversionUtils::convertTimeStampRos2ToYarp(const std_msgs::msg::Header& ros_header, yarp::os::Stamp& yarp_stamp)
 {
     yarp_stamp.update(ros_header.stamp.sec + (ros_header.stamp.nanosec / ONE_MILLION));
 }
 
 
-void yarp::dev::Ros2ConversionUtils::convertTimeStampYarpToRos2(const yarp::os::Stamp& yarp_stamp, std_msgs::msg::Header& ros_header)
+void yarp::dev::Ros2RGBDConversionUtils::convertTimeStampYarpToRos2(const yarp::os::Stamp& yarp_stamp, std_msgs::msg::Header& ros_header)
 {
     ros_header.stamp.sec = int(yarp_stamp.getTime());
     ros_header.stamp.nanosec = int(ONE_MILLION * (yarp_stamp.getTime() - int(yarp_stamp.getTime())));
 }
 
-void yarp::dev::Ros2ConversionUtils::convertRGBImageRos2ToYarpFlexImage(sensor_msgs::msg::Image::SharedPtr ros_image_src,
+void yarp::dev::Ros2RGBDConversionUtils::convertRGBImageRos2ToYarpFlexImage(sensor_msgs::msg::Image::SharedPtr ros_image_src,
                                                                         yarp::sig::FlexImage& dest)
 {
     int yarp_pixcode = yarp::dev::ROS2PixelCode::Ros2ToYarpPixelCode(ros_image_src->encoding);
@@ -59,13 +60,13 @@ void yarp::dev::Ros2ConversionUtils::convertRGBImageRos2ToYarpFlexImage(sensor_m
     }
     else
     {
-        yCError(ROS2_CONVERSION_UTILS) << "Unsupported rgb format:" << ros_image_src->encoding;
+        yCError(ROS2_RGBD_CONVERSION_UTILS) << "Unsupported rgb format:" << ros_image_src->encoding;
     }
 
 }
 
 
-void yarp::dev::Ros2ConversionUtils::convertDepthImageRos2ToYarpImageOf(sensor_msgs::msg::Image::SharedPtr ros_image_src,
+void yarp::dev::Ros2RGBDConversionUtils::convertDepthImageRos2ToYarpImageOf(sensor_msgs::msg::Image::SharedPtr ros_image_src,
                                                                         yarp::sig::ImageOf<yarp::sig::PixelFloat>& dest)
 {
     if (ros_image_src->encoding == TYPE_16UC1)
@@ -93,12 +94,12 @@ void yarp::dev::Ros2ConversionUtils::convertDepthImageRos2ToYarpImageOf(sensor_m
     }
     else
     {
-        yCError(ROS2_CONVERSION_UTILS) << "Unsupported depth format:" << ros_image_src->encoding;
+        yCError(ROS2_RGBD_CONVERSION_UTILS) << "Unsupported depth format:" << ros_image_src->encoding;
     }
 }
 
 
-void yarp::dev::Ros2ConversionUtils::updateStamp(   sensor_msgs::msg::CameraInfo::SharedPtr ros_camera_info_src, 
+void yarp::dev::Ros2RGBDConversionUtils::updateStamp(   sensor_msgs::msg::CameraInfo::SharedPtr ros_camera_info_src, 
                                                     std::string& frame_id_dest,
                                                     yarp::os::Stamp& yarp_stamp)
 {
@@ -107,7 +108,7 @@ void yarp::dev::Ros2ConversionUtils::updateStamp(   sensor_msgs::msg::CameraInfo
     convertTimeStampRos2ToYarp(ros_camera_info_src->header, yarp_stamp);
 }
 
-void yarp::dev::Ros2ConversionUtils::deepCopyFlexImage(const yarp::sig::FlexImage& src, yarp::sig::FlexImage& dest)
+void yarp::dev::Ros2RGBDConversionUtils::deepCopyFlexImage(const yarp::sig::FlexImage& src, yarp::sig::FlexImage& dest)
 {
     dest.setPixelCode(src.getPixelCode());
     dest.setQuantum(src.getQuantum());
@@ -118,7 +119,7 @@ void yarp::dev::Ros2ConversionUtils::deepCopyFlexImage(const yarp::sig::FlexImag
     }
 }
 
-void yarp::dev::Ros2ConversionUtils::deepCopyImageOf(const DepthImage& src, DepthImage& dest)
+void yarp::dev::Ros2RGBDConversionUtils::deepCopyImageOf(const DepthImage& src, DepthImage& dest)
 {
     dest.setQuantum(src.getQuantum());
     dest.resize(src.width(), src.height());
