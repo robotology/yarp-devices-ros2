@@ -19,6 +19,9 @@ target_sources(yarp_rgbdSensor_nws_ros2
     RgbdSensor_nws_ros2.cpp
     RgbdSensor_nws_ros2.h
 )
+target_sources(yarp_rgbdSensor_nws_ros2 PRIVATE $<TARGET_OBJECTS:Ros2Utils>)
+
+target_include_directories(yarp_rgbdSensor_nws_ros2 PRIVATE $<TARGET_PROPERTY:Ros2Utils,INTERFACE_INCLUDE_DIRECTORIES>)
 
 target_link_libraries(yarp_rgbdSensor_nws_ros2
   PRIVATE

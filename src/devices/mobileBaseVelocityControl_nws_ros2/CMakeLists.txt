@@ -17,7 +17,9 @@ if(NOT SKIP_mobileBaseVelocityControl_nws_ros2)
       MobileBaseVelocityControl_nws_ros2.cpp
       MobileBaseVelocityControl_nws_ros2.h
   )
+  target_sources(yarp_mobileBaseVelocityControl_nws_ros2 PRIVATE $<TARGET_OBJECTS:Ros2Utils>)
 
+  target_include_directories(yarp_mobileBaseVelocityControl_nws_ros2 PRIVATE $<TARGET_PROPERTY:Ros2Utils,INTERFACE_INCLUDE_DIRECTORIES>)
   target_link_libraries(yarp_mobileBaseVelocityControl_nws_ros2
     PRIVATE
       YARP::YARP_os
