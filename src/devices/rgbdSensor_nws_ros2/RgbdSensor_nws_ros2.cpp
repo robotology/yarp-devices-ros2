@@ -14,6 +14,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <Ros2Utils.h>
 
 #include <sensor_msgs/image_encodings.hpp>
 
@@ -187,15 +188,7 @@ bool RgbdSensor_nws_ros2::fromConfig(yarp::os::Searchable &config)
 
 bool RgbdSensor_nws_ros2::initialize_ROS2(yarp::os::Searchable &params)
 {
-    try {
-        if (!rclcpp::ok()) {
-            rclcpp::init(/*argc*/ 0, /*argv*/ nullptr);
-        }
-        m_node = std::make_shared<rclcpp::Node>(m_node_name);
-    } catch  (const std::exception& e) {
-        std::cout << const_cast<char *>(e.what());
-        return false;
-    }
+    m_node = NodeCreator::createNode(m_node_name);
     rosPublisher_color = m_node->create_publisher<sensor_msgs::msg::Image>(m_color_topic_name, 10);
     rosPublisher_depth = m_node->create_publisher<sensor_msgs::msg::Image>(m_depth_topic_name, 10);
     rosPublisher_colorCaminfo = m_node->create_publisher<sensor_msgs::msg::CameraInfo>(m_color_info_topic_name, 10);

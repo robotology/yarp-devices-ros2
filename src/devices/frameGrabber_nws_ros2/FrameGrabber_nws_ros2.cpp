@@ -14,6 +14,7 @@
 #include <yarp/dev/PolyDriver.h>
 
 #include <sensor_msgs/image_encodings.hpp>
+#include <Ros2Utils.h>
 
 namespace {
 YARP_LOG_COMPONENT(FRAMEGRABBER_NWS_ROS2, "yarp.device.frameGrabber_nws_ros2")
@@ -137,11 +138,7 @@ bool FrameGrabber_nws_ros2::open(yarp::os::Searchable& config)
         yCError(FRAMEGRABBER_NWS_ROS2) << "Missing '/' in topic_name parameter";
         return false;
     }
-    if(!rclcpp::ok())
-    {
-        rclcpp::init(/*argc*/ 0, /*argv*/ nullptr);
-    }
-    m_node = std::make_shared<rclcpp::Node>(m_nodeName);
+    m_node = NodeCreator::createNode(m_nodeName);
     publisher_image = m_node->create_publisher<sensor_msgs::msg::Image>(topicName, 10);
 
 

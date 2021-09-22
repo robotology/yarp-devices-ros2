@@ -26,6 +26,7 @@ if(NOT SKIP_mobileBaseVelocityControl_nws_ros2)
       YARP::YARP_math
       rclcpp::rclcpp
       geometry_msgs::geometry_msgs__rosidl_typesupport_cpp
+      Ros2Utils
   )
   list(APPEND YARP_${YARP_PLUGIN_MASTER}_PRIVATE_DEPS
     YARP_os
@@ -34,6 +35,7 @@ if(NOT SKIP_mobileBaseVelocityControl_nws_ros2)
     YARP_math
     rclcpp::rclcpp
     geometry_msgs::geometry_msgs__rosidl_typesupport_cpp
+    Ros2Utils
   )
 
   yarp_install(

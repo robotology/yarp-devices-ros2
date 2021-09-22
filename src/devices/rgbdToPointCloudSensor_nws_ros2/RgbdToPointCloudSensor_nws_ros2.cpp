@@ -17,6 +17,7 @@
 #include <sensor_msgs/image_encodings.hpp>
 #include <string>
 #include <vector>
+#include <Ros2Utils.h>
 
 using namespace std::chrono_literals;
 using namespace std;
@@ -99,11 +100,7 @@ bool RgbdToPointCloudSensor_nws_ros2::fromConfig(yarp::os::Searchable &config)
 bool RgbdToPointCloudSensor_nws_ros2::initialize_ROS2(yarp::os::Searchable &params)
 {
 
-    if(!rclcpp::ok())
-    {
-        rclcpp::init(/*argc*/ 0, /*argv*/ nullptr);
-    }
-    m_node = std::make_shared<rclcpp::Node>(nodeName);
+    m_node = NodeCreator::createNode(nodeName);
     rosPublisher_pointCloud2 = m_node->create_publisher<sensor_msgs::msg::PointCloud2>(pointCloudTopicName, 10);
     return true;
 }

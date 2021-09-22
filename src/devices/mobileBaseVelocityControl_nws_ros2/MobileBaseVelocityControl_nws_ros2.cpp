@@ -11,6 +11,7 @@
 #include <yarp/os/LogStream.h>
 
 #include <yarp/dev/INavigation2D.h>
+#include <Ros2Utils.h>
 
 #include <cmath>
 #include <mutex>
@@ -40,15 +41,7 @@ bool MobileBaseVelocityControl_nws_ros2::open(yarp::os::Searchable& config)
     {
         m_ros2_topic_name = config.find("topic_name").asString();
     }
-    try {
-        if (!rclcpp::ok()) {
-            rclcpp::init(/*argc*/ 0, /*argv*/ nullptr);
-        }
-        m_node = std::make_shared<rclcpp::Node>(m_ros2_node_name);
-    } catch (const std::exception& e) {
-        std::cout << const_cast<char *>(e.what());
-        return false;
-    }
+    m_node = NodeCreator::createNode(m_ros2_node_name);
     m_ros2_subscriber = m_node->create_subscription<geometry_msgs::msg::Twist>(m_ros2_topic_name,
                                                                                 10,
                                                                                 std::bind(&MobileBaseVelocityControl_nws_ros2::twist_callback, this, _1));

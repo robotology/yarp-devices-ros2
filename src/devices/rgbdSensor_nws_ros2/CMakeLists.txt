@@ -27,6 +27,7 @@ target_link_libraries(yarp_rgbdSensor_nws_ros2
     YARP::YARP_dev
     rclcpp::rclcpp
     sensor_msgs::sensor_msgs__rosidl_typesupport_cpp
+    Ros2Utils
 )
 
 yarp_install(

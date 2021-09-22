@@ -18,6 +18,8 @@
 
 #include <cmath>
 #include <iostream>
+#include <Ros2Utils.h>
+
 
 using namespace std::chrono_literals;
 using namespace yarp::os;
@@ -162,17 +164,9 @@ bool Rangefinder2D_nws_ros2::open(yarp::os::Searchable &config)
     m_period   = config.check("period", yarp::os::Value(0.010), "Period of the thread").asFloat64();
        
     //create the topic
-    try {
-        if (!rclcpp::ok()) {
-            rclcpp::init(/*argc*/ 0, /*argv*/ nullptr);
-        }
-        m_node = std::make_shared<rclcpp::Node>(m_node_name);
 
-        m_publisher = m_node->create_publisher<sensor_msgs::msg::LaserScan>(m_topic, 10);
-    } catch (const std::exception& e) {
-        std::cout << const_cast<char *>(e.what());
-        return false;
-    }
+    m_node = NodeCreator::createNode(m_node_name);
+    m_publisher = m_node->create_publisher<sensor_msgs::msg::LaserScan>(m_topic, 10);
     yCInfo(RANGEFINDER2D_NWS_ROS2, "Opened topic: %s", m_topic.c_str());
         
     //start the publishig thread

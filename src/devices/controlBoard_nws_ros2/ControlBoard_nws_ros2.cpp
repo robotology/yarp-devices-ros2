@@ -20,6 +20,7 @@
 
 #include <yarp/os/LogComponent.h>
 #include <yarp/os/LogStream.h>
+#include <Ros2Utils.h>
 
 using namespace std::chrono_literals;
 using namespace yarp::os;
@@ -117,11 +118,7 @@ bool ControlBoard_nws_ros2::open(Searchable& config)
     }
     yCInfo(CONTROLBOARD_ROS2) << "topic_name is " << topicName;
 
-    if(!rclcpp::ok())
-    {
-        rclcpp::init(/*argc*/ 0, /*argv*/ nullptr);
-    }
-    m_node = std::make_shared<rclcpp::Node>(m_nodeName);
+    m_node = NodeCreator::createNode(m_nodeName);
     m_publisher = m_node->create_publisher<sensor_msgs::msg::JointState>(topicName, 10);
 
     // In case attach is not deferred and the controlboard already owns a valid device

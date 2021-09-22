@@ -28,6 +28,7 @@ target_link_libraries(yarp_rangefinder2D_nws_ros2
     rclcpp::rclcpp
     std_msgs::std_msgs__rosidl_typesupport_cpp
     sensor_msgs::sensor_msgs__rosidl_typesupport_cpp
+    Ros2Utils
 )
 
 yarp_install(
