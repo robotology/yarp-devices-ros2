@@ -6,9 +6,15 @@
  * BSD-3-Clause license. See the accompanying LICENSE file for details.
  */
 
+#ifndef _USE_MATH_DEFINES
+#define _USE_MATH_DEFINES
+#endif
+
+#include "Map2D_nws_ros2.h"
+
 #include <chrono>
 #include <vector>
-#include "Map2D_nws_ros2.h"
+#include <cmath>
 #include <yarp/dev/IMap2D.h>
 #include <yarp/dev/INavigation2D.h>
 #include <yarp/dev/GenericVocabs.h>
@@ -19,7 +25,6 @@
 #include <mutex>
 #include <cstdlib>
 #include <fstream>
-#include <yarp/rosmsg/impl/yarpRosHelper.h>
 
 using namespace yarp::sig;
 using namespace yarp::dev;
@@ -243,7 +248,7 @@ bool Map2D_nws_ros2::updateVizMarkers()
 
         rpy[0] = 0; //x
         rpy[1] = 0; //y
-        rpy[2] = loc.theta / 180 * PI; //z
+        rpy[2] = loc.theta / 180 * M_PI; //z
         yarp::sig::Matrix m = yarp::math::rpy2dcm(rpy);
         q.fromRotationMatrix(m);
 
@@ -329,7 +334,7 @@ void Map2D_nws_ros2::getMapByNameCallback(const std::shared_ptr<rmw_request_id_t
     mapToGo.info.height = theMap.height();
     mapToGo.info.width = theMap.width();
 
-    double DEG2RAD = PI/180.0;
+    double DEG2RAD = M_PI/180.0;
     double tmp=0;
     theMap.getResolution(tmp);
     mapToGo.info.resolution=tmp;
