@@ -10,7 +10,7 @@
 #define _USE_MATH_DEFINES
 #endif
 
-#include "localization2D_nws_ros2.h"
+#include "Localization2D_nws_ros2.h"
 
 #include <yarp/os/LogComponent.h>
 #include <yarp/os/LogStream.h>
@@ -44,18 +44,11 @@ Localization2D_nws_ros2::Localization2D_nws_ros2() :
 {
 }
 
-bool Localization2D_nws_ros2::attachAll(const PolyDriverList &device2attach)
+bool Localization2D_nws_ros2::attach(yarp::dev::PolyDriver* poly)
 {
-    if (device2attach.size() != 1)
+    if (poly->isValid())
     {
-        yCError(LOCALIZATION2D_NWS_ROS2, "Cannot attach more than one device");
-        return false;
-    }
-
-    yarp::dev::PolyDriver * Idevice2attach = device2attach[0]->poly;
-    if (Idevice2attach->isValid())
-    {
-        Idevice2attach->view(m_iLoc);
+        poly->view(m_iLoc);
     }
 
     //attach the hardware device
@@ -64,33 +57,19 @@ bool Localization2D_nws_ros2::attachAll(const PolyDriverList &device2attach)
         yCError(LOCALIZATION2D_NWS_ROS2, "Subdevice passed to attach method is invalid");
         return false;
     }
-    attach(m_iLoc);
     
    return true;
 }
 
-bool Localization2D_nws_ros2::detachAll()
+bool Localization2D_nws_ros2::detach()
 {
     if (PeriodicThread::isRunning())
     {
         PeriodicThread::stop();
     }
     m_iLoc = nullptr;
+
     return true;
-}
-
-void Localization2D_nws_ros2::attach(yarp::dev::Nav2D::ILocalization2D *s)
-{
-    m_iLoc = s;
-}
-
-void Localization2D_nws_ros2::detach()
-{
-    if (PeriodicThread::isRunning())
-    {
-        PeriodicThread::stop();
-    }
-    m_iLoc = nullptr;
 }
 
 void Localization2D_nws_ros2::run()
@@ -105,7 +84,7 @@ void Localization2D_nws_ros2::run()
     if (m_iLoc!=nullptr)
     {
         bool ret = m_iLoc->getLocalizationStatus(m_current_status);
-        if (ret == false)
+        if (!ret)
         {
             yCError(LOCALIZATION2D_NWS_ROS2) << "getLocalizationStatus() failed";
         }
@@ -113,7 +92,7 @@ void Localization2D_nws_ros2::run()
         if (m_current_status == LocalizationStatusEnum::localization_status_localized_ok)
         {
             bool ret2 = m_iLoc->getCurrentPosition(m_current_position);
-            if (ret2 == false)
+            if (!ret2)
             {
                 yCError(LOCALIZATION2D_NWS_ROS2) << "getCurrentPosition() failed";
             }
@@ -122,7 +101,7 @@ void Localization2D_nws_ros2::run()
                 m_loc_stamp.update();
             }
             bool ret3 = m_iLoc->getEstimatedOdometry(m_current_odometry);
-            if (ret3 == false)
+            if (!ret3)
             {
                 //yCError(LOCALIZATION2D_NWS_ROS2) << "getEstimatedOdometry() failed";
             }
@@ -146,7 +125,6 @@ bool Localization2D_nws_ros2::open(yarp::os::Searchable &config)
     if(config.check("subdevice"))
     {
         Property       p;
-        PolyDriverList driverlist;
         p.fromString(config.toString(), false);
         p.put("device", config.find("subdevice").asString());
 
@@ -156,8 +134,7 @@ bool Localization2D_nws_ros2::open(yarp::os::Searchable &config)
             return false;
         }
 
-        driverlist.push(&m_driver, "1");
-        if(!attachAll(driverlist))
+        if(!attach(&m_driver))
         {
             yCError(LOCALIZATION2D_NWS_ROS2) << "Failed to open subdevice.. check params";
             return false;

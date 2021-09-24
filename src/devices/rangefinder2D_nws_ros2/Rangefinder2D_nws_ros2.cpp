@@ -43,18 +43,11 @@ Rangefinder2D_nws_ros2::Rangefinder2D_nws_ros2() :
 {
 }
 
-bool Rangefinder2D_nws_ros2::attachAll(const PolyDriverList &device2attach)
+bool Rangefinder2D_nws_ros2::attach(yarp::dev::PolyDriver* driver)
 {
-    if (device2attach.size() != 1)
+    if (driver->isValid())
     {
-        yCError(RANGEFINDER2D_NWS_ROS2, "Cannot attach more than one device");
-        return false;
-    }
-
-    yarp::dev::PolyDriver * Idevice2attach = device2attach[0]->poly;
-    if (Idevice2attach->isValid())
-    {
-        Idevice2attach->view(m_iDevice);
+        driver->view(m_iDevice);
     }
 
     //attach the hardware device
@@ -63,7 +56,6 @@ bool Rangefinder2D_nws_ros2::attachAll(const PolyDriverList &device2attach)
         yCError(RANGEFINDER2D_NWS_ROS2, "Subdevice passed to attach method is invalid");
         return false;
     }
-    attach(m_iDevice);
 
     //get information/parameters from the hardware device etc
     if(!m_iDevice->getDistanceRange(m_minDistance, m_maxDistance))
@@ -87,7 +79,7 @@ bool Rangefinder2D_nws_ros2::attachAll(const PolyDriverList &device2attach)
    return true;
 }
 
-bool Rangefinder2D_nws_ros2::detachAll()
+bool Rangefinder2D_nws_ros2::detach()
 {
     if (PeriodicThread::isRunning())
     {
@@ -95,20 +87,6 @@ bool Rangefinder2D_nws_ros2::detachAll()
     }
     m_iDevice = nullptr;
     return true;
-}
-
-void Rangefinder2D_nws_ros2::attach(yarp::dev::IRangefinder2D *s)
-{
-    m_iDevice = s;
-}
-
-void Rangefinder2D_nws_ros2::detach()
-{
-    if (PeriodicThread::isRunning())
-    {
-        PeriodicThread::stop();
-    }
-    m_iDevice = nullptr;
 }
 
 void Rangefinder2D_nws_ros2::run()
@@ -171,7 +149,6 @@ bool Rangefinder2D_nws_ros2::open(yarp::os::Searchable &config)
     if(config.check("subdevice"))
     {
         Property       p;
-        PolyDriverList driverlist;
         p.fromString(config.toString(), false);
         p.put("device", config.find("subdevice").asString());
 
@@ -181,8 +158,7 @@ bool Rangefinder2D_nws_ros2::open(yarp::os::Searchable &config)
             return false;
         }
 
-        driverlist.push(&m_driver, "1");
-        if(!attachAll(driverlist))
+        if(!attach(&m_driver))
         {
             yCError(RANGEFINDER2D_NWS_ROS2) << "Failed to open subdevice.. check params";
             return false;
