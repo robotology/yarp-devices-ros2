@@ -14,6 +14,7 @@
 
 #include <yarp/os/LogComponent.h>
 #include <yarp/os/LogStream.h>
+#include <Ros2Utils.h>
 
 #include <cmath>
 
@@ -24,19 +25,6 @@ using namespace yarp::dev::Nav2D;
 
 
 YARP_LOG_COMPONENT(LOCALIZATION2D_NWS_ROS2, "yarp.ros2.localization2D_nws_ros2", yarp::os::Log::TraceType);
-
-
-Ros2Init::Ros2Init()
-{
-    rclcpp::init(/*argc*/ 0, /*argv*/ nullptr);
-    node = std::make_shared<rclcpp::Node>("yarprobotinterface_node");
-}
-
-Ros2Init& Ros2Init::get()
-{
-    static Ros2Init instance;
-    return instance;
-}
 
 
 Localization2D_nws_ros2::Localization2D_nws_ros2() :
@@ -164,18 +152,29 @@ bool Localization2D_nws_ros2::open(yarp::os::Searchable &config)
         {
             m_child_frame_id = ros_group.find("child_frame_id").asString();
         }
+
     }
     else
     {
 	}
-	
+    if (!config.check("node_name")) {
+        yCError(LOCALIZATION2D_NWS_ROS2) << "missing node_name parameter";
+        return false;
+    }
+    m_nodeName = config.find("node_name").asString();
+    if(m_nodeName[0] == '/'){
+        yCError(LOCALIZATION2D_NWS_ROS2) << "node_name cannot begin with an initial /";
+        return false;
+    }
     m_period   = config.check("period", yarp::os::Value(0.010), "Period of the thread").asFloat64();
        
     //create the topics
     const std::string m_odom_topic ="/odom";
-    const std::string m_tf_topic ="/tf";   
-    m_publisher_odom = Ros2Init::get().node->create_publisher<nav_msgs::msg::Odometry>(m_odom_topic, 10);
-    m_publisher_tf   = Ros2Init::get().node->create_publisher<tf2_msgs::msg::TFMessage>(m_tf_topic, 10);
+    const std::string m_tf_topic ="/tf";
+    m_node = NodeCreator::createNode(m_nodeName);
+
+    m_publisher_odom = m_node->create_publisher<nav_msgs::msg::Odometry>(m_odom_topic, 10);
+    m_publisher_tf   = m_node->create_publisher<tf2_msgs::msg::TFMessage>(m_tf_topic, 10);
     yCInfo(LOCALIZATION2D_NWS_ROS2, "Opened topics: %s, %s", m_odom_topic.c_str(), m_tf_topic.c_str());
         
     //start the publishig thread
@@ -196,7 +195,7 @@ void Localization2D_nws_ros2::publish_odometry_on_TF_topic()
     geometry_msgs::msg::TransformStamped tsData;
     tsData.child_frame_id = m_child_frame_id;
     tsData.header.frame_id = m_parent_frame_id;
-    tsData.header.stamp = Ros2Init::get().node->get_clock()->now();   //@@@@@@@@@@@ CHECK HERE: simulation time?
+    tsData.header.stamp = m_node->get_clock()->now();   //@@@@@@@@@@@ CHECK HERE: simulation time?
     double halfYaw = m_current_odometry.odom_theta / 180.0 * M_PI * 0.5;
     double cosYaw = cos(halfYaw);
     double sinYaw = sin(halfYaw);
@@ -225,7 +224,7 @@ void Localization2D_nws_ros2::publish_odometry_on_ROS_topic()
     nav_msgs::msg::Odometry rosData;
 
     rosData.header.frame_id = m_fixed_frame;
-    rosData.header.stamp = Ros2Init::get().node->get_clock()->now();   //@@@@@@@@@@@ CHECK HERE: simulation time?
+    rosData.header.stamp = m_node->get_clock()->now();   //@@@@@@@@@@@ CHECK HERE: simulation time?
     rosData.child_frame_id = m_robot_frame;
 
     rosData.pose.pose.position.x = m_current_odometry.odom_x;

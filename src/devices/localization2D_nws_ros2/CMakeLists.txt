@@ -18,6 +18,9 @@ target_sources(yarp_localization2D_nws_ros2
     Localization2D_nws_ros2.cpp
     Localization2D_nws_ros2.h
 )
+target_sources(yarp_localization2D_nws_ros2 PRIVATE $<TARGET_OBJECTS:Ros2Utils>)
+
+target_include_directories(yarp_localization2D_nws_ros2 PRIVATE $<TARGET_PROPERTY:Ros2Utils,INTERFACE_INCLUDE_DIRECTORIES>)
 
 target_link_libraries(yarp_localization2D_nws_ros2
   PRIVATE
@@ -30,6 +33,7 @@ target_link_libraries(yarp_localization2D_nws_ros2
     nav_msgs::nav_msgs__rosidl_typesupport_cpp
     geometry_msgs::geometry_msgs__rosidl_typesupport_cpp
     tf2_msgs::tf2_msgs__rosidl_typesupport_cpp
+    Ros2Utils
 )
 
 yarp_install(
