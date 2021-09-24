@@ -25,6 +25,7 @@
 #include <mutex>
 #include <cstdlib>
 #include <fstream>
+#include <Ros2Utils.h>
 
 using namespace yarp::sig;
 using namespace yarp::dev;
@@ -37,17 +38,6 @@ namespace {
 YARP_LOG_COMPONENT(MAP2D_NWS_ROS2, "yarp.device.map2D_nws_ros2")
 }
 
-Ros2Init::Ros2Init()
-{
-    rclcpp::init(/*argc*/ 0, /*argv*/ nullptr);
-    node = std::make_shared<rclcpp::Node>("yarprobotinterface_node");
-}
-
-Ros2Init& Ros2Init::get()
-{
-    static Ros2Init instance;
-    return instance;
-}
 
 Map2D_nws_ros2::Map2D_nws_ros2()
 {
@@ -139,11 +129,22 @@ bool Map2D_nws_ros2::open(yarp::os::Searchable &config)
         if(ROS_config.check("getmapbyname")) m_getMapByNameName = ROS_config.find("getmapbyname").asString();
         if(ROS_config.check("roscmdparser")) m_rosCmdParserName = ROS_config.find("roscmdparser").asString();
         if(ROS_config.check("markers_pub")) m_markersName = ROS_config.find("markers_pub").asString();
-        m_ros2Service_getMap = Ros2Init::get().node->create_service<nav_msgs::srv::GetMap>(m_getMapName,
+        if (!config.check("node_name")) {
+            yCError(MAP2D_NWS_ROS2) << "missing node_name parameter";
+            return false;
+        }
+        m_nodeName = config.find("node_name").asString();
+        if(m_nodeName[0] == '/'){
+            yCError(MAP2D_NWS_ROS2) << "node_name cannot begin with an initial /";
+            return false;
+        }
+        m_node = NodeCreator::createNode(m_nodeName);
+
+        m_ros2Service_getMap = m_node->create_service<nav_msgs::srv::GetMap>(m_getMapName,
                                                                                            std::bind(&Map2D_nws_ros2::getMapCallback,this,_1,_2,_3));
-        m_ros2Service_getMapByName = Ros2Init::get().node->create_service<map2d_nws_ros2_msgs::srv::GetMapByName>(m_getMapByNameName,
+        m_ros2Service_getMapByName = m_node->create_service<map2d_nws_ros2_msgs::srv::GetMapByName>(m_getMapByNameName,
                                                                                                                   std::bind(&Map2D_nws_ros2::getMapByNameCallback,this,_1,_2,_3));
-        m_ros2Service_rosCmdParser = Ros2Init::get().node->create_service<test_msgs::srv::BasicTypes>(m_rosCmdParserName,
+        m_ros2Service_rosCmdParser = m_node->create_service<test_msgs::srv::BasicTypes>(m_rosCmdParserName,
                                                                                                       std::bind(&Map2D_nws_ros2::rosCmdParserCallback,this,_1,_2,_3));
     }
     else
@@ -162,7 +163,7 @@ void Map2D_nws_ros2::run()
 {
     if(!m_spinned)  //This is just a temporary solution.
     {
-        rclcpp::spin(Ros2Init::get().node);
+        rclcpp::spin(m_node);
         m_spinned = true;
     }
 }
@@ -212,7 +213,7 @@ bool Map2D_nws_ros2::updateVizMarkers()
 {
     if (!m_ros2Publisher_markers)
     {
-        m_ros2Publisher_markers = Ros2Init::get().node->create_publisher<visualization_msgs::msg::MarkerArray>(m_markersName, 10);
+        m_ros2Publisher_markers = m_node->create_publisher<visualization_msgs::msg::MarkerArray>(m_markersName, 10);
     }
     builtin_interfaces::msg::Duration dur;
     dur.sec = 0xFFFFFFFF;
@@ -317,7 +318,7 @@ void Map2D_nws_ros2::getMapByNameCallback(const std::shared_ptr<rmw_request_id_t
 {
     if (!m_ros2Publisher_map)
     {
-        m_ros2Publisher_map = Ros2Init::get().node->create_publisher<nav_msgs::msg::OccupancyGrid>(m_getMapByNameName+"/pub", 10);
+        m_ros2Publisher_map = m_node->create_publisher<nav_msgs::msg::OccupancyGrid>(m_getMapByNameName+"/pub", 10);
     }
     nav_msgs::msg::OccupancyGrid mapToGo;
     nav_msgs::msg::MapMetaData metaToGo;
@@ -329,8 +330,8 @@ void Map2D_nws_ros2::getMapByNameCallback(const std::shared_ptr<rmw_request_id_t
         response->map = mapToGo;
         return;
     }
-    mapToGo.info.map_load_time = Ros2Init::get().node->get_clock()->now();
-    mapToGo.header.stamp = Ros2Init::get().node->get_clock()->now();
+    mapToGo.info.map_load_time = m_node->get_clock()->now();
+    mapToGo.header.stamp = m_node->get_clock()->now();
     mapToGo.info.height = theMap.height();
     mapToGo.info.width = theMap.width();
 
