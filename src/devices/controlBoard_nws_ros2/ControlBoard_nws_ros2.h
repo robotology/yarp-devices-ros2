@@ -115,38 +115,4 @@ public:
     void run() override;
 };
 
-
-/*
-
-class MinimalPublisher
-{
-public:
-    MinimalPublisher(const std::string& topicname);
-};
-
-
-class Ros2Test :
-        public yarp::dev::DeviceDriver,
-        public yarp::os::PeriodicThread
-{
-public:
-    Ros2Test();
-    Ros2Test(const Ros2Test&) = delete;
-    Ros2Test(Ros2Test&&) noexcept = delete;
-    Ros2Test& operator=(const Ros2Test&) = delete;
-    Ros2Test& operator=(Ros2Test&&) noexcept = delete;
-    ~Ros2Test() override = default;
-
-    // DeviceDriver
-    bool open(yarp::os::Searchable& config) override;
-    bool close() override;
-
-    // PeriodicThread
-    void run() override;
-
-private:
-    std::string m_topic;
-    size_t m_count {0};
-};*/
-
 #endif // YARP_DEV_CONTROLBOARD_NWS_ROS2_H
