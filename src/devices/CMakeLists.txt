@@ -13,4 +13,6 @@ add_subdirectory(map2D_nws_ros2)
 add_subdirectory(frameGrabber_nws_ros2)
 add_subdirectory(rgbdToPointCloudSensor_nws_ros2)
 add_subdirectory(mobileBaseVelocityControl_nws_ros2)
-
+add_subdirectory(frameTransformUtils)
+add_subdirectory(frameTransformSet_nwc_ros2)
+add_subdirectory(frameTransformGet_nwc_ros2)
