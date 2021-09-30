@@ -29,16 +29,6 @@
 
 #include <mutex>
 
-class Ros2Init
-{
-public:
-    Ros2Init();
-
-    std::shared_ptr<rclcpp::Node> node;
-
-    static Ros2Init& get();
-};
-
 
 
 /**
@@ -70,7 +60,7 @@ private:
     yarp::sig::Vector times; // time for each joint
 
     std::vector<std::string> jointNames; // name of the joints
-    std::string nodeName;                // name of the rosNode
+    std::string m_nodeName;                // name of the rosNode
     std::string topicName;               // name of the rosTopic
 
 //     yarp::os::Node* node; // ROS node
@@ -80,6 +70,7 @@ private:
 //     yarp::os::Publisher<yarp::rosmsg::sensor_msgs::JointState> rosPublisherPort;             // Dedicated ROS topic publisher
 
     rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr m_publisher;
+    rclcpp::Node::SharedPtr m_node;
 
     static constexpr double default_period = 0.02; // s
     double period {default_period};
@@ -88,7 +79,7 @@ private:
     yarp::os::Stamp time; // envelope to attach to the state port
 
     yarp::dev::DeviceDriver* subdevice_ptr{nullptr};
-    bool subdevice_owned {true};
+    bool subdevice_owned {false};
     size_t subdevice_joints {0};
     bool subdevice_ready = false;
 
@@ -123,39 +114,5 @@ public:
     // yarp::os::PeriodicThread
     void run() override;
 };
-
-
-/*
-
-class MinimalPublisher
-{
-public:
-    MinimalPublisher(const std::string& topicname);
-};
-
-
-class Ros2Test :
-        public yarp::dev::DeviceDriver,
-        public yarp::os::PeriodicThread
-{
-public:
-    Ros2Test();
-    Ros2Test(const Ros2Test&) = delete;
-    Ros2Test(Ros2Test&&) noexcept = delete;
-    Ros2Test& operator=(const Ros2Test&) = delete;
-    Ros2Test& operator=(Ros2Test&&) noexcept = delete;
-    ~Ros2Test() override = default;
-
-    // DeviceDriver
-    bool open(yarp::os::Searchable& config) override;
-    bool close() override;
-
-    // PeriodicThread
-    void run() override;
-
-private:
-    std::string m_topic;
-    size_t m_count {0};
-};*/
 
 #endif // YARP_DEV_CONTROLBOARD_NWS_ROS2_H

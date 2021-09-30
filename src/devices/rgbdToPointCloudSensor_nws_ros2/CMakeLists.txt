@@ -19,6 +19,9 @@ target_sources(yarp_rgbdToPointCloudSensor_nws_ros2
     RgbdToPointCloudSensor_nws_ros2.cpp
     RgbdToPointCloudSensor_nws_ros2.h
 )
+target_sources(yarp_rgbdToPointCloudSensor_nws_ros2 PRIVATE $<TARGET_OBJECTS:Ros2Utils>)
+
+target_include_directories(yarp_rgbdToPointCloudSensor_nws_ros2 PRIVATE $<TARGET_PROPERTY:Ros2Utils,INTERFACE_INCLUDE_DIRECTORIES>)
 
 target_link_libraries(yarp_rgbdToPointCloudSensor_nws_ros2
   PRIVATE
@@ -27,6 +30,7 @@ target_link_libraries(yarp_rgbdToPointCloudSensor_nws_ros2
     YARP::YARP_dev
     rclcpp::rclcpp
     sensor_msgs::sensor_msgs__rosidl_typesupport_cpp
+    Ros2Utils
 )
 
 yarp_install(

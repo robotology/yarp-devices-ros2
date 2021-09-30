@@ -27,6 +27,10 @@ target_sources(yarp_map2D_nws_ros2
     Map2D_nws_ros2.h
 )
 
+target_sources(yarp_localization2D_nws_ros2 PRIVATE $<TARGET_OBJECTS:Ros2Utils>)
+
+target_include_directories(yarp_localization2D_nws_ros2 PRIVATE $<TARGET_PROPERTY:Ros2Utils,INTERFACE_INCLUDE_DIRECTORIES>)
+
 target_link_libraries(yarp_map2D_nws_ros2
   PRIVATE
     YARP::YARP_os
@@ -38,6 +42,7 @@ target_link_libraries(yarp_map2D_nws_ros2
     test_msgs::test_msgs__rosidl_typesupport_cpp
     visualization_msgs::visualization_msgs__rosidl_typesupport_cpp
     map2d_nws_ros2_msgs::map2d_nws_ros2_msgs__rosidl_typesupport_cpp
+    Ros2Utils
 )
 
 yarp_install(

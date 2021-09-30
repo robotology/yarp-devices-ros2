@@ -14,6 +14,7 @@
 #include <yarp/dev/PolyDriver.h>
 
 #include <sensor_msgs/image_encodings.hpp>
+#include <Ros2Utils.h>
 
 namespace {
 YARP_LOG_COMPONENT(FRAMEGRABBER_NWS_ROS2, "yarp.device.frameGrabber_nws_ros2")
@@ -59,23 +60,6 @@ std::string yarp2RosPixelCode(int code)
 }
 } // namespace
 
-
-
-
-Ros2Init::Ros2Init()
-{
-    rclcpp::init(/*argc*/ 0, /*argv*/ nullptr);
-    node = std::make_shared<rclcpp::Node>("yarprobotinterface_node");
-}
-
-Ros2Init& Ros2Init::get()
-{
-    static Ros2Init instance;
-    return instance;
-}
-
-
-
 FrameGrabber_nws_ros2::FrameGrabber_nws_ros2() :
         PeriodicThread(s_default_period)
 {
@@ -97,11 +81,6 @@ bool FrameGrabber_nws_ros2::close()
 
     detach();
 
-    if (node != nullptr) {
-        node->interrupt();
-        delete node;
-        node = nullptr;
-    }
 
     if (subdevice) {
         subdevice->close();
@@ -141,13 +120,11 @@ bool FrameGrabber_nws_ros2::open(yarp::os::Searchable& config)
         yCError(FRAMEGRABBER_NWS_ROS2) << "Missing node_name parameter";
         return false;
     }
-    std::string nodeName = config.find("node_name").asString();
-    if (nodeName.c_str()[0] != '/') {
-        yCError(FRAMEGRABBER_NWS_ROS2) << "Missing '/' in node_name parameter";
+    m_nodeName = config.find("node_name").asString();
+    if (m_nodeName.c_str()[0] == '/') {
+        yCError(FRAMEGRABBER_NWS_ROS2) << "node name cannot begin with /";
         return false;
     }
-    // FIXME node_name is not currently used.
-    yCWarning(FRAMEGRABBER_NWS_ROS2, "FIXME: node_name is not currently used!");
 
 
     // Check "topic_name" option and open publisher
@@ -161,12 +138,13 @@ bool FrameGrabber_nws_ros2::open(yarp::os::Searchable& config)
         yCError(FRAMEGRABBER_NWS_ROS2) << "Missing '/' in topic_name parameter";
         return false;
     }
-    publisher_image = Ros2Init::get().node->create_publisher<sensor_msgs::msg::Image>(topicName, 10);
+    m_node = NodeCreator::createNode(m_nodeName);
+    publisher_image = m_node->create_publisher<sensor_msgs::msg::Image>(topicName, 10);
 
 
     // set "cameraInfoTopicName" and open publisher
     std::string cameraInfoTopicName = topicName.substr(0,topicName.rfind('/')) + "/camera_info";
-    publisher_cameraInfo = Ros2Init::get().node->create_publisher<sensor_msgs::msg::CameraInfo>(cameraInfoTopicName, 10);
+    publisher_cameraInfo = m_node->create_publisher<sensor_msgs::msg::CameraInfo>(cameraInfoTopicName, 10);
 
 
     // Check "frame_id" option
@@ -177,6 +155,17 @@ bool FrameGrabber_nws_ros2::open(yarp::os::Searchable& config)
     }
     m_frameId = config.find("frame_id").asString();
 
+    // Check "frame_id" option
+    if (!config.check("node_name"))
+    {
+        yCError(FRAMEGRABBER_NWS_ROS2) << "Missing node_name parameter";
+        return false;
+    }
+    m_nodeName = config.find("node_name").asString();
+    if(m_nodeName[0] == '/'){
+        yCError(FRAMEGRABBER_NWS_ROS2) << "node_name cannot have an initial /";
+        return false;
+    }
 
     // Check "subdevice" option and eventually open the device
     isSubdeviceOwned = config.check("subdevice");

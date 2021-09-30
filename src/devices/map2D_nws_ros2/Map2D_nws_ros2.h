@@ -70,17 +70,6 @@
  * Integration with ROS2 map server is currently under development.
  */
 
-
-class Ros2Init
-{
-public:
-    Ros2Init();
-
-    std::shared_ptr<rclcpp::Node> node;
-
-    static Ros2Init& get();
-};
-
 class Map2D_nws_ros2 :
         public yarp::os::Thread,
         public yarp::dev::DeviceDriver,
@@ -128,9 +117,11 @@ private:
     std::string                  m_getMapByNameName;
     std::string                  m_markersName;
     std::string                  m_currentMapName;
+    std::string                  m_nodeName;
     bool                         m_spinned;
 
     yarp::os::RpcServer                                                    m_rpcPort;
+    rclcpp::Node::SharedPtr m_node;
     rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr     m_ros2Publisher_markers{nullptr};
     rclcpp::Publisher<nav_msgs::msg::OccupancyGrid>::SharedPtr             m_ros2Publisher_map{nullptr};
     rclcpp::Service<nav_msgs::srv::GetMap>::SharedPtr                      m_ros2Service_getMap{nullptr};

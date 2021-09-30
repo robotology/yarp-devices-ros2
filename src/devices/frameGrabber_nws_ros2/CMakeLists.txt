@@ -30,6 +30,9 @@ if(NOT SKIP_frameGrabber_nws_ros2)
       FrameGrabber_nws_ros2.cpp
       FrameGrabber_nws_ros2.h
   )
+  target_sources(yarp_frameGrabber_nws_ros2 PRIVATE $<TARGET_OBJECTS:Ros2Utils>)
+
+  target_include_directories(yarp_frameGrabber_nws_ros2 PRIVATE $<TARGET_PROPERTY:Ros2Utils,INTERFACE_INCLUDE_DIRECTORIES>)
 
   target_link_libraries(yarp_frameGrabber_nws_ros2
     PRIVATE
@@ -38,6 +41,7 @@ if(NOT SKIP_frameGrabber_nws_ros2)
       YARP::YARP_dev
       rclcpp::rclcpp
       sensor_msgs::sensor_msgs__rosidl_typesupport_cpp
+      Ros2Utils
   )
 
   yarp_install(
