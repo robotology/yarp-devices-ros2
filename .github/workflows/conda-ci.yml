@@ -89,8 +89,7 @@ jobs:
       run: |
         mkdir -p build
         cd build
-        :: PYTHON_EXECUTABLE is set as a workaround for https://github.com/ros2/python_cmake_module/issues/6
-        cmake -G"Visual Studio 16 2019" -DBUILD_TESTING:BOOL=ON -DYARP_ROS2_USE_SYSTEM_map2d_nws_ros2_msgs:BOOL=OFF -DPYTHON_EXECUTABLE:PATH=%CONDA_PREFIX%\python.exe -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
+        cmake -G"Visual Studio 16 2019" -DBUILD_TESTING:BOOL=ON -DYARP_ROS2_USE_SYSTEM_map2d_nws_ros2_msgs:BOOL=OFF -DPython3_EXECUTABLE:PATH=%CONDA_PREFIX%\python.exe -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
 
     - name: Build [Linux&macOS]
       if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
