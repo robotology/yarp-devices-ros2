@@ -41,7 +41,7 @@ jobs:
       if: contains(matrix.os, 'windows')
       shell: cmd /C CALL {0}
       run: |
-        mamba install -c conda-forge -c robostack-experimental ycm-cmake-modules eigen ace ros-${{ matrix.ros_distro }}-ros-base ros-galactic-test-msgs cmake compilers make ninja pkg-config
+        mamba install -c conda-forge -c robostack-experimental ycm-cmake-modules eigen ace ros-${{ matrix.ros_distro }}-ros-base ros-galactic-test-msgs cmake compilers make ninja pkg-config numpy
 
     - name: Download YARP [Linux&macOS]
       if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
