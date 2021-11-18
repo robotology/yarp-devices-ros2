@@ -82,7 +82,7 @@ bool MobileBaseVelocityControl_nws_ros2::attach(PolyDriver* driver)
         return false;
     }
 
-    return true;
+    return this->start();
 }
 
 
