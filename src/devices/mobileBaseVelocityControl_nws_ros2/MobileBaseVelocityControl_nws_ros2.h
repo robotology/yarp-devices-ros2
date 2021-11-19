@@ -34,30 +34,24 @@
   * |:--------------:|:--------------:|:-------:|:--------------:|:------------------------------:|:------------:|:-----------------------------------------------------------------:|:-----:|
   * | node_name      |      -         | string  | -              | /mobileBase_VelControl_nws_ros2 | No           | Full name of the opened ros2 node                                  |       |
   * | topic_name     |     -          | string  | -              | /velocity_input                | No           | Full name of the opened ros2 topic                                 |       |
+  * | subdevice      |      -         | string  | -              |   -                            | No           | name of the subdevice to instantiate                              | when used, parameters for the subdevice must be provided as well |
   */
 
- class Ros2InitMobVel
- {
- public:
-     Ros2InitMobVel();
+class Ros2InitMobVel
+{
+public:
+    Ros2InitMobVel();
 
-     std::shared_ptr<rclcpp::Node> node;
+    std::shared_ptr<rclcpp::Node> node;
 
-     static Ros2InitMobVel& get();
- };
+    static Ros2InitMobVel& get();
+};
 
 class MobileBaseVelocityControl_nws_ros2 :
     public yarp::dev::DeviceDriver,
     public yarp::os::Thread,
     public yarp::dev::WrapperSingle
 {
-
-protected:
-    std::string                   m_ros2_node_name = "/mobileBase_VelControl_nws_ros2";
-    std::string                   m_ros2_topic_name = "/velocity_input";
-    rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr m_ros2_subscriber;
-    rclcpp::Node::SharedPtr m_node;
-    yarp::dev::Nav2D::INavigation2DVelocityActions* m_iNavVel = nullptr;
 
 public:
     MobileBaseVelocityControl_nws_ros2() = default;
@@ -66,10 +60,18 @@ public:
     bool open(yarp::os::Searchable& config) override;
     bool close() override;
 
-private:
     bool detach() override;
     bool attach(yarp::dev::PolyDriver* driver) override;
+
     void run() override;
+
+private:
+    std::string                   m_ros2_node_name = "/mobileBase_VelControl_nws_ros2";
+    std::string                   m_ros2_topic_name = "/velocity_input";
+    rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr m_ros2_subscriber;
+    rclcpp::Node::SharedPtr m_node;
+    yarp::dev::Nav2D::INavigation2DVelocityActions* m_iNavVel = nullptr;
+    yarp::dev::PolyDriver         m_subdev;
     void twist_callback(const geometry_msgs::msg::Twist::SharedPtr msg);
 
 };
