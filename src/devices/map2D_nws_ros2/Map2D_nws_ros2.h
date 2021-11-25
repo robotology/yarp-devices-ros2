@@ -58,13 +58,14 @@
  * \brief `Map2D_nws_ros2`: A device capable of read/save collections of maps from disk, and make them accessible to any Map2DClient device.
  *
  *  Parameters required by this device are:
- * | Parameter name | SubParameter           | Type    | Units          |     Default Value     | Required     | Description                                                       |                                           Notes                                                 |
- * |:--------------:|:----------------------:|:-------:|:--------------:|:---------------------:|:-----------: |:-----------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------:|
- * | name           |      -                 | string  | -              | /map2D_nws_ros/rpc    | No           | Full name of the rpc port opened by the Map2DServer device.       |                                                                                                 |
- * | ROS            |        getmap          | string  | -              | getMap                | No           | The "GetMap" ROS service name                                     |               For the moment being the service always responds with an empty map                |
- * | ROS            |      getmapbyname      | string  | -              | getMapByName          | No           | The "GetMapByName" ROS2  custom service name                      | The map returned by this service is also available via publisher named "getmapbyname value"/pub |
- * | ROS            |      roscmdparser      | string  | -              | rosCmdParser          | No           | The "BasicTypes" ROS service name                                 |             This is used to send commands to the nws via ros2 BasicTypes service                |
- * | ROS            |      markers_pub       | string  | -              | locationServerMarkers | No           | The visual markers array publisher name                           |                                                                                                 |
+ * | Parameter name | SubParameter  | Type    | Units   |     Default Value     | Required    | Description                                                   |                                           Notes                                                 |
+ * |:--------------:|:-------------:|:-------:|:-------:|:---------------------:|:----------: |:-------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------:|
+ * | name           |      -        | string  | -       | map2D_nws_ros         | No          | Device name prefix                                            |                                                                                                 |
+ * | getmap         |      -        | string  | -       | getMap                | No          | The "GetMap" ROS service name                                 |               For the moment being the service always responds with an empty map                |
+ * | getmapbyname   |      -        | string  | -       | getMapByName          | No          | The "GetMapByName" ROS2  custom service name                  | The map returned by this service is also available via publisher named "getmapbyname value"/pub |
+ * | roscmdparser   |      -        | string  | -       | rosCmdParser          | No          | The "BasicTypes" ROS service name                             |             This is used to send commands to the nws via ros2 BasicTypes service                |
+ * | markers_pub    |      -        | string  | -       | locationServerMarkers | No          | The visual markers array publisher name                       |                                                                                                 |
+ * | node_name      |      -        | string  | -       |         -             | No          | The ROS2 node name. If absent, the device name will be used   |                                                                                                 |
 
  * \section Notes:
  * Integration with ROS2 map server is currently under development.
@@ -109,19 +110,19 @@ private:
     yarp::dev::Nav2D::IMap2D*    m_iMap2D = nullptr;
     yarp::dev::PolyDriver        m_drv;
 
-private:
     std::mutex                   m_mutex;
+    std::string                  m_name{"map2D_nws_ros"};
     std::string                  m_rpcPortName;
-    std::string                  m_rosCmdParserName;
-    std::string                  m_getMapName;
-    std::string                  m_getMapByNameName;
-    std::string                  m_markersName;
-    std::string                  m_currentMapName;
+    std::string                  m_rosCmdParserName{"rosCmdParser"};
+    std::string                  m_getMapName{"getMap"};
+    std::string                  m_getMapByNameName{"getMapByName"};
+    std::string                  m_markersName{"locationServerMarkers"};
+    std::string                  m_currentMapName{"none"};
     std::string                  m_nodeName;
-    bool                         m_spinned;
+    bool                         m_spinned{false};
 
     yarp::os::RpcServer                                                    m_rpcPort;
-    rclcpp::Node::SharedPtr m_node;
+    rclcpp::Node::SharedPtr                                                m_node;
     rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr     m_ros2Publisher_markers{nullptr};
     rclcpp::Publisher<nav_msgs::msg::OccupancyGrid>::SharedPtr             m_ros2Publisher_map{nullptr};
     rclcpp::Service<nav_msgs::srv::GetMap>::SharedPtr                      m_ros2Service_getMap{nullptr};

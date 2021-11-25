@@ -40,14 +40,7 @@ YARP_LOG_COMPONENT(MAP2D_NWS_ROS2, "yarp.device.map2D_nws_ros2")
 
 
 Map2D_nws_ros2::Map2D_nws_ros2()
-{
-    m_getMapName = "getMap";
-    m_getMapByNameName = "getMapByName";
-    m_markersName = "locationServerMarkers";
-    m_rosCmdParserName = "rosCmdParser";
-    m_spinned = false;
-    m_currentMapName = "none";
-}
+{}
 
 bool Map2D_nws_ros2::attach(yarp::dev::PolyDriver* driver)
 {
@@ -79,15 +72,20 @@ bool Map2D_nws_ros2::open(yarp::os::Searchable &config)
     Property params;
     params.fromString(config.toString());
 
-    if (!config.check("nws_name"))
+    if (!config.check("name"))
     {
-        m_rpcPortName = "/map2D_nws_ros/rpc";
+        yCWarning(MAP2D_NWS_ROS2) << "Missing name parameter. Using:" << m_name;
     }
     else
     {
-        m_rpcPortName = config.find("nws_name").asString()+"/rpc";
+        m_name = config.find("name").asString();
+        if(m_name[0] == '/'){
+            yCError(MAP2D_NWS_ROS2) << "Nws name parameter cannot begin with an initial /";
+            return false;
+        }
     }
 
+    m_rpcPortName = "/"+m_name+"/rpc";
     //subdevice handling
     if (config.check("subdevice"))
     {
@@ -120,38 +118,31 @@ bool Map2D_nws_ros2::open(yarp::os::Searchable &config)
     }
     m_rpcPort.setReader(*this);
 
-    //ROS configuration
-    if (config.check("ROS"))
-    {
-        yCInfo(MAP2D_NWS_ROS2, "Configuring ROS params");
-        Bottle ROS_config = config.findGroup("ROS");
-        if(ROS_config.check("getmap")) m_getMapName = ROS_config.find("getmap").asString();
-        if(ROS_config.check("getmapbyname")) m_getMapByNameName = ROS_config.find("getmapbyname").asString();
-        if(ROS_config.check("roscmdparser")) m_rosCmdParserName = ROS_config.find("roscmdparser").asString();
-        if(ROS_config.check("markers_pub")) m_markersName = ROS_config.find("markers_pub").asString();
-        if (!config.check("node_name")) {
-            yCError(MAP2D_NWS_ROS2) << "missing node_name parameter";
-            return false;
-        }
-        m_nodeName = config.find("node_name").asString();
-        if(m_nodeName[0] == '/'){
-            yCError(MAP2D_NWS_ROS2) << "node_name cannot begin with an initial /";
-            return false;
-        }
-        m_node = NodeCreator::createNode(m_nodeName);
-
-        m_ros2Service_getMap = m_node->create_service<nav_msgs::srv::GetMap>(m_getMapName,
-                                                                                           std::bind(&Map2D_nws_ros2::getMapCallback,this,_1,_2,_3));
-        m_ros2Service_getMapByName = m_node->create_service<map2d_nws_ros2_msgs::srv::GetMapByName>(m_getMapByNameName,
-                                                                                                                  std::bind(&Map2D_nws_ros2::getMapByNameCallback,this,_1,_2,_3));
-        m_ros2Service_rosCmdParser = m_node->create_service<test_msgs::srv::BasicTypes>(m_rosCmdParserName,
-                                                                                                      std::bind(&Map2D_nws_ros2::rosCmdParserCallback,this,_1,_2,_3));
+    //ROS2 configuration
+    if(config.check("getmap")) m_getMapName = config.find("getmap").asString();
+    if(config.check("getmapbyname")) m_getMapByNameName = config.find("getmapbyname").asString();
+    if(config.check("roscmdparser")) m_rosCmdParserName = config.find("roscmdparser").asString();
+    if(config.check("markers_pub")) m_markersName = config.find("markers_pub").asString();
+    if (!config.check("node_name")) {
+        yCWarning(MAP2D_NWS_ROS2) << "Missing node_name parameter. Using:" << m_name;
+        m_nodeName = m_name;
     }
     else
     {
-        //no ROS options
-        yCWarning(MAP2D_NWS_ROS2) << "ROS Group not configured";
+        m_nodeName = config.find("node_name").asString();
     }
+    if(m_nodeName[0] == '/'){
+        yCError(MAP2D_NWS_ROS2) << "node_name cannot begin with an initial /";
+        return false;
+    }
+    m_node = NodeCreator::createNode(m_nodeName);
+
+    m_ros2Service_getMap = m_node->create_service<nav_msgs::srv::GetMap>(m_getMapName,
+                                                                                       std::bind(&Map2D_nws_ros2::getMapCallback,this,_1,_2,_3));
+    m_ros2Service_getMapByName = m_node->create_service<map2d_nws_ros2_msgs::srv::GetMapByName>(m_getMapByNameName,
+                                                                                                              std::bind(&Map2D_nws_ros2::getMapByNameCallback,this,_1,_2,_3));
+    m_ros2Service_rosCmdParser = m_node->create_service<test_msgs::srv::BasicTypes>(m_rosCmdParserName,
+                                                                                                  std::bind(&Map2D_nws_ros2::rosCmdParserCallback,this,_1,_2,_3));
 
     start();
 
