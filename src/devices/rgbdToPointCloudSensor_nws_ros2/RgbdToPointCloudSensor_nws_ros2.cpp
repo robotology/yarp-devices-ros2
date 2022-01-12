@@ -280,7 +280,7 @@ bool RgbdToPointCloudSensor_nws_ros2::writeData()
 
                 //pc2Ros.header.stamp.sec = depthStamp.;
                 pc2Ros.header.stamp.sec = int(depthStamp.getTime());
-                pc2Ros.header.stamp.nanosec = int(1000000 * (depthStamp.getTime() - int(depthStamp.getTime())));
+                pc2Ros.header.stamp.nanosec = int(1000000000UL * (depthStamp.getTime() - int(depthStamp.getTime())));
 
                 // filling ros point field
                 pc2Ros.fields.push_back(sensor_msgs::msg::PointField());

@@ -25,7 +25,7 @@
 #include "ros2PixelCode.h"
 
 
-constexpr double ONE_MILLION = 1000000;
+constexpr double ONE_BILLION = 1000000000;
 typedef yarp::sig::ImageOf<yarp::sig::PixelFloat> DepthImage;
 
 namespace yarp {

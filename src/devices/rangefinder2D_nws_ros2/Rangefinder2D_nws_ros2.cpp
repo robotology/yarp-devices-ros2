@@ -103,12 +103,12 @@ void Rangefinder2D_nws_ros2::run()
             {
 //                rosData.header.stamp(synchronized_timestamp);
                 rosData.header.stamp.sec = int(synchronized_timestamp); // FIXME
-                rosData.header.stamp.nanosec = static_cast<int>(1000000 * (synchronized_timestamp - int(synchronized_timestamp))); // FIXME
+                rosData.header.stamp.nanosec = static_cast<int>(1000000000UL * (synchronized_timestamp - int(synchronized_timestamp))); // FIXME
             }
             else
             {
                 rosData.header.stamp.sec = int(yarp::os::Time::now()); // FIXME
-                rosData.header.stamp.nanosec = static_cast<int>(1000000 * (yarp::os::Time::now() - int(yarp::os::Time::now()))); // FIXME
+                rosData.header.stamp.nanosec = static_cast<int>(1000000000UL * (yarp::os::Time::now() - int(yarp::os::Time::now()))); // FIXME
             }
 
             rosData.header.frame_id = m_frame_id;

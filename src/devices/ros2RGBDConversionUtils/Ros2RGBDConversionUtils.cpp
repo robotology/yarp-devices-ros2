@@ -31,14 +31,14 @@ YARP_LOG_COMPONENT(ROS2_RGBD_CONVERSION_UTILS, "yarp.device.Ros2RGBDConversionUt
 
 void yarp::dev::Ros2RGBDConversionUtils::convertTimeStampRos2ToYarp(const std_msgs::msg::Header& ros_header, yarp::os::Stamp& yarp_stamp)
 {
-    yarp_stamp.update(ros_header.stamp.sec + (ros_header.stamp.nanosec / ONE_MILLION));
+    yarp_stamp.update(ros_header.stamp.sec + (ros_header.stamp.nanosec / ONE_BILLION));
 }
 
 
 void yarp::dev::Ros2RGBDConversionUtils::convertTimeStampYarpToRos2(const yarp::os::Stamp& yarp_stamp, std_msgs::msg::Header& ros_header)
 {
     ros_header.stamp.sec = int(yarp_stamp.getTime());
-    ros_header.stamp.nanosec = int(ONE_MILLION * (yarp_stamp.getTime() - int(yarp_stamp.getTime())));
+    ros_header.stamp.nanosec = int(ONE_BILLION * (yarp_stamp.getTime() - int(yarp_stamp.getTime())));
 }
 
 void yarp::dev::Ros2RGBDConversionUtils::convertRGBImageRos2ToYarpFlexImage(sensor_msgs::msg::Image::SharedPtr ros_image_src,

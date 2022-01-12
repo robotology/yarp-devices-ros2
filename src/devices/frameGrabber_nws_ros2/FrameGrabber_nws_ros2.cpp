@@ -272,7 +272,7 @@ void FrameGrabber_nws_ros2::run()
         rosimg.step = yarpimg->getRowSize();
         rosimg.header.frame_id = m_frameId;
 //         rosimg.header.stamp.sec = static_cast<int>(m_stamp.getTime()); // FIXME
-//         rosimg.header.stamp.nanosec = static_cast<int>(1000000 * (m_stamp.getTime() - int(m_stamp.getTime()))); // FIXME
+//         rosimg.header.stamp.nanosec = static_cast<int>(1000000000UL * (m_stamp.getTime() - int(m_stamp.getTime()))); // FIXME
         rosimg.is_bigendian = 0;
         memcpy(rosimg.data.data(), yarpimg->getRawImage(), yarpimg->getRawImageSize());
         publisher_image->publish(rosimg);
@@ -352,7 +352,7 @@ bool FrameGrabber_nws_ros2::setCamInfo(sensor_msgs::msg::CameraInfo& cameraInfo)
 
     cameraInfo.header.frame_id      = m_frameId;
 //     cameraInfo.header.stamp.sec     = static_cast<int>(m_stamp.getTime()); // FIXME
-//     cameraInfo.header.stamp.nanosec = static_cast<int>(1000000 * (m_stamp.getTime() - int(m_stamp.getTime()))); // FIXME
+//     cameraInfo.header.stamp.nanosec = static_cast<int>(1000000000UL * (m_stamp.getTime() - int(m_stamp.getTime()))); // FIXME
     cameraInfo.width                = iRgbVisualParams->getRgbWidth();
     cameraInfo.height               = iRgbVisualParams->getRgbHeight();
     cameraInfo.distortion_model     = distModel;
