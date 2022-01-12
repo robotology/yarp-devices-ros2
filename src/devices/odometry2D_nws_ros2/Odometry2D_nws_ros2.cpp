@@ -113,12 +113,19 @@ bool Odometry2D_nws_ros2::open(yarp::os::Searchable &config)
             return false;
         }
     }
-
-    m_node = NodeCreator::createNode(m_nodeName);
+    rclcpp::NodeOptions node_options;
+    node_options.allow_undeclared_parameters(true);
+    node_options.automatically_declare_parameters_from_overrides(true);
+    m_node = NodeCreator::createNode(m_nodeName, node_options);
     if (m_node == nullptr) {
         yCError(ODOMETRY2D_NWS_ROS2) << " opening " << m_nodeName << " Node, check your yarp-ROS2 network configuration\n";
         return false;
     }
+
+    rclcpp::Parameter simTime( "use_sim_time", rclcpp::ParameterValue( true ) );
+    m_node->set_parameter( simTime );
+    const std::string m_tf_topic ="/tf";
+    m_publisher_tf   = m_node->create_publisher<tf2_msgs::msg::TFMessage>(m_tf_topic, 10);
 
     ros2Publisher_odometry = m_node->create_publisher<nav_msgs::msg::Odometry>(m_topicName, 10);
     return true;
@@ -131,15 +138,11 @@ void Odometry2D_nws_ros2::threadRelease()
 void Odometry2D_nws_ros2::run()
 {
 
-    if (m_odometry2D_interface!=nullptr && ros2Publisher_odometry) {
-        yarp::os::Stamp timeStamp(static_cast<int>(m_stampCount++), yarp::os::Time::now());
+    if (m_odometry2D_interface!=nullptr && ros2Publisher_odometry && m_publisher_tf) {
         yarp::dev::OdometryData odometryData;
         m_odometry2D_interface->getOdometry(odometryData);
         nav_msgs::msg::Odometry odometryMsg;
         odometryMsg.header.frame_id = m_odomFrame;
-
-        odometryMsg.header.stamp.sec = int(timeStamp.getTime());
-        odometryMsg.header.stamp.nanosec = int(1000000 * (timeStamp.getTime() - int(timeStamp.getTime())));
         odometryMsg.child_frame_id = m_baseFrame;
 
         odometryMsg.pose.pose.position.x = odometryData.odom_x;
@@ -161,7 +164,50 @@ void Odometry2D_nws_ros2::run()
         odometryMsg.twist.twist.angular.y = 0;
         odometryMsg.twist.twist.angular.z = odometryData.base_vel_theta * DEG2RAD;
 
+
+
+
+        // tf publisher
+        tf2_msgs::msg::TFMessage rosData;
+
+        geometry_msgs::msg::TransformStamped tsData;
+        tsData.child_frame_id = m_baseFrame;
+        tsData.header.frame_id = m_odomFrame;
+
+        tsData.transform.rotation.x = 0;
+        tsData.transform.rotation.y = 0;
+        tsData.transform.rotation.z = sinYaw;
+        tsData.transform.rotation.w = cosYaw;
+        tsData.transform.translation.x = odometryData.base_vel_x;
+        tsData.transform.translation.y = odometryData.base_vel_y;
+        tsData.transform.translation.z = 0;
+
+        yarp::os::Stamp timeStamp(static_cast<int>(m_stampCount++), yarp::os::Time::now());
+
+        odometryMsg.header.stamp.sec = int(timeStamp.getTime());
+        odometryMsg.header.stamp.nanosec = int(1000000000 * (timeStamp.getTime() - int(timeStamp.getTime())));
+
+        tsData.header.stamp.sec = int(timeStamp.getTime());
+        tsData.header.stamp.nanosec = int(1000000000 * (timeStamp.getTime() - int(timeStamp.getTime())));
+
+        if (rosData.transforms.size() == 0)
+        {
+            rosData.transforms.push_back(tsData);
+        }
+        else if (rosData.transforms.size() == 1)
+        {
+            rosData.transforms[0] = tsData;
+        }
+        else
+        {
+            yCWarning(ODOMETRY2D_NWS_ROS2) << "Size of /tf topic should be 1, instead it is:" << rosData.transforms.size();
+        }
+
+
         ros2Publisher_odometry->publish(odometryMsg);
+
+        m_publisher_tf->publish(rosData);
+
 
     } else{
         yCError(ODOMETRY2D_NWS_ROS2) << "the interface is not valid";

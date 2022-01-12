@@ -28,6 +28,7 @@ if(NOT SKIP_odometry2D_nws_ros2)
       YARP::YARP_math
       rclcpp::rclcpp
       nav_msgs::nav_msgs__rosidl_typesupport_cpp
+      tf2_msgs::tf2_msgs__rosidl_typesupport_cpp
       Ros2Utils
   )
   list(APPEND YARP_${YARP_PLUGIN_MASTER}_PRIVATE_DEPS

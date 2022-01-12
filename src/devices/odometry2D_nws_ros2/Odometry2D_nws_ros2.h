@@ -13,6 +13,7 @@
 #include <yarp/os/PeriodicThread.h>
 #include <yarp/dev/DeviceDriver.h>
 #include <yarp/dev/WrapperSingle.h>
+#include <tf2_msgs/msg/tf_message.hpp>
 
 #ifndef _USE_MATH_DEFINES
 #define _USE_MATH_DEFINES
@@ -123,6 +124,7 @@ private:
     //ros2 node
     rclcpp::Node::SharedPtr m_node;
     rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr ros2Publisher_odometry;
+    rclcpp::Publisher<tf2_msgs::msg::TFMessage>::SharedPtr  m_publisher_tf;
 
     //interfaces
     yarp::dev::PolyDriver m_driver;
