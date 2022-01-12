@@ -82,7 +82,6 @@ bool Rangefinder2D_nws_ros2::detach()
 
 void Rangefinder2D_nws_ros2::run()
 {
-    yCTrace(RANGEFINDER2D_NWS_ROS2);
     auto message = std_msgs::msg::String();
     
     if (m_iDevice!=nullptr)
@@ -90,7 +89,8 @@ void Rangefinder2D_nws_ros2::run()
         bool ret = true;
         IRangefinder2D::Device_status status;
         yarp::sig::Vector ranges;
-        ret &= m_iDevice->getRawData(ranges);
+        double synchronized_timestamp = 0;
+        ret &= m_iDevice->getRawData(ranges, &synchronized_timestamp);
         ret &= m_iDevice->getDeviceStatus(status);
         
         if (ret)
@@ -99,7 +99,18 @@ void Rangefinder2D_nws_ros2::run()
 
             sensor_msgs::msg::LaserScan rosData;
 
-            rosData.header.stamp = m_node->get_clock()->now();    //@@@@@@@@@@@ CHECK HERE: simulation time?
+            if (!std::isnan(synchronized_timestamp))
+            {
+//                rosData.header.stamp(synchronized_timestamp);
+                rosData.header.stamp.sec = int(synchronized_timestamp); // FIXME
+                rosData.header.stamp.nanosec = static_cast<int>(1000000 * (synchronized_timestamp - int(synchronized_timestamp))); // FIXME
+            }
+            else
+            {
+                rosData.header.stamp.sec = int(yarp::os::Time::now()); // FIXME
+                rosData.header.stamp.nanosec = static_cast<int>(1000000 * (yarp::os::Time::now() - int(yarp::os::Time::now()))); // FIXME
+            }
+
             rosData.header.frame_id = m_frame_id;
             rosData.angle_min = m_minAngle * M_PI / 180.0;
             rosData.angle_max = m_maxAngle * M_PI / 180.0;
