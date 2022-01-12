@@ -17,3 +17,12 @@ rclcpp::Node::SharedPtr NodeCreator::createNode(std::string name)
     return std::make_shared<rclcpp::Node>(name);
 
 }
+rclcpp::Node::SharedPtr NodeCreator::createNode(std::string name, rclcpp::NodeOptions& node_options)
+{
+    if(!rclcpp::ok())
+    {
+        rclcpp::init(/*argc*/ 0, /*argv*/ nullptr);
+    }
+    return std::make_shared<rclcpp::Node>(name, node_options);
+
+}
