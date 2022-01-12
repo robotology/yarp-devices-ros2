@@ -197,8 +197,16 @@ bool FrameTransformSet_nwc_ros2::publishFrameTransforms()
 
     toPublish_timed.transforms = content_timed;
     toPublish_static.transforms = content_static;
-    m_publisherFtTimed->publish(toPublish_timed);
-    m_publisherFtStatic->publish(toPublish_static);
+    if (content_timed.size() > 0) {
+        m_publisherFtTimed->publish(toPublish_timed);
+    } else{
+        yCDebug(FRAMETRANSFORMSETNWCROS2) << "timed transform size is zero";
+    }
+    if (content_static.size() > 0) {
+        m_publisherFtStatic->publish(toPublish_static);
+    } else {
+        yCDebug(FRAMETRANSFORMSETNWCROS2) << "static transform size is zero";
+    }
 
     return true;
 }
