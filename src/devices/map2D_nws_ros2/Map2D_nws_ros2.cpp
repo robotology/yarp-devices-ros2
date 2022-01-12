@@ -26,6 +26,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <Ros2Utils.h>
+#include <rclcpp/qos.hpp>
 
 using namespace yarp::sig;
 using namespace yarp::dev;
@@ -136,9 +137,21 @@ bool Map2D_nws_ros2::open(yarp::os::Searchable &config)
         return false;
     }
     m_node = NodeCreator::createNode(m_nodeName);
-
+    rmw_qos_profile_t qos;
+    qos.history = RMW_QOS_POLICY_HISTORY_SYSTEM_DEFAULT;
+    qos.depth=10;
+    rmw_time_t time;
+    time.sec=10000;
+    time.nsec = 0;
+    qos.deadline= time;
+    qos.lifespan=time;
+    qos.liveliness_lease_duration=time;
+    qos.reliability = RMW_QOS_POLICY_RELIABILITY_SYSTEM_DEFAULT;
+    qos.durability = RMW_QOS_POLICY_DURABILITY_SYSTEM_DEFAULT;
+    qos.liveliness = RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT;
+    qos.avoid_ros_namespace_conventions = true;
     m_ros2Service_getMap = m_node->create_service<nav_msgs::srv::GetMap>(m_getMapName,
-                                                                                       std::bind(&Map2D_nws_ros2::getMapCallback,this,_1,_2,_3));
+                                                                                       std::bind(&Map2D_nws_ros2::getMapCallback,this,_1,_2,_3),qos );
     m_ros2Service_getMapByName = m_node->create_service<map2d_nws_ros2_msgs::srv::GetMapByName>(m_getMapByNameName,
                                                                                                               std::bind(&Map2D_nws_ros2::getMapByNameCallback,this,_1,_2,_3));
     m_ros2Service_rosCmdParser = m_node->create_service<test_msgs::srv::BasicTypes>(m_rosCmdParserName,
@@ -152,11 +165,12 @@ bool Map2D_nws_ros2::open(yarp::os::Searchable &config)
 
 void Map2D_nws_ros2::run()
 {
-    if(!m_spinned)  //This is just a temporary solution.
-    {
-        rclcpp::spin(m_node);
-        m_spinned = true;
-    }
+
+//    if(!m_spinned)  //This is just a temporary solution.
+//    {
+//        rclcpp::spin(m_node);
+//        m_spinned = true;
+//    }
 }
 
 bool Map2D_nws_ros2::close()
