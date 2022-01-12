@@ -332,8 +332,10 @@ void ControlBoard_nws_ros2::run()
     }
 
     ros_struct.name = jointNames;
+    ros_struct.header.stamp.sec = int(averageTime.getTime()); // FIXME
+    ros_struct.header.stamp.nanosec = static_cast<int>(1000000000 * (averageTime.getTime() - int(averageTime.getTime()))); // FIXME
 
-    ros_struct.header.stamp = m_node->get_clock()->now();    //@@@@@@@@@@@ FIXME: averageTime.getTime();
+//    ros_struct.header.stamp = m_node->get_clock()->now();    //@@@@@@@@@@@ FIXME: averageTime.getTime();
 //     ros_struct.header.frame_id = m_frame_id; // FIXME
 
 
