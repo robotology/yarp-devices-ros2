@@ -185,10 +185,10 @@ void Odometry2D_nws_ros2::run()
         yarp::os::Stamp timeStamp(static_cast<int>(m_stampCount++), yarp::os::Time::now());
 
         odometryMsg.header.stamp.sec = int(timeStamp.getTime());
-        odometryMsg.header.stamp.nanosec = int(1000000000 * (timeStamp.getTime() - int(timeStamp.getTime())));
+        odometryMsg.header.stamp.nanosec = int(1000000000UL * (timeStamp.getTime() - int(timeStamp.getTime())));
 
         tsData.header.stamp.sec = int(timeStamp.getTime());
-        tsData.header.stamp.nanosec = int(1000000000 * (timeStamp.getTime() - int(timeStamp.getTime())));
+        tsData.header.stamp.nanosec = int(1000000000UL * (timeStamp.getTime() - int(timeStamp.getTime())));
 
         if (rosData.transforms.size() == 0)
         {
