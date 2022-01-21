@@ -68,7 +68,7 @@ bool FrameTransformSet_nwc_ros2::open(yarp::os::Searchable& config)
 
     m_node = NodeCreator::createNode(m_ftNodeName);
     m_publisherFtTimed = m_node->create_publisher<tf2_msgs::msg::TFMessage>(m_ftTopic, 10);
-    m_publisherFtStatic = m_node->create_publisher<tf2_msgs::msg::TFMessage>(m_ftTopicStatic, 10);
+    m_publisherFtStatic = m_node->create_publisher<tf2_msgs::msg::TFMessage>(m_ftTopicStatic, rclcpp::QoS(10).reliable().durability(RMW_QOS_POLICY_DURABILITY_TRANSIENT_LOCAL));
 
     start();
 
@@ -138,9 +138,8 @@ void FrameTransformSet_nwc_ros2::ros2TimeFromYarp(double yarpTime, builtin_inter
     uint64_t time;
     uint64_t sec_part;
     uint64_t nsec_part;
-    time = (uint64_t)(yarpTime * 1000000000UL);
-    sec_part = (time / 1000000000UL);
-    nsec_part = time - sec_part*1000000000UL;
+    sec_part = int(yarpTime); // (time / 1000000000UL);
+    nsec_part = (yarpTime - sec_part)*1000000000UL;
     ros2Time.sec = sec_part;
     ros2Time.nanosec = (uint32_t)nsec_part;
 }
@@ -191,8 +190,11 @@ bool FrameTransformSet_nwc_ros2::publishFrameTransforms()
     {
         geometry_msgs::msg::TransformStamped tempTfs;
         yarpTransformToROS2Transform(ft,tempTfs);
-        if(ft.isStatic) content_timed.push_back(tempTfs);
-        if(ft.isStatic) content_static.push_back(tempTfs);
+        if(!ft.isStatic) {
+            content_timed.push_back(tempTfs);
+        }else {
+            content_static.push_back(tempTfs);
+        }
     }
 
     toPublish_timed.transforms = content_timed;
