@@ -178,8 +178,8 @@ void Odometry2D_nws_ros2::run()
         tsData.transform.rotation.y = 0;
         tsData.transform.rotation.z = sinYaw;
         tsData.transform.rotation.w = cosYaw;
-        tsData.transform.translation.x = odometryData.base_vel_x;
-        tsData.transform.translation.y = odometryData.base_vel_y;
+        tsData.transform.translation.x = odometryData.odom_x;
+        tsData.transform.translation.y = odometryData.odom_y;
         tsData.transform.translation.z = 0;
 
         yarp::os::Stamp timeStamp(static_cast<int>(m_stampCount++), yarp::os::Time::now());
