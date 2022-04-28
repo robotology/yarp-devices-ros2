@@ -17,7 +17,7 @@ jobs:
       matrix:
         build_type: [Release]
         ros_distro: [galactic]
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, windows-2019, macos-latest]
       fail-fast: false
 
     steps:
