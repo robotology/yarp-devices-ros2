@@ -16,7 +16,7 @@ jobs:
     strategy:
       matrix:
         build_type: [Release]
-        ros_distro: [galactic]
+        ros_distro: [humble]
         os: [ubuntu-latest, windows-2019, macos-latest]
       fail-fast: false
 
@@ -35,7 +35,7 @@ jobs:
         # Compilation related dependencies
         mamba install cmake compilers make ninja pkg-config
         # Actual dependencies
-        mamba install -c conda-forge -c robostack-experimental ycm-cmake-modules eigen ace ros-${{ matrix.ros_distro }}-ros-base ros-galactic-test-msgs
+        mamba install -c conda-forge -c robostack-experimental ycm-cmake-modules eigen ace ros-${{ matrix.ros_distro }}-ros-base ros-${{ matrix.ros_distro }}-test-msgs
 
 
     - name: Download YARP [Linux&macOS]
