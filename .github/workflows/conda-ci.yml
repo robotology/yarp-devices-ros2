@@ -3,6 +3,7 @@ name: C++ CI Workflow with conda dependencies
 on:
   push:
   pull_request:
+  workflow_dispatch:
   schedule:
   # * is a special character in YAML so you have to quote this string
   # Execute a "nightly" build at 2 AM UTC
@@ -15,8 +16,8 @@ jobs:
     strategy:
       matrix:
         build_type: [Release]
-        ros_distro: [galactic]
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        ros_distro: [humble]
+        os: [ubuntu-latest, macos-latest]
       fail-fast: false
 
     steps:
@@ -34,7 +35,7 @@ jobs:
         # Compilation related dependencies
         mamba install cmake compilers make ninja pkg-config
         # Actual dependencies
-        mamba install -c conda-forge -c robostack-experimental ycm-cmake-modules eigen ace ros-${{ matrix.ros_distro }}-ros-base ros-galactic-test-msgs
+        mamba install -c conda-forge -c robostack-experimental -c robostack-humble ycm-cmake-modules eigen ace ros-${{ matrix.ros_distro }}-ros-base ros-${{ matrix.ros_distro }}-test-msgs
 
 
     - name: Download YARP [Linux&macOS]
