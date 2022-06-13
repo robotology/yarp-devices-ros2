@@ -11,6 +11,7 @@
 
 #include <yarp/dev/IOdometry2D.h>
 #include <yarp/os/PeriodicThread.h>
+#include <yarp/os/Stamp.h>
 #include <yarp/dev/DeviceDriver.h>
 #include <yarp/dev/WrapperSingle.h>
 #include <tf2_msgs/msg/tf_message.hpp>
@@ -116,7 +117,7 @@ private:
     std::string m_baseFrame;
 
     // stamp count for timestamp
-    size_t m_stampCount{0};
+    yarp::os::Stamp m_timeStamp;
 
     // period for thread
     double m_period{DEFAULT_THREAD_PERIOD};

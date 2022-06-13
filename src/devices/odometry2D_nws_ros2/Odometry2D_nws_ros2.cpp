@@ -6,7 +6,7 @@
 #include <yarp/os/LogComponent.h>
 #include <yarp/os/LogStream.h>
 #include <yarp/os/Stamp.h>
-#include <math.h>
+#include <cmath>
 #include <Ros2Utils.h>
 #include <yarp/dev/OdometryData.h>
 
@@ -140,7 +140,18 @@ void Odometry2D_nws_ros2::run()
 
     if (m_odometry2D_interface!=nullptr && ros2Publisher_odometry && m_publisher_tf) {
         yarp::dev::OdometryData odometryData;
-        m_odometry2D_interface->getOdometry(odometryData);
+        double synchronized_timestamp = 0;
+        m_odometry2D_interface->getOdometry(odometryData, &synchronized_timestamp);
+
+        if (std::isnan(synchronized_timestamp) == false)
+        {
+            m_timeStamp.update(synchronized_timestamp);
+        }
+        else
+        {
+            m_timeStamp.update(yarp::os::Time::now());
+        }
+
         nav_msgs::msg::Odometry odometryMsg;
         odometryMsg.header.frame_id = m_odomFrame;
         odometryMsg.child_frame_id = m_baseFrame;
@@ -164,9 +175,6 @@ void Odometry2D_nws_ros2::run()
         odometryMsg.twist.twist.angular.y = 0;
         odometryMsg.twist.twist.angular.z = odometryData.base_vel_theta * DEG2RAD;
 
-
-
-
         // tf publisher
         tf2_msgs::msg::TFMessage rosData;
 
@@ -182,13 +190,11 @@ void Odometry2D_nws_ros2::run()
         tsData.transform.translation.y = odometryData.odom_y;
         tsData.transform.translation.z = 0;
 
-        yarp::os::Stamp timeStamp(static_cast<int>(m_stampCount++), yarp::os::Time::now());
+        odometryMsg.header.stamp.sec = int(m_timeStamp.getTime());
+        odometryMsg.header.stamp.nanosec = int(1000000000UL * (m_timeStamp.getTime() - int(m_timeStamp.getTime())));
 
-        odometryMsg.header.stamp.sec = int(timeStamp.getTime());
-        odometryMsg.header.stamp.nanosec = int(1000000000UL * (timeStamp.getTime() - int(timeStamp.getTime())));
-
-        tsData.header.stamp.sec = int(timeStamp.getTime());
-        tsData.header.stamp.nanosec = int(1000000000UL * (timeStamp.getTime() - int(timeStamp.getTime())));
+        tsData.header.stamp.sec = int(m_timeStamp.getTime());
+        tsData.header.stamp.nanosec = int(1000000000UL * (m_timeStamp.getTime() - int(m_timeStamp.getTime())));
 
         if (rosData.transforms.size() == 0)
         {
