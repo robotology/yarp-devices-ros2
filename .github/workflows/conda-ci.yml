@@ -117,7 +117,7 @@ jobs:
         # Workaround for https://github.com/RoboStack/ros-galactic/issues/39
         unset DYLD_LIBRARY_PATH
         cd build
-        cmake --install --config ${{ matrix.build_type }}
+        cmake --install . --config ${{ matrix.build_type }}
   
     - name: Build [Windows]
       if: contains(matrix.os, 'windows')
