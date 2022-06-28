@@ -2,6 +2,9 @@
  * SPDX-FileCopyrightText: 2006-2021 Istituto Italiano di Tecnologia (IIT)
  * SPDX-License-Identifier: LGPL-2.1-or-later
  */
+
+// For M_PI
+#define _USE_MATH_DEFINES
 #include "Odometry2D_nws_ros2.h"
 #include <yarp/os/LogComponent.h>
 #include <yarp/os/LogStream.h>
