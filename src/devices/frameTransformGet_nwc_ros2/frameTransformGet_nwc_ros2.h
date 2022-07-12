@@ -100,7 +100,7 @@ private:
     mutable std::mutex                                                    m_trf_mutex;
     std::string                                                           m_ftNodeName{ROS2NODENAME};
     std::string                                                           m_ftTopic{ROS2TOPICNAME_TF};
-    std::string                                                           m_ftTopicStatic{ROS2TOPICNAME_TF};
+    std::string                                                           m_ftTopicStatic{ROS2TOPICNAME_TF_STATIC};
     double                                                                m_refreshInterval{0.1};
     rclcpp::Subscription<tf2_msgs::msg::TFMessage>::SharedPtr             m_subscriptionFtTimed;
     rclcpp::Subscription<tf2_msgs::msg::TFMessage>::SharedPtr             m_subscriptionFtStatic;
