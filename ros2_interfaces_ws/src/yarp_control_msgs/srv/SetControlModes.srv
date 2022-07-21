@@ -1,0 +1,5 @@
+string[] names
+string[] modes
+---
+string response
+string opt_descr
