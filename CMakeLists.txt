@@ -29,8 +29,8 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 set(YARP_FORCE_DYNAMIC_PLUGINS TRUE CACHE INTERNAL "yarp-ros2 is always built with dynamic plugins")
 set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "Build libraries as shared as opposed to static")
 
-option(YARP_ROS2_USE_SYSTEM_map2d_nws_ros2_msgs "If ON, use map2d_nws_ros2_msgs found in the system, otherwise build it with this project." ON)
-option(YARP_ROS2_USE_SYSTEM_yarp_control_msgs "If ON, use yarp_control_msgs found in the system, otherwise build it with this project." ON)
+option(YARP_ROS2_USE_SYSTEM_map2d_nws_ros2_msgs "If ON, use map2d_nws_ros2_msgs found in the system, otherwise build it with this project." OFF)
+option(YARP_ROS2_USE_SYSTEM_yarp_control_msgs "If ON, use yarp_control_msgs found in the system, otherwise build it with this project." OFF)
 
 include(AddInstallRPATHSupport)
 add_install_rpath_support(BIN_DIRS "${CMAKE_INSTALL_FULL_BINDIR}"
