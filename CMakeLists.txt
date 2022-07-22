@@ -72,6 +72,12 @@ else()
   add_subdirectory(ros2_interfaces_ws/src/map2d_nws_ros2_msgs)
 endif()
 
+if(YARP_ROS2_USE_SYSTEM_yarp_control_msgs)
+  find_package(yarp_control_msgs REQUIRED)
+else()
+  add_subdirectory(ros2_interfaces_ws/src/yarp_control_msgs)
+endif()
+
 add_subdirectory(src)
 
 
