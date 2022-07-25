@@ -168,22 +168,16 @@ bool ControlBoard_nws_ros2::open(Searchable& config)
     m_node = NodeCreator::createNode(m_nodeName);
     m_publisher = m_node->create_publisher<sensor_msgs::msg::JointState>(topicName, 10);
 
-    yCError(CONTROLBOARD_ROS2) << "-------------------------------------------------------- Artropodi 1";
     if (config.check("msgs_name")) {
-        yCError(CONTROLBOARD_ROS2) << "-------------------------------------------------------- Artropodi 2";
         std::string msgs_name = config.find("msgs_name").asString();
-        yCError(CONTROLBOARD_ROS2) << "-------------------------------------------------------- Artropodi 3";
         if (msgs_name[0] != '/') {
-            yCError(CONTROLBOARD_ROS2) << "-------------------------------------------------------- Artropodi 4";
             msgs_name = "/"+msgs_name;
         }
-        yCError(CONTROLBOARD_ROS2) << "-------------------------------------------------------- Artropodi 5";
         if(!initRos2Control(msgs_name)){
             yCError(CONTROLBOARD_ROS2) << "Error initializing the ROS2 control related topics and services";
             RCLCPP_ERROR(m_node->get_logger(),"Error initializing the ROS2 control related topics and services");
             return false;
         }
-        yCError(CONTROLBOARD_ROS2) << "-------------------------------------------------------- Artropodi 6";
     }
 
     // In case attach is not deferred and the controlboard already owns a valid device
@@ -680,11 +674,17 @@ void ControlBoard_nws_ros2::positionTopic_callback(const yarp_control_msgs::msg:
     }
 
     bool *done = new bool[1];
-    if(noJoints){
-        if (!iPositionControl->checkMotionDone(done)){
+    double tempVel;
+    double tempPos;
+    JointTypeEnum jType;
+    
+    for(size_t i=0; i<noJoints ? subdevice_joints : msg->positions.size(); i++){
+        size_t index = noJoints ? i : m_quickJointRef[msg->names[i]];
+        iAxisInfo->getJointType(index, jType);
+        if (!iPositionControl->checkMotionDone(index,done)){
             yCError(CONTROLBOARD_ROS2) << "Communication error on checking motion done";
             RCLCPP_ERROR(m_node->get_logger(),"Communication error on checking motion done");
-            
+
             delete done;
             return;
         }
@@ -695,56 +695,34 @@ void ControlBoard_nws_ros2::positionTopic_callback(const yarp_control_msgs::msg:
             delete done;
             return;
         }
-        if (!noSpeed){
-            if(!iPositionControl->setRefSpeeds(&msg->ref_velocities[0])){
-                yCError(CONTROLBOARD_ROS2) << "Error in setting the reference velocities";
-                RCLCPP_ERROR(m_node->get_logger(),"Error in setting the reference velocities");
-                
+        if(!noSpeed){
+            if(jType == VOCAB_JOINTTYPE_REVOLUTE){
+                tempVel = convertRadiansToDegrees(msg->ref_velocities[i]);
+            }
+            else{
+                tempVel = msg->ref_velocities[i];
+            }
+            if(!iPositionControl->setRefSpeed(index,tempVel)){
+                yCError(CONTROLBOARD_ROS2) << "Error in setting the reference velocity";
+                RCLCPP_ERROR(m_node->get_logger(),"Error in setting the reference velocity");
+
                 delete done;
                 return;
             }
         }
-        if(!iPositionControl->positionMove(&msg->positions[0])){
-            yCError(CONTROLBOARD_ROS2) << "Error in setting the positions";
-            RCLCPP_ERROR(m_node->get_logger(),"Error in setting the positions");
+        
+        if(jType == VOCAB_JOINTTYPE_REVOLUTE){
+            tempPos = convertRadiansToDegrees(msg->positions[i]);
+        }
+        else{
+            tempPos = msg->positions[i];
+        }
+        if(!iPositionControl->positionMove(index,tempPos)){
+            yCError(CONTROLBOARD_ROS2) << "Error in setting the position";
+            RCLCPP_ERROR(m_node->get_logger(),"Error in setting the position");
 
             delete done;
             return;
-        }
-    }
-    else{
-        for(size_t i=0; i<msg->positions.size(); i++){
-            size_t index = m_quickJointRef[msg->names[i]];
-            if (!iPositionControl->checkMotionDone(index,done)){
-                yCError(CONTROLBOARD_ROS2) << "Communication error on checking motion done";
-                RCLCPP_ERROR(m_node->get_logger(),"Communication error on checking motion done");
-
-                delete done;
-                return;
-            }
-            if(!done[0]){
-                yCError(CONTROLBOARD_ROS2) << "Cannot start a new movement while another one is still being preformed";
-                RCLCPP_ERROR(m_node->get_logger(),"Cannot start a new movement while another one is still being preformed");
-
-                delete done;
-                return;
-            }
-            if(!noSpeed){
-                if(!iPositionControl->setRefSpeed(index,msg->ref_velocities[i])){
-                    yCError(CONTROLBOARD_ROS2) << "Error in setting the reference velocity";
-                    RCLCPP_ERROR(m_node->get_logger(),"Error in setting the reference velocity");
-
-                    delete done;
-                    return;
-                }
-            }
-            if(!iPositionControl->positionMove(index,msg->positions[i])){
-                yCError(CONTROLBOARD_ROS2) << "Error in setting the position";
-                RCLCPP_ERROR(m_node->get_logger(),"Error in setting the position");
-
-                delete done;
-                return;
-            }
         }
     }
 
@@ -769,23 +747,23 @@ void ControlBoard_nws_ros2::positionDirectTopic_callback(const yarp_control_msgs
         return;
     }
 
-    if(noJoints){
-        if(!m_iPositionDirect->setPositions(&msg->positions[0])){
-            yCError(CONTROLBOARD_ROS2) << "Error in setting the positions";
-            RCLCPP_ERROR(m_node->get_logger(),"Error in setting the positions");
+    double tempPos;
+    JointTypeEnum jType;
+
+    for(size_t i=0; i<noJoints ? subdevice_joints : msg->positions.size(); i++){
+        size_t index = noJoints ? i : m_quickJointRef[msg->names[i]];
+        iAxisInfo->getJointType(index, jType);
+        if(jType == VOCAB_JOINTTYPE_REVOLUTE){
+            tempPos = convertRadiansToDegrees(msg->positions[i]);
+        }
+        else{
+            tempPos = msg->positions[i];
+        }
+        if(!m_iPositionDirect->setPosition(index,tempPos)){
+            yCError(CONTROLBOARD_ROS2) << "Error in setting the position";
+            RCLCPP_ERROR(m_node->get_logger(),"Error in setting the position");
 
             return;
-        }
-    }
-    else{
-        for(size_t i=0; i<msg->positions.size(); i++){
-            size_t index = m_quickJointRef[msg->names[i]];
-            if(!m_iPositionDirect->setPosition(index,msg->positions[i])){
-                yCError(CONTROLBOARD_ROS2) << "Error in setting the position";
-                RCLCPP_ERROR(m_node->get_logger(),"Error in setting the position");
-
-                return;
-            }
         }
     }
 }
@@ -809,39 +787,38 @@ void ControlBoard_nws_ros2::velocityTopic_callback(const yarp_control_msgs::msg:
         return;
     }
 
-    if(noJoints){
-        if (!noAccel){
-            if(!m_iVelocityControl->setRefAccelerations(&msg->ref_accelerations[0])){
-                yCError(CONTROLBOARD_ROS2) << "Error in setting the reference accelerations";
-                RCLCPP_ERROR(m_node->get_logger(),"Error in setting the reference accelerations");
+    double tempVel;
+    double tempAccel;
+    JointTypeEnum jType;
+
+    for(size_t i=0; i<noJoints ? subdevice_joints : msg->velocities.size(); i++){
+        size_t index = noJoints ? i : m_quickJointRef[msg->names[i]];
+        iAxisInfo->getJointType(index, jType);
+        if(!noAccel){
+            if(jType == VOCAB_JOINTTYPE_REVOLUTE){
+                tempAccel = convertRadiansToDegrees(msg->ref_accelerations[i]);
+            }
+            else{
+                tempAccel = msg->ref_accelerations[i];
+            }
+            if(!m_iVelocityControl->setRefAcceleration(index,tempAccel)){
+                yCError(CONTROLBOARD_ROS2) << "Error in setting the reference acceleration";
+                RCLCPP_ERROR(m_node->get_logger(),"Error in setting the reference acceleration");
 
                 return;
             }
         }
-        if(!m_iVelocityControl->velocityMove(&msg->velocities[0])){
-            yCError(CONTROLBOARD_ROS2) << "Error in setting the velocities";
-            RCLCPP_ERROR(m_node->get_logger(),"Error in setting the velocities");
+        if(jType == VOCAB_JOINTTYPE_REVOLUTE){
+            tempVel = convertRadiansToDegrees(msg->velocities[i]);
+        }
+        else{
+            tempVel = msg->velocities[i];
+        }
+        if(!m_iVelocityControl->velocityMove(index,tempVel)){
+            yCError(CONTROLBOARD_ROS2) << "Error in setting the velocitie";
+            RCLCPP_ERROR(m_node->get_logger(),"Error in setting the velocitie");
 
             return;
-        }
-    }
-    else{
-        for(size_t i=0; i<msg->velocities.size(); i++){
-            size_t index = m_quickJointRef[msg->names[i]];
-            if(!noAccel){
-                if(!m_iVelocityControl->setRefAcceleration(index,msg->ref_accelerations[i])){
-                    yCError(CONTROLBOARD_ROS2) << "Error in setting the reference acceleration";
-                    RCLCPP_ERROR(m_node->get_logger(),"Error in setting the reference acceleration");
-
-                    return;
-                }
-            }
-            if(!m_iVelocityControl->velocityMove(index,msg->velocities[i])){
-                yCError(CONTROLBOARD_ROS2) << "Error in setting the velocitie";
-                RCLCPP_ERROR(m_node->get_logger(),"Error in setting the velocitie");
-
-                return;
-            }
         }
     }
 }
