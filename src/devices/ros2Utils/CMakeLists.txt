@@ -12,7 +12,9 @@ target_sources(Ros2Utils PRIVATE
         Ros2Subscriber.h
         Ros2Subscriber.cpp
         Ros2Utils.h
-        Ros2Utils.cpp)
+        Ros2Utils.cpp
+        Ros2Spinner.h
+        Ros2Spinner.cpp)
 target_include_directories(Ros2Utils PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 target_link_libraries(Ros2Utils PRIVATE
         YARP::YARP_os
