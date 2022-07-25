@@ -1,0 +1,5 @@
+bool only_implemented
+---
+string[] modes
+string response
+string opt_descr
