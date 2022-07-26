@@ -60,7 +60,8 @@ const std::map<std::string,yarp::conf::vocab32_t> fromStringToCtrlMode{{"IDLE",V
                                                                        {"PWM",VOCAB_CM_PWM},
                                                                        {"IMPEDANCE_POS",VOCAB_CM_IMPEDANCE_POS},
                                                                        {"IMPEDANCE_VEL",VOCAB_CM_IMPEDANCE_VEL},
-                                                                       {"MIXED",VOCAB_CM_MIXED}
+                                                                       {"MIXED",VOCAB_CM_MIXED},
+                                                                       {"IDLE",VOCAB_CM_IDLE}
                                                                       };
 const std::vector<std::string> implementedCtrlModes{"POSITION",
                                               "POSITION_DIRECT",
@@ -158,15 +159,15 @@ bool ControlBoard_nws_ros2::open(Searchable& config)
         yCError(CONTROLBOARD_ROS2) << " cannot find topic_name parameter";
         return false;
     }
-    topicName = config.find("topic_name").asString();
-    if(topicName[0] != '/'){
+    m_jointStateTopicName = config.find("topic_name").asString();
+    if(m_jointStateTopicName[0] != '/'){
         yCError(CONTROLBOARD_ROS2) << "topic_name must begin with an initial /";
         return false;
     }
-    yCInfo(CONTROLBOARD_ROS2) << "topic_name is " << topicName;
+    yCInfo(CONTROLBOARD_ROS2) << "topic_name is " << m_jointStateTopicName;
 
     m_node = NodeCreator::createNode(m_nodeName);
-    m_publisher = m_node->create_publisher<sensor_msgs::msg::JointState>(topicName, 10);
+    m_publisher = m_node->create_publisher<sensor_msgs::msg::JointState>(m_jointStateTopicName, 10);
 
     if (config.check("msgs_name")) {
         std::string msgs_name = config.find("msgs_name").asString();
@@ -352,7 +353,7 @@ bool ControlBoard_nws_ros2::setDevice(yarp::dev::DeviceDriver* driver, bool owne
 
     subdevice_ptr->view(iPositionControl);
     if (!iPositionControl) {
-        yCError(CONTROLBOARD_ROS2, "<%s - %s>: IPositionControl interface was not found in subdevice. Quitting",  m_nodeName.c_str(), topicName.c_str());
+        yCError(CONTROLBOARD_ROS2, "<%s - %s>: IPositionControl interface was not found in subdevice. Quitting",  m_nodeName.c_str(), m_jointStateTopicName.c_str());
         return false;
     }
 
@@ -376,29 +377,29 @@ bool ControlBoard_nws_ros2::setDevice(yarp::dev::DeviceDriver* driver, bool owne
 
     subdevice_ptr->view(iEncodersTimed);
     if (!iEncodersTimed) {
-        yCError(CONTROLBOARD_ROS2, "<%s - %s>: IEncodersTimed interface was not found in subdevice. Quitting",  m_nodeName.c_str(), topicName.c_str());
+        yCError(CONTROLBOARD_ROS2, "<%s - %s>: IEncodersTimed interface was not found in subdevice. Quitting",  m_nodeName.c_str(), m_jointStateTopicName.c_str());
         return false;
     }
 
     subdevice_ptr->view(iTorqueControl);
     if (!iTorqueControl) {
-        yCWarning(CONTROLBOARD_ROS2, "<%s - %s>: ITorqueControl interface was not found in subdevice.",  m_nodeName.c_str(), topicName.c_str());
+        yCWarning(CONTROLBOARD_ROS2, "<%s - %s>: ITorqueControl interface was not found in subdevice.",  m_nodeName.c_str(), m_jointStateTopicName.c_str());
     }
 
     subdevice_ptr->view(iAxisInfo);
     if (!iAxisInfo) {
-        yCError(CONTROLBOARD_ROS2, "<%s - %s>: IAxisInfo interface was not found in subdevice. Quitting",  m_nodeName.c_str(), topicName.c_str());
+        yCError(CONTROLBOARD_ROS2, "<%s - %s>: IAxisInfo interface was not found in subdevice. Quitting",  m_nodeName.c_str(), m_jointStateTopicName.c_str());
         return false;
     }
 
     // Get the number of controlled joints
     int tmp_axes;
     if (!iPositionControl->getAxes(&tmp_axes)) {
-        yCError(CONTROLBOARD_ROS2, "<%s - %s>: Failed to get axes number for subdevice ",  m_nodeName.c_str(), topicName.c_str());
+        yCError(CONTROLBOARD_ROS2, "<%s - %s>: Failed to get axes number for subdevice ",  m_nodeName.c_str(), m_jointStateTopicName.c_str());
         return false;
     }
     if (tmp_axes <= 0) {
-        yCError(CONTROLBOARD_ROS2, "<%s - %s>: attached device has an invalid number of joints (%d)",  m_nodeName.c_str(), topicName.c_str(), tmp_axes);
+        yCError(CONTROLBOARD_ROS2, "<%s - %s>: attached device has an invalid number of joints (%d)",  m_nodeName.c_str(), m_jointStateTopicName.c_str(), tmp_axes);
         return false;
     }
     subdevice_joints = static_cast<size_t>(tmp_axes);
@@ -673,7 +674,6 @@ void ControlBoard_nws_ros2::positionTopic_callback(const yarp_control_msgs::msg:
         return;
     }
 
-    bool *done = new bool[1];
     double tempVel;
     double tempPos;
     JointTypeEnum jType;
@@ -681,20 +681,6 @@ void ControlBoard_nws_ros2::positionTopic_callback(const yarp_control_msgs::msg:
     for(size_t i=0; i<noJoints ? subdevice_joints : msg->positions.size(); i++){
         size_t index = noJoints ? i : m_quickJointRef[msg->names[i]];
         iAxisInfo->getJointType(index, jType);
-        if (!iPositionControl->checkMotionDone(index,done)){
-            yCError(CONTROLBOARD_ROS2) << "Communication error on checking motion done";
-            RCLCPP_ERROR(m_node->get_logger(),"Communication error on checking motion done");
-
-            delete done;
-            return;
-        }
-        if(!done[0]){
-            yCError(CONTROLBOARD_ROS2) << "Cannot start a new movement while another one is still being preformed";
-            RCLCPP_ERROR(m_node->get_logger(),"Cannot start a new movement while another one is still being preformed");
-
-            delete done;
-            return;
-        }
         if(!noSpeed){
             if(jType == VOCAB_JOINTTYPE_REVOLUTE){
                 tempVel = convertRadiansToDegrees(msg->ref_velocities[i]);
@@ -706,7 +692,6 @@ void ControlBoard_nws_ros2::positionTopic_callback(const yarp_control_msgs::msg:
                 yCError(CONTROLBOARD_ROS2) << "Error in setting the reference velocity";
                 RCLCPP_ERROR(m_node->get_logger(),"Error in setting the reference velocity");
 
-                delete done;
                 return;
             }
         }
@@ -721,12 +706,9 @@ void ControlBoard_nws_ros2::positionTopic_callback(const yarp_control_msgs::msg:
             yCError(CONTROLBOARD_ROS2) << "Error in setting the position";
             RCLCPP_ERROR(m_node->get_logger(),"Error in setting the position");
 
-            delete done;
             return;
         }
     }
-
-    delete done;
 }
 
 

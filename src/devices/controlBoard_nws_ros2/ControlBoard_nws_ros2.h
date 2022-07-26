@@ -59,7 +59,7 @@
  * |:--------------:|:--------------:|:-------:|:--------------:|:-------------:|:--------------------------: |:-----------------------------------------------------------------:|:-----:|
  * | node_name      |      -         | string  | -              |   -           | Yes                         | set the name for ROS node                                         | must not start with a leading '/' |
  * | topic_name     |      -         | string  | -              |   -           | Yes                         | set the name for ROS topic                                        | must start with a leading '/' |
- * | msgs_name      |      -         | string  | -              |   -           | No                          | set the base name for the topics and interfaces                   | If it is not specified, the control realtedtopics and services will not be initialized |
+ * | msgs_name      |      -         | string  | -              |   -           | No                          | set the base name for the topics and interfaces                   | If it is not specified, the control related topics and services will not be initialized |
  * | period         |      -         | double  | s              |   0.02        | No                          | refresh period of the broadcasted values in s                     | optional, default 20ms |
  * | subdevice      |      -         | string  | -              |   -           | No                          | name of the subdevice to instantiate                              | when used, parameters for the subdevice must be provided as well |
  *
@@ -78,7 +78,7 @@ private:
 
     std::vector<std::string>     jointNames; // name of the joints
     std::string                  m_nodeName;                // name of the rosNode
-    std::string                  topicName;               // name of the rosTopic
+    std::string                  m_jointStateTopicName;               // name of the rosTopic
     std::string                  m_posTopicName;
     std::string                  m_posDirTopicName;
     std::string                  m_velTopicName;
