@@ -28,6 +28,7 @@ if(NOT SKIP_controlBoard_nws_ros2)
   target_sources(yarp_controlBoard_nws_ros2
     PRIVATE
       ControlBoard_nws_ros2.cpp
+      ControlBoard_nws_ros2_callbacks.cpp
       ControlBoard_nws_ros2.h
   )
   target_sources(yarp_controlBoard_nws_ros2 PRIVATE $<TARGET_OBJECTS:Ros2Utils>)
