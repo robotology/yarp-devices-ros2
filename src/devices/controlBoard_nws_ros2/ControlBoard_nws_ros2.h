@@ -72,11 +72,11 @@ class ControlBoard_nws_ros2 :
         public yarp::dev::WrapperSingle
 {
 private:
-    sensor_msgs::msg::JointState ros_struct;
+    sensor_msgs::msg::JointState m_ros_struct;
 
-    yarp::sig::Vector times; // time for each joint
+    yarp::sig::Vector m_times; // time for each joint
 
-    std::vector<std::string>     jointNames; // name of the joints
+    std::vector<std::string>     m_jointNames; // name of the joints
     std::string                  m_nodeName;                // name of the rosNode
     std::string                  m_jointStateTopicName;               // name of the rosTopic
     std::string                  m_msgs_name;
@@ -91,7 +91,7 @@ private:
     mutable std::mutex           m_cmdMutex;
 
 //     yarp::os::Node* node; // ROS node
-    std::uint32_t counter {0}; // incremental counter in the ROS message
+    std::uint32_t m_counter {0}; // incremental counter in the ROS message
 
 //     yarp::os::PortWriterBuffer<yarp::rosmsg::sensor_msgs::JointState> rosOutputState_buffer; // Buffer associated to the ROS topic
 //     yarp::os::Publisher<yarp::rosmsg::sensor_msgs::JointState> rosPublisherPort;             // Dedicated ROS topic publisher
@@ -99,25 +99,24 @@ private:
     rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr m_publisher;
     rclcpp::Node::SharedPtr m_node;
 
-    static constexpr double default_period = 0.02; // s
-    double period {default_period};
+    static constexpr double m_default_period = 0.02; // s
+    double m_period {m_default_period};
 
-    std::string partName; // to open ports and print more detailed debug messages
-    yarp::os::Stamp time; // envelope to attach to the state port
+    yarp::os::Stamp m_time; // envelope to attach to the state port
 
-    bool subdevice_owned    {false};
-    size_t subdevice_joints {0};
-    bool subdevice_ready    {false};
+    bool m_subdevice_owned    {false};
+    size_t m_subdevice_joints {0};
+    bool m_subdevice_ready    {false};
 
     // Devices
-    yarp::dev::DeviceDriver*     subdevice_ptr{nullptr};
-    yarp::dev::IAxisInfo*        iAxisInfo{nullptr};
-    yarp::dev::IEncodersTimed*   iEncodersTimed{nullptr};
-    yarp::dev::ITorqueControl*   iTorqueControl{nullptr};
+    yarp::dev::DeviceDriver*     m_subdevice_ptr{nullptr};
+    yarp::dev::IAxisInfo*        m_iAxisInfo{nullptr};
+    yarp::dev::IEncodersTimed*   m_iEncodersTimed{nullptr};
+    yarp::dev::ITorqueControl*   m_iTorqueControl{nullptr};
     yarp::dev::IPositionDirect*  m_iPositionDirect{nullptr};
     yarp::dev::IVelocityControl* m_iVelocityControl{nullptr};
     yarp::dev::IControlMode*     m_iControlMode{nullptr};
-    yarp::dev::IPositionControl* iPositionControl{nullptr};
+    yarp::dev::IPositionControl* m_iPositionControl{nullptr};
 
     // Ros2 related attributes
     Ros2Spinner*            m_spinner{nullptr};

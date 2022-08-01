@@ -81,7 +81,7 @@ bool ControlBoard_nws_ros2::messageVectorsCheck(const std::string &valueName, co
         return false;
     }
     
-    bool allJoints = names.size() == 0 || names.size() == subdevice_joints;
+    bool allJoints = names.size() == 0 || names.size() == m_subdevice_joints;
 
     if(ref_values.size() == 0){
         yCError(CONTROLBOARD_ROS2) << "The" << valueName << "vector cannot be empty";
@@ -103,7 +103,7 @@ bool ControlBoard_nws_ros2::messageVectorsCheck(const std::string &valueName, co
 
         return false;
     }
-    bool allJointsFail = allJoints && (ref_values.size() != subdevice_joints || (!noRef && derivative.size() != subdevice_joints));
+    bool allJointsFail = allJoints && (ref_values.size() != m_subdevice_joints || (!noRef && derivative.size() != m_subdevice_joints));
 
     if(allJointsFail){
         yCError(CONTROLBOARD_ROS2) << "All joints where selected bt the vector sizes do not match";
@@ -121,7 +121,7 @@ bool ControlBoard_nws_ros2::messageVectorsCheck(const std::string &valueName, co
         return false;
     }
 
-    bool allJoints = names.size() == 0 || names.size() == subdevice_joints;
+    bool allJoints = names.size() == 0 || names.size() == m_subdevice_joints;
     bool diffValNames = !allJoints && (names.size() != ref_values.size());
     bool emptyValues = ref_values.size() == 0;
 
@@ -132,14 +132,14 @@ bool ControlBoard_nws_ros2::messageVectorsCheck(const std::string &valueName, co
         return false;
     }
 
-    bool allJointsFail = allJoints && ref_values.size() != subdevice_joints;
+    bool allJointsFail = allJoints && ref_values.size() != m_subdevice_joints;
 
     return !diffValNames && !allJointsFail;
 }
 
 
 bool ControlBoard_nws_ros2::namesCheck(const std::vector<std::string> &names){
-    if(names.size() > subdevice_joints){
+    if(names.size() > m_subdevice_joints){
         yCError(CONTROLBOARD_ROS2) << "The specified joint names vector is longer than expected";
         RCLCPP_ERROR(m_node->get_logger(),"The specified joint names vector is longer than expected");
 
@@ -163,7 +163,7 @@ bool ControlBoard_nws_ros2::messageVectorsCheck(const std::string &valueName, co
         return false;
     }
 
-    bool allJoints = names.size() == 0 || names.size() == subdevice_joints;
+    bool allJoints = names.size() == 0 || names.size() == m_subdevice_joints;
     bool diffValNames = !allJoints && (names.size() != ref_values.size());
     bool emptyValues = ref_values.size() == 0;
 
@@ -174,7 +174,7 @@ bool ControlBoard_nws_ros2::messageVectorsCheck(const std::string &valueName, co
         return false;
     }
 
-    bool allJointsFail = allJoints && ref_values.size() != subdevice_joints;
+    bool allJointsFail = allJoints && ref_values.size() != m_subdevice_joints;
 
     return !diffValNames && !allJointsFail;
 }
@@ -205,10 +205,10 @@ void ControlBoard_nws_ros2::positionTopic_callback(const yarp_control_msgs::msg:
     std::vector<int> selectedJoints;
     std::vector<double> convertedVel;
 
-    for(size_t i=0; i<(noJoints ? subdevice_joints : msg->positions.size()); i++){
+    for(size_t i=0; i<(noJoints ? m_subdevice_joints : msg->positions.size()); i++){
         size_t index = noJoints ? i : m_quickJointRef[msg->names[i]];
         if(!noJoints) {selectedJoints.push_back(index);}
-        iAxisInfo->getJointType(index, jType);
+        m_iAxisInfo->getJointType(index, jType);
         if(!noSpeed){
             if(jType == VOCAB_JOINTTYPE_REVOLUTE){
                 tempVel = convertRadiansToDegrees(msg->ref_velocities[i]);
@@ -229,15 +229,15 @@ void ControlBoard_nws_ros2::positionTopic_callback(const yarp_control_msgs::msg:
     }
     if(noJoints){
         if(!noSpeed){
-            iPositionControl->setRefSpeeds(&convertedVel[0]);
+            m_iPositionControl->setRefSpeeds(&convertedVel[0]);
         }
-        iPositionControl->positionMove(&convertedPos[0]);
+        m_iPositionControl->positionMove(&convertedPos[0]);
     }
     else{
         if(!noSpeed){
-            iPositionControl->setRefSpeeds(convertedPos.size(),&selectedJoints[0],&convertedVel[0]);
+            m_iPositionControl->setRefSpeeds(convertedPos.size(),&selectedJoints[0],&convertedVel[0]);
         }
-        iPositionControl->positionMove(convertedPos.size(),&selectedJoints[0],&convertedPos[0]);
+        m_iPositionControl->positionMove(convertedPos.size(),&selectedJoints[0],&convertedPos[0]);
     }
 }
 
@@ -264,10 +264,10 @@ void ControlBoard_nws_ros2::positionDirectTopic_callback(const yarp_control_msgs
     std::vector<double> convertedPos;
     std::vector<int> selectedJoints;
 
-    for(size_t i=0; i<noJoints ? subdevice_joints : msg->positions.size(); i++){
+    for(size_t i=0; i<noJoints ? m_subdevice_joints : msg->positions.size(); i++){
         size_t index = noJoints ? i : m_quickJointRef[msg->names[i]];
         if(!noJoints) {selectedJoints.push_back(index);}
-        iAxisInfo->getJointType(index, jType);
+        m_iAxisInfo->getJointType(index, jType);
         if(jType == VOCAB_JOINTTYPE_REVOLUTE){
             tempPos = convertRadiansToDegrees(msg->positions[i]);
         }
@@ -311,10 +311,10 @@ void ControlBoard_nws_ros2::velocityTopic_callback(const yarp_control_msgs::msg:
     std::vector<int> selectedJoints;
     std::vector<double> convertedAccel;
 
-    for(size_t i=0; i<noJoints ? subdevice_joints : msg->velocities.size(); i++){
+    for(size_t i=0; i<noJoints ? m_subdevice_joints : msg->velocities.size(); i++){
         size_t index = noJoints ? i : m_quickJointRef[msg->names[i]];
         if(!noJoints) {selectedJoints.push_back(index);}
-        iAxisInfo->getJointType(index, jType);
+        m_iAxisInfo->getJointType(index, jType);
         if(!noAccel){
             if(jType == VOCAB_JOINTTYPE_REVOLUTE){
                 tempAccel = convertRadiansToDegrees(msg->ref_accelerations[i]);
@@ -362,9 +362,9 @@ void ControlBoard_nws_ros2::getJointsNamesCallback(const std::shared_ptr<rmw_req
 
     bool noIndexes = request->joint_indexes.size() == 0;
 
-    if(!noIndexes && request->joint_indexes.size() > subdevice_joints){
-        yCError(CONTROLBOARD_ROS2) << "request->joint_indexes vector cannot be longer than the actual number of joints:"<< request->joint_indexes.size() << "instead of" << subdevice_joints;
-        RCLCPP_ERROR(m_node->get_logger(),"request->joint_indexes vector cannot be longer than the actual number of joints: %ld instead of %ld", request->joint_indexes.size(), subdevice_joints);
+    if(!noIndexes && request->joint_indexes.size() > m_subdevice_joints){
+        yCError(CONTROLBOARD_ROS2) << "request->joint_indexes vector cannot be longer than the actual number of joints:"<< request->joint_indexes.size() << "instead of" << m_subdevice_joints;
+        RCLCPP_ERROR(m_node->get_logger(),"request->joint_indexes vector cannot be longer than the actual number of joints: %ld instead of %ld", request->joint_indexes.size(), m_subdevice_joints);
 
         response->response = "SIZE_ERROR";
 
@@ -373,8 +373,8 @@ void ControlBoard_nws_ros2::getJointsNamesCallback(const std::shared_ptr<rmw_req
 
     std::string tempName;
     if(noIndexes){
-        for(size_t i=0; i<subdevice_joints; i++){
-            if(!iAxisInfo->getAxisName(i,tempName)){
+        for(size_t i=0; i<m_subdevice_joints; i++){
+            if(!m_iAxisInfo->getAxisName(i,tempName)){
                 yCError(CONTROLBOARD_ROS2) << "Name retrieval failed for joint number"<<i;
                 RCLCPP_ERROR(m_node->get_logger(),"Name retrieval failed for joint number %ld",i);
 
@@ -387,7 +387,7 @@ void ControlBoard_nws_ros2::getJointsNamesCallback(const std::shared_ptr<rmw_req
     }
     else{
         for(const auto &i : request->joint_indexes){
-            if(!iAxisInfo->getAxisName(i,tempName)){
+            if(!m_iAxisInfo->getAxisName(i,tempName)){
                 yCError(CONTROLBOARD_ROS2) << "Name retrieval failed for joint number"<<i;
                 RCLCPP_ERROR(m_node->get_logger(),"Name retrieval failed for joint number %d",i);
 
@@ -453,7 +453,7 @@ void ControlBoard_nws_ros2::getControlModesCallback(const std::shared_ptr<rmw_re
         }
     }
 
-    size_t forLimit = noJoints ? subdevice_joints : request->names.size();
+    size_t forLimit = noJoints ? m_subdevice_joints : request->names.size();
     int *tempMode = new int[1];
     std::vector<std::string> modesToSend;
 
@@ -499,7 +499,7 @@ void ControlBoard_nws_ros2::setControlModesCallback(const std::shared_ptr<rmw_re
         return;
     }
 
-    size_t forLimit = noJoints ? subdevice_joints : request->names.size();
+    size_t forLimit = noJoints ? m_subdevice_joints : request->names.size();
 
     for (size_t i=0; i<forLimit; i++){
         if(!fromStringToCtrlMode.count(request->modes[i])){

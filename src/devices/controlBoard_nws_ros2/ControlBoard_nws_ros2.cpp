@@ -42,7 +42,7 @@ inline double convertDegreesToRadians(double degrees)
 
 
 ControlBoard_nws_ros2::ControlBoard_nws_ros2() :
-        yarp::os::PeriodicThread(default_period)
+        yarp::os::PeriodicThread(m_default_period)
 {
 }
 
@@ -83,14 +83,14 @@ bool ControlBoard_nws_ros2::open(Searchable& config)
             yCError(CONTROLBOARD_ROS2) << "'period' parameter is not a double value";
             return false;
         }
-        period = prop.find("period").asFloat64();
-        if (period <= 0) {
-            yCError(CONTROLBOARD_ROS2) << "'period' parameter is not valid, read value is" << period;
+        m_period = prop.find("period").asFloat64();
+        if (m_period <= 0) {
+            yCError(CONTROLBOARD_ROS2) << "'period' parameter is not valid, read value is" << m_period;
             return false;
         }
     } else {
         yCDebug(CONTROLBOARD_ROS2) << "'period' parameter missing, using default thread period = 0.02s";
-        period = default_period;
+        m_period = m_default_period;
     }
 
     // Check if we need to create subdevice or if they are
@@ -101,7 +101,7 @@ bool ControlBoard_nws_ros2::open(Searchable& config)
             yCError(CONTROLBOARD_ROS2, "Error while opening subdevice");
             return false;
         }
-        subdevice_ready = true;
+        m_subdevice_ready = true;
     }
 
     // check for node_name parameter
@@ -138,8 +138,8 @@ bool ControlBoard_nws_ros2::open(Searchable& config)
 
     // In case attach is not deferred and the controlboard already owns a valid device
     // we can start the thread. Otherwise this will happen when attach is called
-    if (subdevice_ready) {
-        setPeriod(period);
+    if (m_subdevice_ready) {
+        setPeriod(m_period);
         if (!start()) {
             yCError(CONTROLBOARD_ROS2) << "Error starting thread";
             return false;
@@ -265,8 +265,8 @@ bool ControlBoard_nws_ros2::initRos2Control(const std::string& name){
     }
 
     std::string tmpName;
-    for(size_t i=0; i<subdevice_joints; i++){
-        if(!iAxisInfo->getAxisName(i,tmpName)){
+    for(size_t i=0; i<m_subdevice_joints; i++){
+        if(!m_iAxisInfo->getAxisName(i,tmpName)){
             yCError(CONTROLBOARD_ROS2) << "Error retrieving axis" << i << "name. For this device to work, every joint needs a name";
 
             return false;
@@ -309,53 +309,53 @@ bool ControlBoard_nws_ros2::setDevice(yarp::dev::DeviceDriver* driver, bool owne
     yCAssert(CONTROLBOARD_ROS2, driver);
 
     // Save the pointer and subDeviceOwned
-    subdevice_ptr = driver;
-    subdevice_owned = owned;
+    m_subdevice_ptr = driver;
+    m_subdevice_owned = owned;
 
-    subdevice_ptr->view(iPositionControl);
-    if (!iPositionControl) {
+    m_subdevice_ptr->view(m_iPositionControl);
+    if (!m_iPositionControl) {
         yCError(CONTROLBOARD_ROS2, "<%s - %s>: IPositionControl interface was not found in subdevice. Quitting",  m_nodeName.c_str(), m_jointStateTopicName.c_str());
         return false;
     }
 
-    subdevice_ptr->view(m_iPositionDirect);
+    m_subdevice_ptr->view(m_iPositionDirect);
     if (!m_iPositionDirect) {
         yCError(CONTROLBOARD_ROS2, "<%s - %s>: IPositionDirect interface was not found in subdevice. Quitting",  m_nodeName.c_str(), m_posTopicName.c_str());
         return false;
     }
 
-    subdevice_ptr->view(m_iVelocityControl);
+    m_subdevice_ptr->view(m_iVelocityControl);
     if (!m_iVelocityControl) {
         yCError(CONTROLBOARD_ROS2, "<%s - %s>: IVelocityControl interface was not found in subdevice. Quitting",  m_nodeName.c_str(), m_posTopicName.c_str());
         return false;
     }
 
-    subdevice_ptr->view(m_iControlMode);
+    m_subdevice_ptr->view(m_iControlMode);
     if (!m_iControlMode) {
         yCError(CONTROLBOARD_ROS2, "<%s - %s>: IControlMode interface was not found in subdevice. Quitting",  m_nodeName.c_str(), m_posTopicName.c_str());
         return false;
     }
 
-    subdevice_ptr->view(iEncodersTimed);
-    if (!iEncodersTimed) {
+    m_subdevice_ptr->view(m_iEncodersTimed);
+    if (!m_iEncodersTimed) {
         yCError(CONTROLBOARD_ROS2, "<%s - %s>: IEncodersTimed interface was not found in subdevice. Quitting",  m_nodeName.c_str(), m_jointStateTopicName.c_str());
         return false;
     }
 
-    subdevice_ptr->view(iTorqueControl);
-    if (!iTorqueControl) {
+    m_subdevice_ptr->view(m_iTorqueControl);
+    if (!m_iTorqueControl) {
         yCWarning(CONTROLBOARD_ROS2, "<%s - %s>: ITorqueControl interface was not found in subdevice.",  m_nodeName.c_str(), m_jointStateTopicName.c_str());
     }
 
-    subdevice_ptr->view(iAxisInfo);
-    if (!iAxisInfo) {
+    m_subdevice_ptr->view(m_iAxisInfo);
+    if (!m_iAxisInfo) {
         yCError(CONTROLBOARD_ROS2, "<%s - %s>: IAxisInfo interface was not found in subdevice. Quitting",  m_nodeName.c_str(), m_jointStateTopicName.c_str());
         return false;
     }
 
     // Get the number of controlled joints
     int tmp_axes;
-    if (!iPositionControl->getAxes(&tmp_axes)) {
+    if (!m_iPositionControl->getAxes(&tmp_axes)) {
         yCError(CONTROLBOARD_ROS2, "<%s - %s>: Failed to get axes number for subdevice ",  m_nodeName.c_str(), m_jointStateTopicName.c_str());
         return false;
     }
@@ -363,12 +363,12 @@ bool ControlBoard_nws_ros2::setDevice(yarp::dev::DeviceDriver* driver, bool owne
         yCError(CONTROLBOARD_ROS2, "<%s - %s>: attached device has an invalid number of joints (%d)",  m_nodeName.c_str(), m_jointStateTopicName.c_str(), tmp_axes);
         return false;
     }
-    subdevice_joints = static_cast<size_t>(tmp_axes);
-    times.resize(subdevice_joints);
-    ros_struct.name.resize(subdevice_joints);
-    ros_struct.position.resize(subdevice_joints);
-    ros_struct.velocity.resize(subdevice_joints);
-    ros_struct.effort.resize(subdevice_joints);
+    m_subdevice_joints = static_cast<size_t>(tmp_axes);
+    m_times.resize(m_subdevice_joints);
+    m_ros_struct.name.resize(m_subdevice_joints);
+    m_ros_struct.position.resize(m_subdevice_joints);
+    m_ros_struct.velocity.resize(m_subdevice_joints);
+    m_ros_struct.effort.resize(m_subdevice_joints);
 
     if (!updateAxisName()) {
         return false;
@@ -381,29 +381,29 @@ bool ControlBoard_nws_ros2::setDevice(yarp::dev::DeviceDriver* driver, bool owne
 void ControlBoard_nws_ros2::closeDevice()
 {
     // If the subdevice is owned, close and delete the device
-    if (subdevice_owned) {
-        yCAssert(CONTROLBOARD_ROS2, subdevice_ptr);
-        subdevice_ptr->close();
-        delete subdevice_ptr;
+    if (m_subdevice_owned) {
+        yCAssert(CONTROLBOARD_ROS2, m_subdevice_ptr);
+        m_subdevice_ptr->close();
+        delete m_subdevice_ptr;
     }
-    subdevice_ptr = nullptr;
-    subdevice_owned = false;
-    subdevice_joints = 0;
-    subdevice_ready = false;
+    m_subdevice_ptr = nullptr;
+    m_subdevice_owned = false;
+    m_subdevice_joints = 0;
+    m_subdevice_ready = false;
 
-    times.clear();
+    m_times.clear();
 
     // Clear all interfaces
-    iPositionControl = nullptr;
-    iEncodersTimed = nullptr;
-    iTorqueControl = nullptr;
-    iAxisInfo = nullptr;
+    m_iPositionControl = nullptr;
+    m_iEncodersTimed = nullptr;
+    m_iTorqueControl = nullptr;
+    m_iAxisInfo = nullptr;
 }
 
 bool ControlBoard_nws_ros2::attach(yarp::dev::PolyDriver* poly)
 {
     // Check if we already instantiated a subdevice previously
-    if (subdevice_ready) {
+    if (m_subdevice_ready) {
         return false;
     }
 
@@ -411,7 +411,7 @@ bool ControlBoard_nws_ros2::attach(yarp::dev::PolyDriver* poly)
         return false;
     }
 
-    setPeriod(period);
+    setPeriod(m_period);
     if (!start()) {
         yCError(CONTROLBOARD_ROS2) << "Error starting thread";
         return false;
@@ -435,7 +435,7 @@ bool ControlBoard_nws_ros2::attach(yarp::dev::PolyDriver* poly)
 bool ControlBoard_nws_ros2::detach()
 {
     //check if we already instantiated a subdevice previously
-    if (subdevice_owned) {
+    if (m_subdevice_owned) {
         return false;
     }
 
@@ -454,12 +454,12 @@ bool ControlBoard_nws_ros2::updateAxisName()
     // IMPORTANT!! This function has to be called BEFORE the thread starts,
     // the name has to be correct right from the first message!!
 
-    yCAssert(CONTROLBOARD_ROS2, iAxisInfo);
+    yCAssert(CONTROLBOARD_ROS2, m_iAxisInfo);
 
     std::vector<std::string> tmpVect;
-    for (size_t i = 0; i < subdevice_joints; i++) {
+    for (size_t i = 0; i < m_subdevice_joints; i++) {
         std::string tmp;
-        bool ret = iAxisInfo->getAxisName(i, tmp);
+        bool ret = m_iAxisInfo->getAxisName(i, tmp);
         if (!ret) {
             yCError(CONTROLBOARD_ROS2, "Joint name for axis %zu not found!", i);
             return false;
@@ -467,54 +467,54 @@ bool ControlBoard_nws_ros2::updateAxisName()
         tmpVect.emplace_back(tmp);
     }
 
-    yCAssert(CONTROLBOARD_ROS2, tmpVect.size() == subdevice_joints);
+    yCAssert(CONTROLBOARD_ROS2, tmpVect.size() == m_subdevice_joints);
 
-    jointNames = tmpVect;
+    m_jointNames = tmpVect;
 
     return true;
 }
 
 void ControlBoard_nws_ros2::run()
 {
-    yCAssert(CONTROLBOARD_ROS2, iEncodersTimed);
-    yCAssert(CONTROLBOARD_ROS2, iAxisInfo);
+    yCAssert(CONTROLBOARD_ROS2, m_iEncodersTimed);
+    yCAssert(CONTROLBOARD_ROS2, m_iAxisInfo);
 
-    bool positionsOk = iEncodersTimed->getEncodersTimed(ros_struct.position.data(), times.data());
+    bool positionsOk = m_iEncodersTimed->getEncodersTimed(m_ros_struct.position.data(), m_times.data());
     YARP_UNUSED(positionsOk);
 
-    bool speedsOk = iEncodersTimed->getEncoderSpeeds(ros_struct.velocity.data());
+    bool speedsOk = m_iEncodersTimed->getEncoderSpeeds(m_ros_struct.velocity.data());
     YARP_UNUSED(speedsOk);
 
-    if (iTorqueControl) {
-        bool torqueOk = iTorqueControl->getTorques(ros_struct.effort.data());
+    if (m_iTorqueControl) {
+        bool torqueOk = m_iTorqueControl->getTorques(m_ros_struct.effort.data());
         YARP_UNUSED(torqueOk);
     }
 
     // Update the port envelope time by averaging all timestamps
-    time.update(std::accumulate(times.begin(), times.end(), 0.0) / subdevice_joints);
-    yarp::os::Stamp averageTime = time;
+    m_time.update(std::accumulate(m_times.begin(), m_times.end(), 0.0) / m_subdevice_joints);
+    yarp::os::Stamp averageTime = m_time;
 
     // Data from HW have been gathered few lines before
     JointTypeEnum jType;
-    for (size_t i = 0; i < subdevice_joints; i++) {
-        iAxisInfo->getJointType(i, jType);
+    for (size_t i = 0; i < m_subdevice_joints; i++) {
+        m_iAxisInfo->getJointType(i, jType);
         if (jType == VOCAB_JOINTTYPE_REVOLUTE) {
-            ros_struct.position[i] = convertDegreesToRadians(ros_struct.position[i]);
-            ros_struct.velocity[i] = convertDegreesToRadians(ros_struct.velocity[i]);
+            m_ros_struct.position[i] = convertDegreesToRadians(m_ros_struct.position[i]);
+            m_ros_struct.velocity[i] = convertDegreesToRadians(m_ros_struct.velocity[i]);
         }
     }
 
-    ros_struct.name = jointNames;
-    ros_struct.header.stamp.sec = int(averageTime.getTime()); // FIXME
-    ros_struct.header.stamp.nanosec = static_cast<int>(1000000000 * (averageTime.getTime() - int(averageTime.getTime()))); // FIXME
+    m_ros_struct.name = m_jointNames;
+    m_ros_struct.header.stamp.sec = int(averageTime.getTime()); // FIXME
+    m_ros_struct.header.stamp.nanosec = static_cast<int>(1000000000 * (averageTime.getTime() - int(averageTime.getTime()))); // FIXME
 
-//    ros_struct.header.stamp = m_node->get_clock()->now();    //@@@@@@@@@@@ FIXME: averageTime.getTime();
-//     ros_struct.header.frame_id = m_frame_id; // FIXME
+//    m_ros_struct.header.stamp = m_node->get_clock()->now();    //@@@@@@@@@@@ FIXME: averageTime.getTime();
+//     m_ros_struct.header.frame_id = m_frame_id; // FIXME
 
 
     // FIXME
-    ++counter;
-//     ros_struct.header.seq = counter++;
+    ++m_counter;
+//     m_ros_struct.header.seq = m_counter++;
 
-    m_publisher->publish(ros_struct);
+    m_publisher->publish(m_ros_struct);
 }
