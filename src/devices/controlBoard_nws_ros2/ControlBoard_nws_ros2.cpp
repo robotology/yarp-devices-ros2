@@ -172,35 +172,45 @@ bool ControlBoard_nws_ros2::initRos2Control(const std::string& name){
 
     // Creating topics ------------------------------------------------------------------------------------------------- //
 
-    m_posSubscription = m_node->create_subscription<yarp_control_msgs::msg::Position>(m_posTopicName, 10,
-                                                                                      std::bind(&ControlBoard_nws_ros2::positionTopic_callback,
-                                                                                      this, std::placeholders::_1));
-    if(!m_posSubscription){
-        yCError(CONTROLBOARD_ROS2) << "Could not initialize the Position msg subscription";
-        RCLCPP_ERROR(m_node->get_logger(),"Could not initialize the Position msg subscription");
+    if(m_iPositionControl){
+        m_posSubscription = m_node->create_subscription<yarp_control_msgs::msg::Position>(m_posTopicName, 10,
+                                                                                        std::bind(&ControlBoard_nws_ros2::positionTopic_callback,
+                                                                                        this, std::placeholders::_1));
+        if(!m_posSubscription){
+            yCError(CONTROLBOARD_ROS2) << "Could not initialize the Position msg subscription";
+            RCLCPP_ERROR(m_node->get_logger(),"Could not initialize the Position msg subscription");
 
-        return false;
+            return false;
+        }
     }
-    m_posDirectSubscription = m_node->create_subscription<yarp_control_msgs::msg::PositionDirect>(m_posDirTopicName, 10,
-                                                                                                  std::bind(&ControlBoard_nws_ros2::positionDirectTopic_callback,
-                                                                                                            this, std::placeholders::_1));
-    if(!m_posDirectSubscription){
-        yCError(CONTROLBOARD_ROS2) << "Could not initialize the Position direct msg subscription";
-        RCLCPP_ERROR(m_node->get_logger(),"Could not initialize the Position direct msg subscription");
+    if(m_iPositionDirect){
+        m_posDirectSubscription = m_node->create_subscription<yarp_control_msgs::msg::PositionDirect>(m_posDirTopicName, 10,
+                                                                                                    std::bind(&ControlBoard_nws_ros2::positionDirectTopic_callback,
+                                                                                                                this, std::placeholders::_1));
+        if(!m_posDirectSubscription){
+            yCError(CONTROLBOARD_ROS2) << "Could not initialize the Position direct msg subscription";
+            RCLCPP_ERROR(m_node->get_logger(),"Could not initialize the Position direct msg subscription");
 
-        return false;
+            return false;
+        }
     }
-    m_velSubscription = m_node->create_subscription<yarp_control_msgs::msg::Velocity>(m_velTopicName, 10,
-                                                                                      std::bind(&ControlBoard_nws_ros2::velocityTopic_callback,
-                                                                                      this, std::placeholders::_1));
-    if(!m_velSubscription){
-        yCError(CONTROLBOARD_ROS2) << "Could not initialize the Velocity msg subscription";
-        RCLCPP_ERROR(m_node->get_logger(),"Could not initialize the Velocity msg subscription");
+    if(m_iVelocityControl){
+        m_velSubscription = m_node->create_subscription<yarp_control_msgs::msg::Velocity>(m_velTopicName, 10,
+                                                                                        std::bind(&ControlBoard_nws_ros2::velocityTopic_callback,
+                                                                                        this, std::placeholders::_1));
+        if(!m_velSubscription){
+            yCError(CONTROLBOARD_ROS2) << "Could not initialize the Velocity msg subscription";
+            RCLCPP_ERROR(m_node->get_logger(),"Could not initialize the Velocity msg subscription");
 
-        return false;
+            return false;
+        }
     }
 
     // Creating services ----------------------------------------------------------------------------------------------- //
+
+    if(!m_iControlMode){
+        return true;
+    }
 
     rmw_qos_profile_t qos;
     qos.history = RMW_QOS_POLICY_HISTORY_SYSTEM_DEFAULT;
@@ -314,26 +324,22 @@ bool ControlBoard_nws_ros2::setDevice(yarp::dev::DeviceDriver* driver, bool owne
 
     m_subdevice_ptr->view(m_iPositionControl);
     if (!m_iPositionControl) {
-        yCError(CONTROLBOARD_ROS2, "<%s - %s>: IPositionControl interface was not found in subdevice. Quitting",  m_nodeName.c_str(), m_jointStateTopicName.c_str());
-        return false;
+        yCError(CONTROLBOARD_ROS2, "<%s - %s>: IPositionControl interface was not found in subdevice.",  m_nodeName.c_str(), m_jointStateTopicName.c_str());
     }
 
     m_subdevice_ptr->view(m_iPositionDirect);
     if (!m_iPositionDirect) {
-        yCError(CONTROLBOARD_ROS2, "<%s - %s>: IPositionDirect interface was not found in subdevice. Quitting",  m_nodeName.c_str(), m_posTopicName.c_str());
-        return false;
+        yCError(CONTROLBOARD_ROS2, "<%s - %s>: IPositionDirect interface was not found in subdevice.",  m_nodeName.c_str(), m_posTopicName.c_str());
     }
 
     m_subdevice_ptr->view(m_iVelocityControl);
     if (!m_iVelocityControl) {
-        yCError(CONTROLBOARD_ROS2, "<%s - %s>: IVelocityControl interface was not found in subdevice. Quitting",  m_nodeName.c_str(), m_posTopicName.c_str());
-        return false;
+        yCError(CONTROLBOARD_ROS2, "<%s - %s>: IVelocityControl interface was not found in subdevice.",  m_nodeName.c_str(), m_posTopicName.c_str());
     }
 
     m_subdevice_ptr->view(m_iControlMode);
     if (!m_iControlMode) {
-        yCError(CONTROLBOARD_ROS2, "<%s - %s>: IControlMode interface was not found in subdevice. Quitting",  m_nodeName.c_str(), m_posTopicName.c_str());
-        return false;
+        yCError(CONTROLBOARD_ROS2, "<%s - %s>: IControlMode interface was not found in subdevice.",  m_nodeName.c_str(), m_posTopicName.c_str());
     }
 
     m_subdevice_ptr->view(m_iEncodersTimed);
@@ -355,7 +361,7 @@ bool ControlBoard_nws_ros2::setDevice(yarp::dev::DeviceDriver* driver, bool owne
 
     // Get the number of controlled joints
     int tmp_axes;
-    if (!m_iPositionControl->getAxes(&tmp_axes)) {
+    if (!m_iEncodersTimed->getAxes(&tmp_axes)) {
         yCError(CONTROLBOARD_ROS2, "<%s - %s>: Failed to get axes number for subdevice ",  m_nodeName.c_str(), m_jointStateTopicName.c_str());
         return false;
     }
