@@ -79,6 +79,7 @@ private:
     std::vector<std::string>     jointNames; // name of the joints
     std::string                  m_nodeName;                // name of the rosNode
     std::string                  m_jointStateTopicName;               // name of the rosTopic
+    std::string                  m_msgs_name;
     std::string                  m_posTopicName;
     std::string                  m_posDirTopicName;
     std::string                  m_velTopicName;

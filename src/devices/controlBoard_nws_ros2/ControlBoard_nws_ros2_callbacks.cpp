@@ -69,7 +69,7 @@ const std::vector<std::string> implementedCtrlModes{"POSITION",
 
 inline double convertRadiansToDegrees(double degrees)
 {
-    return degrees * M_PI / 180.0;
+    return degrees / M_PI * 180.0;
 }
 } // namespace
 
@@ -201,9 +201,13 @@ void ControlBoard_nws_ros2::positionTopic_callback(const yarp_control_msgs::msg:
     double tempVel;
     double tempPos;
     JointTypeEnum jType;
-    
-    for(size_t i=0; i<noJoints ? subdevice_joints : msg->positions.size(); i++){
+    std::vector<double> convertedPos;
+    std::vector<int> selectedJoints;
+    std::vector<double> convertedVel;
+
+    for(size_t i=0; i<(noJoints ? subdevice_joints : msg->positions.size()); i++){
         size_t index = noJoints ? i : m_quickJointRef[msg->names[i]];
+        if(!noJoints) {selectedJoints.push_back(index);}
         iAxisInfo->getJointType(index, jType);
         if(!noSpeed){
             if(jType == VOCAB_JOINTTYPE_REVOLUTE){
@@ -212,12 +216,7 @@ void ControlBoard_nws_ros2::positionTopic_callback(const yarp_control_msgs::msg:
             else{
                 tempVel = msg->ref_velocities[i];
             }
-            if(!iPositionControl->setRefSpeed(index,tempVel)){
-                yCError(CONTROLBOARD_ROS2) << "Error in setting the reference velocity";
-                RCLCPP_ERROR(m_node->get_logger(),"Error in setting the reference velocity");
-
-                return;
-            }
+            convertedVel.push_back(tempVel);
         }
         
         if(jType == VOCAB_JOINTTYPE_REVOLUTE){
@@ -226,12 +225,19 @@ void ControlBoard_nws_ros2::positionTopic_callback(const yarp_control_msgs::msg:
         else{
             tempPos = msg->positions[i];
         }
-        if(!iPositionControl->positionMove(index,tempPos)){
-            yCError(CONTROLBOARD_ROS2) << "Error in setting the position";
-            RCLCPP_ERROR(m_node->get_logger(),"Error in setting the position");
-
-            return;
+        convertedPos.push_back(tempPos);
+    }
+    if(noJoints){
+        if(!noSpeed){
+            iPositionControl->setRefSpeeds(&convertedVel[0]);
         }
+        iPositionControl->positionMove(&convertedPos[0]);
+    }
+    else{
+        if(!noSpeed){
+            iPositionControl->setRefSpeeds(convertedPos.size(),&selectedJoints[0],&convertedVel[0]);
+        }
+        iPositionControl->positionMove(convertedPos.size(),&selectedJoints[0],&convertedPos[0]);
     }
 }
 
@@ -255,9 +261,12 @@ void ControlBoard_nws_ros2::positionDirectTopic_callback(const yarp_control_msgs
 
     double tempPos;
     JointTypeEnum jType;
+    std::vector<double> convertedPos;
+    std::vector<int> selectedJoints;
 
     for(size_t i=0; i<noJoints ? subdevice_joints : msg->positions.size(); i++){
         size_t index = noJoints ? i : m_quickJointRef[msg->names[i]];
+        if(!noJoints) {selectedJoints.push_back(index);}
         iAxisInfo->getJointType(index, jType);
         if(jType == VOCAB_JOINTTYPE_REVOLUTE){
             tempPos = convertRadiansToDegrees(msg->positions[i]);
@@ -265,12 +274,14 @@ void ControlBoard_nws_ros2::positionDirectTopic_callback(const yarp_control_msgs
         else{
             tempPos = msg->positions[i];
         }
-        if(!m_iPositionDirect->setPosition(index,tempPos)){
-            yCError(CONTROLBOARD_ROS2) << "Error in setting the position";
-            RCLCPP_ERROR(m_node->get_logger(),"Error in setting the position");
+        convertedPos.push_back(tempPos);
+    }
 
-            return;
-        }
+    if(noJoints){
+        m_iPositionDirect->setPositions(&convertedPos[0]);
+    }
+    else{
+        m_iPositionDirect->setPositions(convertedPos.size(),&selectedJoints[0],&convertedPos[0]);
     }
 }
 
@@ -296,9 +307,13 @@ void ControlBoard_nws_ros2::velocityTopic_callback(const yarp_control_msgs::msg:
     double tempVel;
     double tempAccel;
     JointTypeEnum jType;
+    std::vector<double> convertedVel;
+    std::vector<int> selectedJoints;
+    std::vector<double> convertedAccel;
 
     for(size_t i=0; i<noJoints ? subdevice_joints : msg->velocities.size(); i++){
         size_t index = noJoints ? i : m_quickJointRef[msg->names[i]];
+        if(!noJoints) {selectedJoints.push_back(index);}
         iAxisInfo->getJointType(index, jType);
         if(!noAccel){
             if(jType == VOCAB_JOINTTYPE_REVOLUTE){
@@ -307,12 +322,7 @@ void ControlBoard_nws_ros2::velocityTopic_callback(const yarp_control_msgs::msg:
             else{
                 tempAccel = msg->ref_accelerations[i];
             }
-            if(!m_iVelocityControl->setRefAcceleration(index,tempAccel)){
-                yCError(CONTROLBOARD_ROS2) << "Error in setting the reference acceleration";
-                RCLCPP_ERROR(m_node->get_logger(),"Error in setting the reference acceleration");
-
-                return;
-            }
+            convertedAccel.push_back(tempAccel);
         }
         if(jType == VOCAB_JOINTTYPE_REVOLUTE){
             tempVel = convertRadiansToDegrees(msg->velocities[i]);
@@ -320,12 +330,19 @@ void ControlBoard_nws_ros2::velocityTopic_callback(const yarp_control_msgs::msg:
         else{
             tempVel = msg->velocities[i];
         }
-        if(!m_iVelocityControl->velocityMove(index,tempVel)){
-            yCError(CONTROLBOARD_ROS2) << "Error in setting the velocitie";
-            RCLCPP_ERROR(m_node->get_logger(),"Error in setting the velocitie");
-
-            return;
+        convertedVel.push_back(tempVel);
+    }
+    if(!noJoints){
+        if(!noAccel){
+            m_iVelocityControl->setRefAccelerations(&convertedAccel[0]);
         }
+        m_iVelocityControl->velocityMove(&convertedVel[0]);
+    }
+    else{
+        if(!noAccel){
+            m_iVelocityControl->setRefAccelerations(convertedAccel.size(),&selectedJoints[0],&convertedAccel[0]);
+        }
+        m_iVelocityControl->velocityMove(convertedVel.size(),&selectedJoints[0],&convertedVel[0]);
     }
 }
 

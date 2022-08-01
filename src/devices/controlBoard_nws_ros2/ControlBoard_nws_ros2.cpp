@@ -130,14 +130,9 @@ bool ControlBoard_nws_ros2::open(Searchable& config)
     m_publisher = m_node->create_publisher<sensor_msgs::msg::JointState>(m_jointStateTopicName, 10);
 
     if (config.check("msgs_name")) {
-        std::string msgs_name = config.find("msgs_name").asString();
-        if (msgs_name[0] != '/') {
-            msgs_name = "/"+msgs_name;
-        }
-        if(!initRos2Control(msgs_name)){
-            yCError(CONTROLBOARD_ROS2) << "Error initializing the ROS2 control related topics and services";
-            RCLCPP_ERROR(m_node->get_logger(),"Error initializing the ROS2 control related topics and services");
-            return false;
+        m_msgs_name = config.find("msgs_name").asString();
+        if (m_msgs_name[0] != '/') {
+            m_msgs_name = "/"+m_msgs_name;
         }
     }
 
@@ -147,6 +142,11 @@ bool ControlBoard_nws_ros2::open(Searchable& config)
         setPeriod(period);
         if (!start()) {
             yCError(CONTROLBOARD_ROS2) << "Error starting thread";
+            return false;
+        }
+        if(!initRos2Control(m_msgs_name)){
+            yCError(CONTROLBOARD_ROS2) << "Error initializing the ROS2 control related topics and services";
+            RCLCPP_ERROR(m_node->get_logger(),"Error initializing the ROS2 control related topics and services");
             return false;
         }
         if(m_spinner){
@@ -161,6 +161,7 @@ bool ControlBoard_nws_ros2::open(Searchable& config)
 
 
 bool ControlBoard_nws_ros2::initRos2Control(const std::string& name){
+
     m_posTopicName = name+"/position";
     m_posDirTopicName = name+"/position_direct";
     m_velTopicName = name+"/velocity";
@@ -413,6 +414,12 @@ bool ControlBoard_nws_ros2::attach(yarp::dev::PolyDriver* poly)
     setPeriod(period);
     if (!start()) {
         yCError(CONTROLBOARD_ROS2) << "Error starting thread";
+        return false;
+    }
+
+    if(!initRos2Control(m_msgs_name)){
+        yCError(CONTROLBOARD_ROS2) << "Error initializing the ROS2 control related topics and services";
+        RCLCPP_ERROR(m_node->get_logger(),"Error initializing the ROS2 control related topics and services");
         return false;
     }
 
