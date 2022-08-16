@@ -15,7 +15,7 @@ target_sources(Ros2RGBDConversionUtils PRIVATE
         Ros2RGBDConversionUtils.h
         ros2PixelCode.h
         ros2PixelCode.cpp)
-                                              
+
 target_include_directories(Ros2RGBDConversionUtils PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 
 target_link_libraries(Ros2RGBDConversionUtils PRIVATE YARP::YARP_os

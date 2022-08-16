@@ -115,7 +115,7 @@ class RgbdSensor_nwc_ros2:
             std::string m_ros2_node_name;
 
             // yarp variables
-            int 	m_verbose{2};
+            int      m_verbose{2};
 
             //ros2 node and subscribers
             Ros2Subscriber<RgbdSensor_nwc_ros2, sensor_msgs::msg::CameraInfo>* sub1;
@@ -178,8 +178,8 @@ class RgbdSensor_nwc_ros2:
             void color_raw_callback(const sensor_msgs::msg::Image::SharedPtr msg);
             void color_info_callback(const sensor_msgs::msg::CameraInfo::SharedPtr msg);
 
-            yarp::dev::IRGBDSensor::RGBDSensor_status     	getSensorStatus() override;
-            std::string 			                        getLastErrorMsg(yarp::os::Stamp* timeStamp = NULL) override;
+            yarp::dev::IRGBDSensor::RGBDSensor_status       getSensorStatus() override;
+            std::string                                     getLastErrorMsg(yarp::os::Stamp* timeStamp = NULL) override;
         };
 
 

@@ -99,7 +99,7 @@ void yarp::dev::Ros2RGBDConversionUtils::convertDepthImageRos2ToYarpImageOf(sens
 }
 
 
-void yarp::dev::Ros2RGBDConversionUtils::updateStamp(   sensor_msgs::msg::CameraInfo::SharedPtr ros_camera_info_src, 
+void yarp::dev::Ros2RGBDConversionUtils::updateStamp(   sensor_msgs::msg::CameraInfo::SharedPtr ros_camera_info_src,
                                                     std::string& frame_id_dest,
                                                     yarp::os::Stamp& yarp_stamp)
 {
@@ -128,4 +128,3 @@ void yarp::dev::Ros2RGBDConversionUtils::deepCopyImageOf(const DepthImage& src, 
         dest.getRawImage()[it] = src.getRawImage()[it];
     }
 }
-

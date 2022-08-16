@@ -42,7 +42,7 @@ if(TinyXML2_FOUND)
       if(NOT EXISTS ${TINYXML2_LIBRARY_PATH})
         message(FATAL_ERROR "library file path ${TINYXML2_LIBRARY_PATH} does not exist")
       endif()
-      
+
       add_library(tinyxml2::tinyxml2 UNKNOWN IMPORTED)
       set_property(TARGET tinyxml2::tinyxml2 PROPERTY IMPORTED_LOCATION ${TINYXML2_LIBRARY_PATH})
       set_property(TARGET tinyxml2::tinyxml2 PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${TINYXML2_INCLUDE_DIR})

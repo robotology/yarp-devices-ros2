@@ -44,7 +44,7 @@ public:
     //WrapperSingle
     bool attach(yarp::dev::PolyDriver* driver) override;
     bool detach() override;
-    
+
     // DeviceDriver
     bool open(yarp::os::Searchable& config) override;
     bool close() override;
