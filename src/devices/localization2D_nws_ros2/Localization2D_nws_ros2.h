@@ -22,7 +22,14 @@
 
 #include <mutex>
 
-
+/**
+ *  @ingroup dev_impl_nws_ros2 dev_impl_navigation
+ *
+ * \brief `Localization2D_nws_ros2`:  A localization server which can be wrap multiple algorithms and devices to provide robot localization in a 2D World.
+ *
+ *  Documentation to be added
+ *
+ */
 class Localization2D_nws_ros2 :
         public yarp::dev::DeviceDriver,
         public yarp::os::PeriodicThread,

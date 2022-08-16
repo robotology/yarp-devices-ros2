@@ -28,7 +28,14 @@ public:
 };
 
 
-
+/**
+ *  @ingroup dev_impl_nws_ros2 dev_impl_fake
+ *
+ * \brief `ros2test`: A Network publisher test
+ *
+ *  Documentation to be added
+ *
+*/
 class MinimalPublisher
 {
 public:

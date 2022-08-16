@@ -34,7 +34,7 @@
 #include <Ros2Subscriber.h>
 
 /**
- *  @ingroup dev_impl_wrapper
+ *  @ingroup dev_impl_nwc_ros2
  *
  * \section rgbdSensor_nwc_ros2_device_parameters Description of input parameters
  * This device is an nwc take a stream of data from ros2 and exposes to the user IRGBDSensor interface.

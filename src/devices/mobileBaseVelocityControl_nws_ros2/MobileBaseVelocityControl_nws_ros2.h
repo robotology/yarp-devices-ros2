@@ -22,7 +22,7 @@
 #include <string>
 
  /**
-  *  @ingroup dev_impl_network_clients dev_impl_navigation
+  *  @ingroup dev_impl_nws_ros2 dev_impl_navigation
   *
   * \section MobileBaseVelocityControl_nws_ros2
   *

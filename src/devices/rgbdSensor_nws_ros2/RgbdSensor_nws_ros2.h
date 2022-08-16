@@ -23,7 +23,14 @@
 
 #include <mutex>
 
-
+/**
+ *  @ingroup dev_impl_nws_ros2 dev_impl_media
+ *
+ * \brief `RgbdSensor_nws_ros2`: A Network grabber for kinect-like devices.
+ *
+ *  Documentation to be added
+ *
+*/
 class RgbdSensor_nws_ros2 :
         public yarp::dev::DeviceDriver,
         public yarp::dev::WrapperSingle,

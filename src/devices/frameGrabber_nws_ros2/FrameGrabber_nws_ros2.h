@@ -27,7 +27,14 @@
 #include <sensor_msgs/msg/image.hpp>
 #include <sensor_msgs/msg/camera_info.hpp>
 
-
+/**
+ *  @ingroup dev_impl_nws_ros2 dev_impl_media
+ *
+ * \brief `FrameGrabber_nws_ros2`: A Network grabber for camera devices.
+ *
+ *  Documentation to be added
+ *
+*/
 class FrameGrabber_nws_ros2 :
         public yarp::dev::DeviceDriver,
         public yarp::dev::WrapperSingle,

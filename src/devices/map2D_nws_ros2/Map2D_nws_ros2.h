@@ -51,7 +51,7 @@
 
 
 /**
- *  @ingroup dev_impl_wrapper dev_impl_navigation
+ *  @ingroup dev_impl_nws_ros2 dev_impl_navigation
  *
  * \section Map2D_nws_ros2
  *

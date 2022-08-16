@@ -20,7 +20,14 @@
 
 #include <mutex>
 
-
+/**
+ *  @ingroup dev_impl_nws_ros2 dev_impl_lidar
+ *
+ * \brief `Rangefinder2D_nws_ros2`:  A Network grabber for 2D Rangefinder devices
+ *
+ *  Documentation to be added
+ *
+ */
 class Rangefinder2D_nws_ros2 :
         public yarp::dev::DeviceDriver,
         public yarp::os::PeriodicThread,

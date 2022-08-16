@@ -41,7 +41,7 @@ const std::string pointCloudTopicName_param = "topic_name";
     constexpr double DEFAULT_THREAD_PERIOD = 0.03; // s
 } // namespace
 /**
- *  @ingroup dev_impl_wrapper
+ *  @ingroup dev_impl_nws_ros2 dev_impl_media
  *
  * \section rgbdToPointCloudSensor_nws_ros2_device_parameters Description of input parameters
  * A Network grabber for kinect-like devices.
