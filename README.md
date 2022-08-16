@@ -1,11 +1,21 @@
-yarp_ros2
----------
-
-This is a work in progress.
+![YARP logo](doc/images/yarp-robot-24.png?raw=true "yarp-devices-ros2")
+Yarp devices for ROS2
+=====================
 
 This repository contains the YARP devices and utilities for ROS2.
 
-Milestones of this repository and progress https://github.com/hsp-iit/research-development/issues/59
+:construction: This repository is currently work in progress. :construction:
+:construction: The software contained is this repository is currently under testing. :construction: APIs may change without any warning. :construction: This code should be not used before its first official release :construction:
+
+Documentation
+-------------
+
+Documentation of the individual devices is provided in the official Yarp documentation page:
+[![YARP documentation](https://img.shields.io/badge/Documentation-yarp.it-19c2d8.svg)](https://yarp.it/latest/group__dev__impl.html)
+
+
+Installation
+-------------
 
 ### Build with ROS msgs compiled in separate colcon workspace
 
@@ -33,3 +43,23 @@ cmake --build build --target install
 export AMENT_PREFIX_PATH=$AMENT_PREFIX_PATH:<install_prefix>
 ~~~
 
+CI Status
+---------
+
+:construction: This repository is currently work in progress. :construction:
+
+[![Build Status](https://github.com/robotology/yarp-devices-ros2/workflows/CI%20Workflow/badge.svg)](https://github.com/robotology/yarp-devices-ros2/actions?query=workflow%3A%22CI+Workflow%22)
+
+License
+---------
+
+:construction: This repository is currently work in progress. :construction:
+
+Maintainers
+--------------
+This repository is maintained by:
+
+| | |
+|:---:|:---:|
+| [<img src="https://github.com/randaz81.png" width="40">](https://github.com/randaz81) | [@randaz81](https://github.com/randaz81) |
+| [<img src="https://github.com/elandini84.png" width="40">](https://github.com/elandini84) | [@elandini84](https://github.com/elandini84) |

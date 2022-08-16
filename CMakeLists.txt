@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.12)
-project(yarp-ros2
+project(yarp-devices-ros2
         LANGUAGES CXX
-        VERSION 3.4.100)
+        VERSION 3.7.100)
 
 include(FeatureSummary)
 
@@ -26,7 +26,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-set(YARP_FORCE_DYNAMIC_PLUGINS TRUE CACHE INTERNAL "yarp-ros2 is always built with dynamic plugins")
+set(YARP_FORCE_DYNAMIC_PLUGINS TRUE CACHE INTERNAL "yarp-devices-ros2 is always built with dynamic plugins")
 option(BUILD_SHARED_LIBS "Build libraries as shared as opposed to static" ON)
 
 option(YARP_ROS2_USE_SYSTEM_map2d_nws_ros2_msgs "If ON, use map2d_nws_ros2_msgs found in the system, otherwise build it with this project." ON)
@@ -48,13 +48,14 @@ set_property(GLOBAL PROPERTY USE_FOLDERS 1)
 
 include(AddUninstallTarget)
 
-find_package(YARP 3.4.1 COMPONENTS os sig dev REQUIRED)
+find_package(YARP 3.7.2 COMPONENTS os sig dev REQUIRED)
 set(CMAKE_C_FLAGS "${YARP_C_FLAGS} ${CMAKE_C_FLAGS}")
 set(CMAKE_CXX_FLAGS "${YARP_CXX_FLAGS} ${CMAKE_CXX_FLAGS}")
 
-yarp_configure_plugins_installation(yarp-ros2)
+yarp_configure_plugins_installation(yarp-devices-ros2)
 
 find_package(ament_cmake REQUIRED)
+find_package(Doxygen)
 
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
@@ -72,7 +73,7 @@ else()
 endif()
 
 add_subdirectory(src)
-
+#add_subdirectory(doc)
 
 #if(BUILD_TESTING)
   #find_package(ament_lint_auto REQUIRED)

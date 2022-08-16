@@ -21,6 +21,16 @@
 #include <mutex>
 #include <string>
 
+class Ros2InitMobVel
+{
+public:
+    Ros2InitMobVel();
+
+    std::shared_ptr<rclcpp::Node> node;
+
+    static Ros2InitMobVel& get();
+};
+
  /**
   *  @ingroup dev_impl_nws_ros2 dev_impl_navigation
   *
@@ -36,16 +46,6 @@
   * | topic_name     |     -          | string  | -              | /velocity_input                | No           | Full name of the opened ros2 topic                                 |       |
   * | subdevice      |      -         | string  | -              |   -                            | No           | name of the subdevice to instantiate                              | when used, parameters for the subdevice must be provided as well |
   */
-
-class Ros2InitMobVel
-{
-public:
-    Ros2InitMobVel();
-
-    std::shared_ptr<rclcpp::Node> node;
-
-    static Ros2InitMobVel& get();
-};
 
 class MobileBaseVelocityControl_nws_ros2 :
     public yarp::dev::DeviceDriver,

@@ -43,8 +43,9 @@ const std::string pointCloudTopicName_param = "topic_name";
 /**
  *  @ingroup dev_impl_nws_ros2 dev_impl_media
  *
+ * \brief `rgbdToPointCloudSensor_nws_ros2`: A Network grabber for kinect-like devices. It attaches to an RGBD camera and publishes directly a pointcloud.
+ *
  * \section rgbdToPointCloudSensor_nws_ros2_device_parameters Description of input parameters
- * A Network grabber for kinect-like devices.
  * This device will produce one stream of data for the point cloud
  * derived fron the combination of the data derived from Framegrabber and IDepthSensor interfaces.
  * See they documentation for more details about each interface.
