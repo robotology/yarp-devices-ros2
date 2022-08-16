@@ -151,7 +151,7 @@ void FrameTransformSet_nwc_ros2::yarpTransformToROS2Transform(const yarp::math::
     geometry_msgs::msg::Transform tempTf;
     geometry_msgs::msg::Vector3 tempTransl;
     geometry_msgs::msg::Quaternion tempRotation;
-    
+
     tempTransl.x = input.translation.tX;
     tempTransl.y = input.translation.tY;
     tempTransl.z = input.translation.tY;
@@ -167,7 +167,7 @@ void FrameTransformSet_nwc_ros2::yarpTransformToROS2Transform(const yarp::math::
     ros2TimeFromYarp(input.isStatic ? yarp::os::Time::now() : input.timestamp,tempStamp);
     tempHeader.stamp = tempStamp;
     tempHeader.frame_id = input.src_frame_id;
-    
+
     output.header = tempHeader;
     output.child_frame_id = input.dst_frame_id;
     output.transform = tempTf;

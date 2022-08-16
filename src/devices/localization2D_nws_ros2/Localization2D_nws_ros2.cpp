@@ -45,7 +45,7 @@ bool Localization2D_nws_ros2::attach(yarp::dev::PolyDriver* poly)
         yCError(LOCALIZATION2D_NWS_ROS2, "Subdevice passed to attach method is invalid");
         return false;
     }
-    
+
    return true;
 }
 
@@ -62,7 +62,7 @@ bool Localization2D_nws_ros2::detach()
 
 void Localization2D_nws_ros2::run()
 {
-	double m_stats_time_curr = yarp::os::Time::now();
+    double m_stats_time_curr = yarp::os::Time::now();
     if (m_stats_time_curr - m_stats_time_last > 5.0)
     {
         yCInfo(LOCALIZATION2D_NWS_ROS2) << "Running";
@@ -102,9 +102,9 @@ void Localization2D_nws_ros2::run()
         {
             yCWarning(LOCALIZATION2D_NWS_ROS2, "The system is not properly localized!");
         }
-        
-		if (1) publish_odometry_on_ROS_topic();
-		if (1) publish_odometry_on_TF_topic();
+
+        if (1) publish_odometry_on_ROS_topic();
+        if (1) publish_odometry_on_TF_topic();
     }
 }
 
@@ -129,7 +129,7 @@ bool Localization2D_nws_ros2::open(yarp::os::Searchable &config)
         }
         m_isDeviceOwned = true;
     }
- 
+
     //wrapper params
     if (config.check("ROS"))
     {
@@ -156,7 +156,7 @@ bool Localization2D_nws_ros2::open(yarp::os::Searchable &config)
     }
     else
     {
-	}
+    }
     if (!config.check("node_name")) {
         yCError(LOCALIZATION2D_NWS_ROS2) << "missing node_name parameter";
         return false;
@@ -167,7 +167,7 @@ bool Localization2D_nws_ros2::open(yarp::os::Searchable &config)
         return false;
     }
     m_period   = config.check("period", yarp::os::Value(0.010), "Period of the thread").asFloat64();
-       
+
     //create the topics
     const std::string m_odom_topic ="/odom";
     const std::string m_tf_topic ="/tf";
@@ -176,7 +176,7 @@ bool Localization2D_nws_ros2::open(yarp::os::Searchable &config)
     m_publisher_odom = m_node->create_publisher<nav_msgs::msg::Odometry>(m_odom_topic, 10);
     m_publisher_tf   = m_node->create_publisher<tf2_msgs::msg::TFMessage>(m_tf_topic, 10);
     yCInfo(LOCALIZATION2D_NWS_ROS2, "Opened topics: %s, %s", m_odom_topic.c_str(), m_tf_topic.c_str());
-        
+
     //start the publishig thread
     setPeriod(m_period);
     start();
@@ -206,7 +206,7 @@ void Localization2D_nws_ros2::publish_odometry_on_TF_topic()
     tsData.transform.translation.x = m_current_odometry.odom_x;
     tsData.transform.translation.y = m_current_odometry.odom_y;
     tsData.transform.translation.z = 0;
-    
+
     if (rosData.transforms.size() == 0)
     {
         rosData.transforms.push_back(tsData);

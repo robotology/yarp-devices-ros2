@@ -10,6 +10,23 @@ on:
   - cron:  '0 2 * * *'
 
 jobs:
+
+  check-style:
+    name: 'Check Style'
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Clone repository
+      uses: actions/checkout@v2
+
+    - name: Install Dependencies
+      run: |
+        sudo apt-get update -qq
+        sudo apt-get install -qq -y perl
+
+    - name: Check Style
+      run: |
+        perl tests/misc/check_style.pl
+
   build:
     name: '[${{ matrix.os }}@${{ matrix.build_type }}@${{ matrix.ros_distro }}@conda]'
     runs-on: ${{ matrix.os }}

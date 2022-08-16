@@ -66,7 +66,7 @@ bool Rangefinder2D_nws_ros2::attach(yarp::dev::PolyDriver* driver)
         yCError(RANGEFINDER2D_NWS_ROS2) << "Laser device does not provide horizontal resolution ";
         return false;
     }
-    
+
    return true;
 }
 
@@ -83,7 +83,7 @@ bool Rangefinder2D_nws_ros2::detach()
 void Rangefinder2D_nws_ros2::run()
 {
     auto message = std_msgs::msg::String();
-    
+
     if (m_iDevice!=nullptr)
     {
         bool ret = true;
@@ -92,7 +92,7 @@ void Rangefinder2D_nws_ros2::run()
         double synchronized_timestamp = 0;
         ret &= m_iDevice->getRawData(ranges, &synchronized_timestamp);
         ret &= m_iDevice->getDeviceStatus(status);
-        
+
         if (ret)
         {
             int ranges_size = ranges.size();
@@ -167,19 +167,19 @@ bool Rangefinder2D_nws_ros2::open(yarp::os::Searchable &config)
         }
         m_isDeviceOwned = true;
     }
- 
+
     //wrapper params
     m_topic    = config.check("topic_name",  yarp::os::Value("laser_topic"), "Name of the ROS2 topic").asString();
     m_frame_id = config.check("frame_id",  yarp::os::Value("laser_frame"), "Name of the frameId").asString();
     m_node_name = config.check("node_name",  yarp::os::Value("laser_node"), "Name of the node").asString();
     m_period   = config.check("period", yarp::os::Value(0.010), "Period of the thread").asFloat64();
-       
+
     //create the topic
 
     m_node = NodeCreator::createNode(m_node_name);
     m_publisher = m_node->create_publisher<sensor_msgs::msg::LaserScan>(m_topic, 10);
     yCInfo(RANGEFINDER2D_NWS_ROS2, "Opened topic: %s", m_topic.c_str());
-        
+
     //start the publishig thread
     setPeriod(m_period);
     start();

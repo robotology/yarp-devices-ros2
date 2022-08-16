@@ -80,7 +80,7 @@ class Map2D_nws_ros2 :
 public:
     Map2D_nws_ros2();
     ~Map2D_nws_ros2() override = default;
-    
+
 
     //IMultipleWrapper
     bool attach(yarp::dev::PolyDriver* driver) override;

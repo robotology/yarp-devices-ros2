@@ -42,10 +42,10 @@ public:
     Localization2D_nws_ros2& operator=(const Localization2D_nws_ros2&) = delete;
     Localization2D_nws_ros2& operator=(Localization2D_nws_ros2&&) noexcept = delete;
     ~Localization2D_nws_ros2() override = default;
-    
+
     bool attach(yarp::dev::PolyDriver* poly) override;
     bool detach() override;
-    
+
     // DeviceDriver
     bool open(yarp::os::Searchable& config) override;
     bool close() override;
@@ -56,13 +56,13 @@ public:
 private:
     void publish_odometry_on_ROS_topic();
     void publish_odometry_on_TF_topic();
-    
+
 private:
     yarp::dev::PolyDriver m_driver;
     yarp::dev::Nav2D::ILocalization2D *m_iLoc = nullptr;
     rclcpp::Node::SharedPtr m_node;
     rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr   m_publisher_odom;
-    rclcpp::Publisher<tf2_msgs::msg::TFMessage>::SharedPtr  m_publisher_tf;    
+    rclcpp::Publisher<tf2_msgs::msg::TFMessage>::SharedPtr  m_publisher_tf;
     bool m_isDeviceOwned = false;
 
     std::string m_nodeName;
@@ -70,8 +70,8 @@ private:
     std::string m_parent_frame_id;
     std::string m_robot_frame;
     std::string m_fixed_frame;
-      
-    
+
+
     double                                  m_stats_time_last;
     double                                  m_period;
     yarp::os::Stamp                         m_loc_stamp;

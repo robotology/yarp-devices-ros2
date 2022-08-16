@@ -50,7 +50,7 @@ namespace yarp {
 
     void deepCopyImageOf(const DepthImage& src, DepthImage& dest);
 } // namespace Ros2RGBDConversionUtils
-} // namespace dev 
+} // namespace dev
 } // namespace yarp
 
 #endif //ROS2_RGBD_CONVERSION_UTILS_H
