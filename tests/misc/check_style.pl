@@ -15,7 +15,7 @@ sub print_if_verbose
 }
 
 
-my @files = `git ls-files src example tests scripts cmake bindings data CMakeLists.txt`;
+my @files = `git ls-files src example tests scripts cmake CMakeLists.txt README.md`;
 s{^\s+|\s+$}{}g foreach @files;
 
 open my $handle, '<', "tests/misc/check_style_skip.txt";
