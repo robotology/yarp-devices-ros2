@@ -65,8 +65,6 @@ jobs:
       if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
       shell: bash -l {0}
       run: |
-        # Workaround for https://github.com/RoboStack/ros-galactic/issues/39
-        unset DYLD_LIBRARY_PATH
         cd ${GITHUB_WORKSPACE}
         cd yarp
         mkdir build
@@ -92,8 +90,6 @@ jobs:
       if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
       shell: bash -l {0}
       run: |
-        # Workaround for https://github.com/RoboStack/ros-galactic/issues/39
-        unset DYLD_LIBRARY_PATH
         mkdir -p build
         cd build
         # Python3_EXECUTABLE is set as a workaround for https://github.com/ros2/python_cmake_module/issues/6
@@ -113,8 +109,6 @@ jobs:
       if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
       shell: bash -l {0}
       run: |
-        # Workaround for https://github.com/RoboStack/ros-galactic/issues/39
-        unset DYLD_LIBRARY_PATH
         cd build
         cmake --build . --config ${{ matrix.build_type }}
 
@@ -122,8 +116,6 @@ jobs:
       if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
       shell: bash -l {0}
       run: |
-        # Workaround for https://github.com/RoboStack/ros-galactic/issues/39
-        unset DYLD_LIBRARY_PATH
         cd build
         ctest --output-on-failure -C ${{ matrix.build_type }}
 
@@ -131,8 +123,6 @@ jobs:
       if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
       shell: bash -l {0}
       run: |
-        # Workaround for https://github.com/RoboStack/ros-galactic/issues/39
-        unset DYLD_LIBRARY_PATH
         cd build
         cmake --install . --config ${{ matrix.build_type }}
   
