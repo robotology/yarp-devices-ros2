@@ -10,6 +10,8 @@
 #define YARP_ROS2_ROS2UTILS_H
 
 #include <rclcpp/rclcpp.hpp>
+#include <std_msgs/msg/header.hpp>
+
 class NodeCreator
 {
 public:
@@ -17,5 +19,7 @@ public:
     static rclcpp::Node::SharedPtr createNode(std::string name, rclcpp::NodeOptions& node_options);
 };
 
+
+builtin_interfaces::msg::Time ros2TimeFromYarp(double yarpTime);
 
 #endif // YARP_ROS2_ROS2UTILS_H
