@@ -28,6 +28,7 @@ if(NOT SKIP_controlBoard_nws_ros2)
   target_sources(yarp_controlBoard_nws_ros2
     PRIVATE
       ControlBoard_nws_ros2.cpp
+      ControlBoard_nws_ros2_callbacks.cpp
       ControlBoard_nws_ros2.h
   )
   target_sources(yarp_controlBoard_nws_ros2 PRIVATE $<TARGET_OBJECTS:Ros2Utils>)
@@ -40,6 +41,8 @@ if(NOT SKIP_controlBoard_nws_ros2)
       YARP::YARP_dev
       rclcpp::rclcpp
       sensor_msgs::sensor_msgs__rosidl_typesupport_cpp
+      std_msgs::std_msgs__rosidl_typesupport_cpp
+      yarp_control_msgs::yarp_control_msgs__rosidl_typesupport_cpp
       Ros2Utils
   )
 

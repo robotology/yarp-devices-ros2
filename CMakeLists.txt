@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.16)
 project(yarp-devices-ros2
         LANGUAGES CXX
         VERSION 3.7.100)
@@ -29,7 +29,8 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 set(YARP_FORCE_DYNAMIC_PLUGINS TRUE CACHE INTERNAL "yarp-devices-ros2 is always built with dynamic plugins")
 option(BUILD_SHARED_LIBS "Build libraries as shared as opposed to static" ON)
 
-option(YARP_ROS2_USE_SYSTEM_map2d_nws_ros2_msgs "If ON, use map2d_nws_ros2_msgs found in the system, otherwise build it with this project." ON)
+option(YARP_ROS2_USE_SYSTEM_map2d_nws_ros2_msgs "If ON, use map2d_nws_ros2_msgs found in the system, otherwise build it with this project." OFF)
+option(YARP_ROS2_USE_SYSTEM_yarp_control_msgs "If ON, use yarp_control_msgs found in the system, otherwise build it with this project." OFF)
 
 include(AddInstallRPATHSupport)
 add_install_rpath_support(BIN_DIRS "${CMAKE_INSTALL_FULL_BINDIR}"
@@ -71,6 +72,12 @@ if(YARP_ROS2_USE_SYSTEM_map2d_nws_ros2_msgs)
   find_package(map2d_nws_ros2_msgs REQUIRED)
 else()
   add_subdirectory(ros2_interfaces_ws/src/map2d_nws_ros2_msgs)
+endif()
+
+if(YARP_ROS2_USE_SYSTEM_yarp_control_msgs)
+  find_package(yarp_control_msgs REQUIRED)
+else()
+  add_subdirectory(ros2_interfaces_ws/src/yarp_control_msgs)
 endif()
 
 add_subdirectory(src)

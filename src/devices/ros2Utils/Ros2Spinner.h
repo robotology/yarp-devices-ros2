@@ -20,6 +20,6 @@ public:
     Ros2Spinner(std::shared_ptr<rclcpp::Node> input_node);
     ~Ros2Spinner()=default;
 
-    void run();
+    void run() override;
     void threadRelease() override;
 };

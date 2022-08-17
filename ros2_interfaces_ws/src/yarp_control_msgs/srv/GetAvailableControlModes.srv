@@ -1,0 +1,10 @@
+# Service used to retrieve the available control modes
+# only_implemented: if True, only the control mode that are currently implemented in the device code will be returned
+bool only_implemented
+---
+# modes: contains all the control modes that can be manually set (or just the implemented ones)
+# response: a brief string used to signal the state of the result of the request
+# opt_descr: An optional human readable description of the result of the request.
+string[] modes
+string response "NOT_SPECIFIED"
+string opt_descr

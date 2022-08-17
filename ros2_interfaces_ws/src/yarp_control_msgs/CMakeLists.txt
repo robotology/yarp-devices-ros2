@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(map2d_nws_ros2_msgs)
+project(yarp_control_msgs)
 
 # Default to C99
 if(NOT CMAKE_C_STANDARD)
@@ -19,7 +19,6 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
-find_package(nav_msgs REQUIRED)
 find_package(builtin_interfaces REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 # uncomment the following section in order to fill in
@@ -40,15 +39,21 @@ endif()
 find_package(rosidl_default_generators REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
-  "srv/GetMapByName.srv"
+  "srv/SetControlModes.srv"
+  "srv/GetControlModes.srv"
+  "srv/GetAvailableControlModes.srv"
+  "srv/GetJointsNames.srv"
+  "msg/Position.msg"
+  "msg/Velocity.msg"
+  "msg/PositionDirect.msg"
   LIBRARY_NAME ${PROJECT_NAME}
-  DEPENDENCIES nav_msgs builtin_interfaces
+  DEPENDENCIES std_msgs builtin_interfaces
 )
 ament_export_dependencies(rosidl_default_runtime)
 
 ament_package()
 
 # Temporary workaround for https://github.com/ros2/rosidl/pull/605
-if(NOT TARGET map2d_nws_ros2_msgs::map2d_nws_ros2_msgs__rosidl_typesupport_cpp)
-  add_library(map2d_nws_ros2_msgs::map2d_nws_ros2_msgs__rosidl_typesupport_cpp ALIAS map2d_nws_ros2_msgs__rosidl_typesupport_cpp)
+if(NOT TARGET yarp_control_msgs::yarp_control_msgs__rosidl_typesupport_cpp)
+  add_library(yarp_control_msgs::yarp_control_msgs__rosidl_typesupport_cpp ALIAS yarp_control_msgs__rosidl_typesupport_cpp)
 endif()
