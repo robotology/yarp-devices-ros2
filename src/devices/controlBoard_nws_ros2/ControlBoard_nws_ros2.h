@@ -155,7 +155,7 @@ private:
     void getAvailableModesCallback(const std::shared_ptr<rmw_request_id_t> request_header,
                                    const std::shared_ptr<yarp_control_msgs::srv::GetAvailableControlModes::Request> request,
                                    std::shared_ptr<yarp_control_msgs::srv::GetAvailableControlModes::Response> response);
-    
+
     //Subscription callbacks
     void positionTopic_callback(const yarp_control_msgs::msg::Position::SharedPtr msg);
     void positionDirectTopic_callback(const yarp_control_msgs::msg::PositionDirect::SharedPtr msg);

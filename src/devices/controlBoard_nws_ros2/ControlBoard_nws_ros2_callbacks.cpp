@@ -80,7 +80,7 @@ bool ControlBoard_nws_ros2::messageVectorsCheck(const std::string &valueName, co
     if(!namesCheck(names)) {
         return false;
     }
-    
+
     bool allJoints = names.size() == 0 || names.size() == m_subdevice_joints;
 
     if(ref_values.size() == 0){
@@ -218,7 +218,7 @@ void ControlBoard_nws_ros2::positionTopic_callback(const yarp_control_msgs::msg:
             }
             convertedVel.push_back(tempVel);
         }
-        
+
         if(jType == VOCAB_JOINTTYPE_REVOLUTE){
             tempPos = convertRadiansToDegrees(msg->positions[i]);
         }
@@ -287,7 +287,7 @@ void ControlBoard_nws_ros2::positionDirectTopic_callback(const yarp_control_msgs
 
 
 void ControlBoard_nws_ros2::velocityTopic_callback(const yarp_control_msgs::msg::Velocity::SharedPtr msg) {
-    
+
     std::lock_guard <std::mutex> lg(m_cmdMutex);
 
     bool noJoints = msg->names.size() == 0;
