@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2020 Istituto Italiano di Tecnologia (IIT)
+ * Copyright (C) 2006-2022 Istituto Italiano di Tecnologia (IIT)
  * All rights reserved.
  *
  * This software may be modified and distributed under the terms of the
@@ -45,7 +45,6 @@ bool Rangefinder2D_controlBoard_nws_ros2::attach(yarp::dev::PolyDriver* driver)
         driver->view(m_iLidar);
     }
 
-   yCError(RANGEFINDER2D_NWS_ROS2, ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
     if (!setDevice(driver, false))
     {
         return false;
@@ -76,7 +75,7 @@ bool Rangefinder2D_controlBoard_nws_ros2::attach(yarp::dev::PolyDriver* driver)
         yCError(RANGEFINDER2D_NWS_ROS2) << "Laser device does not provide horizontal resolution ";
         return false;
     }
-    
+
    m_isDeviceOwned_laser = true;
    return true;
 }
@@ -93,12 +92,12 @@ bool Rangefinder2D_controlBoard_nws_ros2::detach()
 
 void Rangefinder2D_controlBoard_nws_ros2::run()
 {
-	if (!m_isDeviceOwned_laser) return;
-	if (!m_subdevice_owned_cb) return;
-     
+    if (!m_isDeviceOwned_laser) return;
+    if (!m_subdevice_owned_cb) return;
+
     auto message = std_msgs::msg::String();
     sensor_msgs::msg::LaserScan rosData;
-                
+
     if (m_iLidar!=nullptr)
     {
         bool ret = true;
@@ -107,7 +106,7 @@ void Rangefinder2D_controlBoard_nws_ros2::run()
         double synchronized_timestamp = 0;
         ret &= m_iLidar->getRawData(ranges, &synchronized_timestamp);
         ret &= m_iLidar->getDeviceStatus(status);
-        
+
         if (ret)
         {
             int ranges_size = ranges.size();
@@ -157,9 +156,8 @@ void Rangefinder2D_controlBoard_nws_ros2::run()
             yCError(RANGEFINDER2D_NWS_ROS2, "Sensor returned error");
         }
     }
-    
-    //-----------------------------------------------------------motor part
 
+    //-----------------------------------------------------------motor part
     yCAssert(RANGEFINDER2D_NWS_ROS2, iEncodersTimed);
     yCAssert(RANGEFINDER2D_NWS_ROS2, iAxisInfo);
 
@@ -222,9 +220,9 @@ bool Rangefinder2D_controlBoard_nws_ros2::setDevice(yarp::dev::DeviceDriver* dri
         yCError(RANGEFINDER2D_NWS_ROS2, "<%s - %s>: attached device has an invalid number of joints (%d)",  m_node_name.c_str(), m_topic_cb.c_str(), tmp_axes);
         return false;
     }
-          
+
     subdevice_joints = static_cast<size_t>(tmp_axes);
-       
+
     m_times.resize(subdevice_joints);
     m_ros_struct.name.resize(subdevice_joints);
     m_ros_struct.position.resize(subdevice_joints);
@@ -260,22 +258,21 @@ bool Rangefinder2D_controlBoard_nws_ros2::open(yarp::os::Searchable &config)
         }
         m_isDeviceOwned_laser = true;
     }
- 
+
     //wrapper params
     m_topic    = config.check("topic_name_lidar",  yarp::os::Value("topic_name_lidar"), "Name of the ROS2 topic").asString();
     m_topic_cb   = config.check("topic_name_joint",  yarp::os::Value("topic_name_joint"), "Name of the ROS2 topic").asString();
     m_frame_id = config.check("frame_id",  yarp::os::Value("laser_frame"), "Name of the frameId").asString();
     m_node_name = config.check("node_name",  yarp::os::Value("laser_node"), "Name of the node").asString();
     m_period   = config.check("period", yarp::os::Value(0.010), "Period of the thread").asFloat64();
-       
-    //create the topic
 
+    //create the topic
     m_node = NodeCreator::createNode(m_node_name);
     m_publisher_laser = m_node->create_publisher<sensor_msgs::msg::LaserScan>(m_topic, 10);
-    m_publisher_joint = m_node->create_publisher<sensor_msgs::msg::JointState>(m_topic_cb, 10);   
+    m_publisher_joint = m_node->create_publisher<sensor_msgs::msg::JointState>(m_topic_cb, 10);
     yCInfo(RANGEFINDER2D_NWS_ROS2, "Opened topic: %s", m_topic.c_str());
-        
-    //start the publishig thread
+
+    //start the publishing thread
     setPeriod(m_period);
     start();
     return true;
@@ -290,7 +287,6 @@ bool Rangefinder2D_controlBoard_nws_ros2::updateAxisName()
 {
     // IMPORTANT!! This function has to be called BEFORE the thread starts,
     // the name has to be correct right from the first message!!
-
     yCAssert(RANGEFINDER2D_NWS_ROS2, iAxisInfo);
 
     std::vector<std::string> tmpVect;
@@ -310,4 +306,3 @@ bool Rangefinder2D_controlBoard_nws_ros2::updateAxisName()
 
     return true;
 }
-
