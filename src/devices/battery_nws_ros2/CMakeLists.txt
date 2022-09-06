@@ -25,6 +25,7 @@ if(NOT SKIP_battery_nws_ros2)
       YARP::YARP_sig
       YARP::YARP_dev
       rclcpp::rclcpp
+      sensor_msgs::sensor_msgs__rosidl_typesupport_cpp
       Ros2Utils
   )
   list(APPEND YARP_${YARP_PLUGIN_MASTER}_PRIVATE_DEPS
@@ -32,6 +33,7 @@ if(NOT SKIP_battery_nws_ros2)
     YARP_sig
     YARP_dev
     rclcpp::rclcpp
+    sensor_msgs::sensor_msgs__rosidl_typesupport_cpp
     Ros2Utils
   )
 

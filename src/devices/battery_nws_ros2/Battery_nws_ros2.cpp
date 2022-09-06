@@ -46,7 +46,7 @@ bool Battery_nws_ros2::detach()
     {
         PeriodicThread::stop();
     }
-    m_odometry2D_interface = nullptr;
+    m_battery_interface = nullptr;
     return true;
 }
 
@@ -117,30 +117,37 @@ void Battery_nws_ros2::threadRelease()
 
 void Battery_nws_ros2::run()
 {
-    if (m_battery_interface!=nullptr && m_ros2Publisher)
+    if (m_battery_interface==nullptr)
+    {
+        yCError(BATTERY_NWS_ROS2) << "the interface is not valid";
+	}
+	else if (!m_ros2Publisher)
+	{
+        yCError(BATTERY_NWS_ROS2) << "the publisher is not ready";
+	}
+	else
     {
         double voltage=0;
         double current=0;
         double charge=0;
         double temperature=0;
-        Battery_status status;
+        yarp::dev::IBattery::Battery_status status;
         std::string battery_info;
-        m_odometry2D_interface->getBatteryVoltage(voltage);
-        m_odometry2D_interface->getBatteryCurrent(current);
-        m_odometry2D_interface->getBatteryCharge(charge);
-        m_odometry2D_interface->getBatteryStatus(status);
-        m_odometry2D_interface->getBatteryTemperature(temperature);
-        m_odometry2D_interface->getBatteryInfo(battery_info);
+        m_battery_interface->getBatteryVoltage(voltage);
+        m_battery_interface->getBatteryCurrent(current);
+        m_battery_interface->getBatteryCharge(charge);
+        m_battery_interface->getBatteryStatus(status);
+        m_battery_interface->getBatteryTemperature(temperature);
+        m_battery_interface->getBatteryInfo(battery_info);
 
         m_timeStamp.update(yarp::os::Time::now());
 
-        sensor_msgs::msg::BatteryState  battMsg;
         battMsg.voltage = voltage;
         battMsg.current = current;
         battMsg.temperature = temperature;
-        battMsg.charge = std::nan;
-        battMsg.capacity = std::nan;
-        battMsg.design_capacity = std::nan;
+        battMsg.charge = std::numeric_limits<double>::quiet_NaN();//std::nan("");
+     //   battMsg.capacity = std::nan("");
+      //  battMsg.design_capacity = std::nan("");
         battMsg.percentage = charge;
         battMsg.power_supply_status = 0;
         battMsg.power_supply_health = 0;
@@ -154,10 +161,6 @@ void Battery_nws_ros2::run()
         battMsg.header.stamp.nanosec = int(1000000000UL * (m_timeStamp.getTime() - int(m_timeStamp.getTime())));
 
         m_ros2Publisher->publish(battMsg);
-    }
-    else
-    {
-        yCError(BATTERY_NWS_ROS2) << "the interface is not valid";
     }
 }
 

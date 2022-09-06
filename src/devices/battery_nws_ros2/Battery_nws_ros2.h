@@ -7,7 +7,7 @@
 #ifndef YARP_ROS2_BATTERY_NWS_ROS2_H
 #define YARP_ROS2_BATTERY_NWS_ROS2_H
 #include <rclcpp/rclcpp.hpp>
-#include <sensor_msgs/msg/BatteryState.hpp>
+#include <sensor_msgs/msg/battery_state.hpp>
 
 #include <yarp/dev/IBattery.h>
 #include <yarp/os/PeriodicThread.h>
@@ -70,8 +70,9 @@ private:
     double m_period{DEFAULT_THREAD_PERIOD};
 
     //ros2 node
+    sensor_msgs::msg::BatteryState  battMsg;
     rclcpp::Node::SharedPtr m_node;
-    rclcpp::Publisher<sensor_msgs::msg::BatteryState>::SharedPtr m_ros2Publisher;
+    rclcpp::Publisher<sensor_msgs::msg::BatteryState>::SharedPtr m_ros2Publisher =nullptr;
 
     //interfaces
     yarp::dev::PolyDriver m_driver;
