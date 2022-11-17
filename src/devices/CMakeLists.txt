@@ -7,6 +7,7 @@
 add_subdirectory(ros2test)
 add_subdirectory(ros2Utils)
 add_subdirectory(rangefinder2D_nws_ros2)
+add_subdirectory(rangefinder2D_nwc_ros2)
 add_subdirectory(rgbdSensor_nws_ros2)
 add_subdirectory(localization2D_nws_ros2)
 add_subdirectory(controlBoard_nws_ros2)
