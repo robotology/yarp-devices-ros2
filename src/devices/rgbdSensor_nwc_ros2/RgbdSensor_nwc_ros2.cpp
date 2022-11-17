@@ -84,14 +84,14 @@ void RgbdSensor_nwc_ros2::run()
     {
         rclcpp::init(/*argc*/ 0, /*argv*/ nullptr);
     }
-    node = std::make_shared<rclcpp::Node>(m_ros2_node_name);
-    sub1= new Ros2Subscriber<RgbdSensor_nwc_ros2, sensor_msgs::msg::CameraInfo>(node, this);
-    sub1->subscribe_to_topic(m_topic_rgb_camera_info);
-    sub1->subscribe_to_topic(m_topic_depth_camera_info);
-    sub2= new Ros2Subscriber<RgbdSensor_nwc_ros2, sensor_msgs::msg::Image>(node, this);
-    sub2->subscribe_to_topic(m_topic_rgb_image_raw);
-    sub2->subscribe_to_topic(m_topic_depth_image_raw);
-    rclcpp::spin(node);
+    m_node = std::make_shared<rclcpp::Node>(m_ros2_node_name);
+    m_sub1= new Ros2Subscriber<RgbdSensor_nwc_ros2, sensor_msgs::msg::CameraInfo>(m_node, this);
+    m_sub1->subscribe_to_topic(m_topic_rgb_camera_info);
+    m_sub1->subscribe_to_topic(m_topic_depth_camera_info);
+    m_sub2= new Ros2Subscriber<RgbdSensor_nwc_ros2, sensor_msgs::msg::Image>(m_node, this);
+    m_sub2->subscribe_to_topic(m_topic_rgb_image_raw);
+    m_sub2->subscribe_to_topic(m_topic_depth_image_raw);
+    rclcpp::spin(m_node);
 }
 
 void RgbdSensor_nwc_ros2::callback(sensor_msgs::msg::Image::SharedPtr msg, std::string topic)
@@ -117,37 +117,37 @@ void RgbdSensor_nwc_ros2::callback(sensor_msgs::msg::CameraInfo::SharedPtr msg, 
 void RgbdSensor_nwc_ros2::depth_raw_callback(const sensor_msgs::msg::Image::SharedPtr msg)
 {
     yCTrace(RGBDSENSOR_NWC_ROS2, "callback depth image");
-    std::lock_guard<std::mutex> depth_image_guard(depth_image_mutex);
-    yarp::dev::Ros2RGBDConversionUtils::convertDepthImageRos2ToYarpImageOf(msg,current_depth_image);
-    depth_image_valid = true;
+    std::lock_guard<std::mutex> depth_image_guard(m_depth_image_mutex);
+    yarp::dev::Ros2RGBDConversionUtils::convertDepthImageRos2ToYarpImageOf(msg,m_current_depth_image);
+    m_depth_image_valid = true;
 }
 
 void RgbdSensor_nwc_ros2::depth_info_callback(const sensor_msgs::msg::CameraInfo::SharedPtr msg)
 {
-    std::lock_guard<std::mutex> depth_camera_info_guard(depth_camera_info_mutex);
-    yarp::dev::Ros2RGBDConversionUtils::updateStamp(msg, depth_image_frame, current_depth_stamp);
-    saveIntrinsics(msg, depth_params);
-    max_depth_height = msg->height;
-    max_depth_width = msg->width;
-    depth_stamp_valid = true;
+    std::lock_guard<std::mutex> depth_camera_info_guard(m_depth_camera_info_mutex);
+    yarp::dev::Ros2RGBDConversionUtils::updateStamp(msg, m_depth_image_frame, m_current_depth_stamp);
+    saveIntrinsics(msg, m_depth_params);
+    m_max_depth_height = msg->height;
+    m_max_depth_width = msg->width;
+    m_depth_stamp_valid = true;
 }
 
 void RgbdSensor_nwc_ros2::color_raw_callback(const sensor_msgs::msg::Image::SharedPtr msg)
 {
     yCTrace(RGBDSENSOR_NWC_ROS2, "callback color image");
-    std::lock_guard<std::mutex> rgb_image_guard(rgb_image_mutex);
-    yarp::dev::Ros2RGBDConversionUtils::convertRGBImageRos2ToYarpFlexImage(msg, current_rgb_image);
-    rgb_image_valid = true;
+    std::lock_guard<std::mutex> rgb_image_guard(m_rgb_image_mutex);
+    yarp::dev::Ros2RGBDConversionUtils::convertRGBImageRos2ToYarpFlexImage(msg, m_current_rgb_image);
+    m_rgb_image_valid = true;
 }
 
 void RgbdSensor_nwc_ros2::color_info_callback(const sensor_msgs::msg::CameraInfo::SharedPtr msg)
 {
-    std::lock_guard<std::mutex> rgb_camera_info_guard(rgb_camera_info_mutex);
-    yarp::dev::Ros2RGBDConversionUtils::updateStamp(msg, rgb_image_frame, current_rgb_stamp);
-    saveIntrinsics(msg, rgb_params);
-    max_rgb_height = msg->height;
-    max_rgb_width = msg->width;
-    rgb_stamp_valid = true;
+    std::lock_guard<std::mutex> rgb_camera_info_guard(m_rgb_camera_info_mutex);
+    yarp::dev::Ros2RGBDConversionUtils::updateStamp(msg, m_rgb_image_frame, m_current_rgb_stamp);
+    saveIntrinsics(msg, m_rgb_params);
+    m_max_rgb_height = msg->height;
+    m_max_rgb_width = msg->width;
+    m_rgb_stamp_valid = true;
 }
 
 // TODO FIXME eable distortion inverse brown conrady or check distortion in realsense
@@ -186,14 +186,14 @@ void RgbdSensor_nwc_ros2::saveIntrinsics(sensor_msgs::msg::CameraInfo::SharedPtr
 
 int RgbdSensor_nwc_ros2::getRgbHeight()
 {
-    if (!rgb_image_valid) return 0;
-    return current_rgb_image.height();
+    if (!m_rgb_image_valid) return 0;
+    return m_current_rgb_image.height();
 }
 
 int RgbdSensor_nwc_ros2::getRgbWidth()
 {
-    if (!rgb_image_valid) return 0;
-    return current_rgb_image.width();
+    if (!m_rgb_image_valid) return 0;
+    return m_current_rgb_image.width();
 }
 
 bool RgbdSensor_nwc_ros2::getRgbSupportedConfigurations(yarp::sig::VectorOf<yarp::dev::CameraConfig> &configurations)
@@ -204,14 +204,14 @@ bool RgbdSensor_nwc_ros2::getRgbSupportedConfigurations(yarp::sig::VectorOf<yarp
 
 bool RgbdSensor_nwc_ros2::getRgbResolution(int &width, int &height)
 {
-    if (!rgb_image_valid)
+    if (!m_rgb_image_valid)
     {
         width=0;
         height=0;
         return  false;
     }
-    width  = current_rgb_image.width();
-    height = current_rgb_image.height();
+    width  = m_current_rgb_image.width();
+    height = m_current_rgb_image.height();
     return true;
 }
 
@@ -248,15 +248,15 @@ bool RgbdSensor_nwc_ros2::setDepthAccuracy(double accuracy)
 // not sure that it is correct, maybe I should save the full image dimension
 bool RgbdSensor_nwc_ros2::getRgbFOV(double &horizontalFov, double &verticalFov)
 {
-    if (!rgb_image_valid && !rgb_stamp_valid)
+    if (!m_rgb_image_valid && ! m_rgb_stamp_valid)
     {
         horizontalFov=0;
         verticalFov=0;
         return  false;
         yCError(RGBDSENSOR_NWC_ROS2) << "get rgb IntrinsicParam missing information";
     }
-    horizontalFov = 2 * atan(max_rgb_width / (2 * rgb_params.focalLengthX)) * 180.0 / M_PI;
-    verticalFov = 2 * atan(max_rgb_height / (2 * rgb_params.focalLengthY)) * 180.0 / M_PI;
+    horizontalFov = 2 * atan(m_max_rgb_width / (2 * m_rgb_params.focalLengthX)) * 180.0 / M_PI;
+    verticalFov = 2 * atan(m_max_rgb_height / (2 * m_rgb_params.focalLengthY)) * 180.0 / M_PI;
     return true;
 }
 
@@ -275,10 +275,10 @@ bool RgbdSensor_nwc_ros2::setRgbMirroring(bool mirror)
 
 bool RgbdSensor_nwc_ros2::getRgbIntrinsicParam(yarp::os::Property& intrinsic)
 {
-    if (rgb_stamp_valid)
+    if (m_rgb_stamp_valid)
     {
         intrinsic.clear();
-        rgb_params.toProperty(intrinsic);
+        m_rgb_params.toProperty(intrinsic);
         return true;
     }
     return false;
@@ -286,36 +286,36 @@ bool RgbdSensor_nwc_ros2::getRgbIntrinsicParam(yarp::os::Property& intrinsic)
 
 int  RgbdSensor_nwc_ros2::getDepthHeight()
 {
-    if (!depth_image_valid) return 0;
-    return current_depth_image.height();
+    if (!m_depth_image_valid) return 0;
+    return m_current_depth_image.height();
 }
 
 int  RgbdSensor_nwc_ros2::getDepthWidth()
 {
-    if (!depth_image_valid) return 0;
-    return current_depth_image.width();
+    if (!m_depth_image_valid) return 0;
+    return m_current_depth_image.width();
 }
 
 bool RgbdSensor_nwc_ros2::getDepthFOV(double& horizontalFov, double& verticalFov)
 {
-    if (!depth_image_valid && !depth_stamp_valid)
+    if (!m_depth_image_valid && !m_depth_stamp_valid)
     {
         horizontalFov=0;
         verticalFov=0;
         return  false;
         yCError(RGBDSENSOR_NWC_ROS2) << "get depth IntrinsicParam missing information";
     }
-    horizontalFov = 2 * atan(max_rgb_width / (2 * depth_params.focalLengthX)) * 180.0 / M_PI;
-    verticalFov = 2 * atan(max_rgb_height / (2 * depth_params.focalLengthY)) * 180.0 / M_PI;
+    horizontalFov = 2 * atan(m_max_rgb_width / (2 * m_depth_params.focalLengthX)) * 180.0 / M_PI;
+    verticalFov = 2 * atan(m_max_rgb_height / (2 * m_depth_params.focalLengthY)) * 180.0 / M_PI;
     return true;
 }
 
 bool RgbdSensor_nwc_ros2::getDepthIntrinsicParam(yarp::os::Property& intrinsic)
 {
-    if(depth_stamp_valid)
+    if(m_depth_stamp_valid)
     {
         intrinsic.clear();
-        depth_params.toProperty(intrinsic);
+        m_depth_params.toProperty(intrinsic);
         return true;
     }
     return false;
@@ -363,21 +363,21 @@ bool RgbdSensor_nwc_ros2::getExtrinsicParam(yarp::sig::Matrix& extrinsic)
  */
 bool RgbdSensor_nwc_ros2::getRgbImage(yarp::sig::FlexImage& rgb_image, yarp::os::Stamp* rgb_image_stamp)
 {
-    std::lock_guard<std::mutex> guard_rgb_image(rgb_image_mutex);
-    std::lock_guard<std::mutex> guard_rgb_camera_info(rgb_camera_info_mutex);
+    std::lock_guard<std::mutex> guard_rgb_image(m_rgb_image_mutex);
+    std::lock_guard<std::mutex> guard_rgb_camera_info(m_rgb_camera_info_mutex);
     bool rgb_ok = false;
-    if (rgb_image_valid)
+    if (m_rgb_image_valid)
     {
-        if (rgb_stamp_valid)
+        if (m_rgb_stamp_valid)
         {
             if (rgb_image_stamp == nullptr)
             {
-                yarp::os::Stamp stamp(current_rgb_stamp.getCount(),current_rgb_stamp.getTime());
+                yarp::os::Stamp stamp(m_current_rgb_stamp.getCount(),m_current_rgb_stamp.getTime());
                 rgb_image_stamp = &stamp;
             } else {
-                rgb_image_stamp->update(current_rgb_stamp.getTime());
+                rgb_image_stamp->update(m_current_rgb_stamp.getTime());
             }
-            yarp::dev::Ros2RGBDConversionUtils::deepCopyFlexImage(current_rgb_image, rgb_image);
+            yarp::dev::Ros2RGBDConversionUtils::deepCopyFlexImage(m_current_rgb_image, rgb_image);
             rgb_ok = true;
         }
         else
@@ -397,22 +397,22 @@ bool RgbdSensor_nwc_ros2::getRgbImage(yarp::sig::FlexImage& rgb_image, yarp::os:
  */
 bool RgbdSensor_nwc_ros2::getDepthImage(depthImage& depth_image, yarp::os::Stamp* depth_image_stamp)
 {
-    std::lock_guard<std::mutex> guard_depth_image(depth_image_mutex);
-    std::lock_guard<std::mutex> guard_depth_camera_info(depth_camera_info_mutex);
+    std::lock_guard<std::mutex> guard_depth_image(m_depth_image_mutex);
+    std::lock_guard<std::mutex> guard_depth_camera_info(m_depth_camera_info_mutex);
     bool depth_ok =false;
 
-    if (depth_image_valid)
+    if (m_depth_image_valid)
     {
-        if (depth_stamp_valid)
+        if (m_depth_stamp_valid)
         {
             if (depth_image_stamp == nullptr)
             {
-                yarp::os::Stamp stamp(current_depth_stamp.getCount(),current_depth_stamp.getTime());
+                yarp::os::Stamp stamp(m_current_depth_stamp.getCount(),m_current_depth_stamp.getTime());
                 depth_image_stamp = &stamp;
             } else {
-                depth_image_stamp->update(current_depth_stamp.getTime());
+                depth_image_stamp->update(m_current_depth_stamp.getTime());
             }
-            yarp::dev::Ros2RGBDConversionUtils::deepCopyImageOf(current_depth_image, depth_image);
+            yarp::dev::Ros2RGBDConversionUtils::deepCopyImageOf(m_current_depth_image, depth_image);
             depth_ok = true;
         }
         else

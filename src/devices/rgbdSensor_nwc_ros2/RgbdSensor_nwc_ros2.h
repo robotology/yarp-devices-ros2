@@ -81,30 +81,30 @@ class RgbdSensor_nwc_ros2:
         {
         private:
             // mutex for writing or retrieving images
-            std::mutex rgb_camera_info_mutex;
-            std::mutex rgb_image_mutex;
-            std::mutex depth_camera_info_mutex;
-            std::mutex depth_image_mutex;
+            std::mutex m_rgb_camera_info_mutex;
+            std::mutex m_rgb_image_mutex;
+            std::mutex m_depth_camera_info_mutex;
+            std::mutex m_depth_image_mutex;
 
-            // currentImages
-            yarp::os::Stamp current_depth_stamp;
-            depthImage current_depth_image;
-            std::string depth_image_frame;
-            yarp::sig::IntrinsicParams depth_params;
-            double max_depth_width;
-            double max_depth_height;
+            // current depth and rgb images
+            yarp::os::Stamp            m_current_depth_stamp;
+            depthImage                 m_current_depth_image;
+            std::string                m_depth_image_frame;
+            yarp::sig::IntrinsicParams m_depth_params;
+            double                     m_max_depth_width;
+            double                     m_max_depth_height;
 
-            yarp::os::Stamp current_rgb_stamp;
-            flexImage current_rgb_image;
-            std::string rgb_image_frame;
-            yarp::sig::IntrinsicParams rgb_params;
-            double max_rgb_width;
-            double max_rgb_height;
+            yarp::os::Stamp            m_current_rgb_stamp;
+            flexImage                  m_current_rgb_image;
+            std::string                m_rgb_image_frame;
+            yarp::sig::IntrinsicParams m_rgb_params;
+            double                     m_max_rgb_width;
+            double                     m_max_rgb_height;
 
-            bool depth_image_valid = false;
-            bool depth_stamp_valid = false;
-            bool rgb_image_valid = false;
-            bool rgb_stamp_valid = false;
+            bool m_depth_image_valid = false;
+            bool m_depth_stamp_valid = false;
+            bool m_rgb_image_valid = false;
+            bool m_rgb_stamp_valid = false;
 
 
             // ros2 variables for topics and subscriptions
@@ -118,9 +118,9 @@ class RgbdSensor_nwc_ros2:
             int      m_verbose{2};
 
             //ros2 node and subscribers
-            Ros2Subscriber<RgbdSensor_nwc_ros2, sensor_msgs::msg::CameraInfo>* sub1;
-            Ros2Subscriber<RgbdSensor_nwc_ros2, sensor_msgs::msg::Image>* sub2;
-            rclcpp::Node::SharedPtr node;
+            Ros2Subscriber<RgbdSensor_nwc_ros2, sensor_msgs::msg::CameraInfo>* m_sub1;
+            Ros2Subscriber<RgbdSensor_nwc_ros2, sensor_msgs::msg::Image>* m_sub2;
+            rclcpp::Node::SharedPtr m_node;
             //private functions
             void saveIntrinsics(sensor_msgs::msg::CameraInfo::SharedPtr msg, yarp::sig::IntrinsicParams& params);
 
