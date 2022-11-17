@@ -44,7 +44,6 @@ public:
   * |:--------------:|:--------------:|:-------:|:--------------:|:------------------------------:|:------------:|:-----------------------------------------------------------------:|:-----:|
   * | node_name      |      -         | string  | -              | /mobileBase_VelControl_nws_ros2 | No           | Full name of the opened ros2 node                                  |       |
   * | topic_name     |     -          | string  | -              | /velocity_input                | No           | Full name of the opened ros2 topic                                 |       |
-  * | subdevice      |      -         | string  | -              |   -                            | No           | name of the subdevice to instantiate                              | when used, parameters for the subdevice must be provided as well |
   */
 
 class MobileBaseVelocityControl_nws_ros2 :

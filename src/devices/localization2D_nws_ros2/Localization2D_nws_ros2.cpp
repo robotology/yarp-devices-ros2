@@ -110,26 +110,6 @@ void Localization2D_nws_ros2::run()
 
 bool Localization2D_nws_ros2::open(yarp::os::Searchable &config)
 {
-    if(config.check("subdevice"))
-    {
-        Property       p;
-        p.fromString(config.toString(), false);
-        p.put("device", config.find("subdevice").asString());
-
-        if(!m_driver.open(p) || !m_driver.isValid())
-        {
-            yCError(LOCALIZATION2D_NWS_ROS2) << "Failed to open subdevice.. check params";
-            return false;
-        }
-
-        if(!attach(&m_driver))
-        {
-            yCError(LOCALIZATION2D_NWS_ROS2) << "Failed to open subdevice.. check params";
-            return false;
-        }
-        m_isDeviceOwned = true;
-    }
-
     //wrapper params
     if (config.check("ROS"))
     {
@@ -176,6 +156,8 @@ bool Localization2D_nws_ros2::open(yarp::os::Searchable &config)
     m_publisher_odom = m_node->create_publisher<nav_msgs::msg::Odometry>(m_odom_topic, 10);
     m_publisher_tf   = m_node->create_publisher<tf2_msgs::msg::TFMessage>(m_tf_topic, 10);
     yCInfo(LOCALIZATION2D_NWS_ROS2, "Opened topics: %s, %s", m_odom_topic.c_str(), m_tf_topic.c_str());
+
+    yCInfo(LOCALIZATION2D_NWS_ROS2) << "Waiting for device to attach";
 
     //start the publishig thread
     setPeriod(m_period);

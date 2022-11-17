@@ -54,7 +54,6 @@ const std::string pointCloudTopicName_param = "topic_name";
  * | Parameter name         | SubParameter            | Type    | Units          | Default Value | Required                        | Description                                                                                         | Notes |
  * |:----------------------:|:-----------------------:|:-------:|:--------------:|:-------------:|:------------------------------: |:---------------------------------------------------------------------------------------------------:|:-----:|
  * | period                 |      -                  | double  |  s             |   0.03        |  No                             | refresh period of the broadcasted values in ms                                                      | default 20ms |
- * | subdevice              |      -                  | string  |  -             |   -           |  alternative to 'attach' action | name of the subdevice to use as a data source                                                       | when used, parameters for the subdevice must be provided as well |
  * | topic_name             |      -                  | string  |  -             |   -           |  Yes                            | set the name for ROS point cloud topic                                                              | must start with a leading '/' |
  * | frame_id               |      -                  | string  |  -             |               |  Yes                            | set the name of the reference frame                                                                 |                               |
  * | node_name              |      -                  | string  |  -             |   -           |  Yes                            | set the name for ROS node                                                                           | must start with a leading '/' |
@@ -117,15 +116,9 @@ private:
     yarp::dev::IFrameGrabberControls*   fgCtrl {nullptr};
     bool                                forceInfoSync {true};
 
-    // If a subdevice parameter is given, the wrapper will open it and attach to immediately.
-    // Typical usage: simulator or command line
-    bool                    isSubdeviceOwned {false};
-    yarp::dev::PolyDriver*  subDeviceOwned {nullptr};
-
     // Synch
     yarp::os::Property m_conf;
 
-    bool openAndAttachSubDevice(yarp::os::Searchable& prop);
     bool writeData();
 
     static std::string yarp2RosPixelCode(int code);

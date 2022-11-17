@@ -45,7 +45,7 @@ bool Rangefinder2D_controlBoard_nws_ros2::attach(yarp::dev::PolyDriver* driver)
         driver->view(m_iLidar);
     }
 
-    if (!setDevice(driver, false))
+    if (!setDevice(driver))
     {
         return false;
     }
@@ -76,7 +76,7 @@ bool Rangefinder2D_controlBoard_nws_ros2::attach(yarp::dev::PolyDriver* driver)
         return false;
     }
 
-   m_isDeviceOwned_laser = true;
+   m_isDeviceReady = true;
    return true;
 }
 
@@ -92,8 +92,7 @@ bool Rangefinder2D_controlBoard_nws_ros2::detach()
 
 void Rangefinder2D_controlBoard_nws_ros2::run()
 {
-    if (!m_isDeviceOwned_laser) return;
-    if (!m_subdevice_owned_cb) return;
+    if (!m_isDeviceReady) return;
 
     auto message = std_msgs::msg::String();
     sensor_msgs::msg::LaserScan rosData;
@@ -180,7 +179,7 @@ void Rangefinder2D_controlBoard_nws_ros2::run()
     m_publisher_joint->publish(m_ros_struct);
 }
 
-bool Rangefinder2D_controlBoard_nws_ros2::setDevice(yarp::dev::DeviceDriver* driver, bool owned)
+bool Rangefinder2D_controlBoard_nws_ros2::setDevice(yarp::dev::DeviceDriver* driver)
 {
     yCAssert(RANGEFINDER2D_NWS_ROS2, driver);
 
@@ -189,31 +188,31 @@ bool Rangefinder2D_controlBoard_nws_ros2::setDevice(yarp::dev::DeviceDriver* dri
 
     m_driver_cb->view(iPositionControl);
     if (!iPositionControl) {
-        yCError(RANGEFINDER2D_NWS_ROS2, "<%s - %s>: IPositionControl interface was not found in subdevice. Quitting",  m_node_name.c_str(), m_topic_cb.c_str());
+        yCError(RANGEFINDER2D_NWS_ROS2, "<%s - %s>: IPositionControl interface was not found in attached device. Quitting",  m_node_name.c_str(), m_topic_cb.c_str());
         return false;
     }
 
     m_driver_cb->view(iEncodersTimed);
     if (!iEncodersTimed) {
-        yCError(RANGEFINDER2D_NWS_ROS2, "<%s - %s>: IEncodersTimed interface was not found in subdevice. Quitting",  m_node_name.c_str(), m_topic_cb.c_str());
+        yCError(RANGEFINDER2D_NWS_ROS2, "<%s - %s>: IEncodersTimed interface was not found in attached device.. Quitting",  m_node_name.c_str(), m_topic_cb.c_str());
         return false;
     }
 
     m_driver_cb->view(iTorqueControl);
     if (!iTorqueControl) {
-        yCWarning(RANGEFINDER2D_NWS_ROS2, "<%s - %s>: ITorqueControl interface was not found in subdevice.",  m_node_name.c_str(), m_topic_cb.c_str());
+        yCWarning(RANGEFINDER2D_NWS_ROS2, "<%s - %s>: ITorqueControl interface was not found in attached device..",  m_node_name.c_str(), m_topic_cb.c_str());
     }
 
     m_driver_cb->view(iAxisInfo);
     if (!iAxisInfo) {
-        yCError(RANGEFINDER2D_NWS_ROS2, "<%s - %s>: IAxisInfo interface was not found in subdevice. Quitting",  m_node_name.c_str(), m_topic_cb.c_str());
+        yCError(RANGEFINDER2D_NWS_ROS2, "<%s - %s>: IAxisInfo interface was not found in attached device.. Quitting",  m_node_name.c_str(), m_topic_cb.c_str());
         return false;
     }
 
     // Get the number of controlled joints
     int tmp_axes;
     if (!iPositionControl->getAxes(&tmp_axes)) {
-        yCError(RANGEFINDER2D_NWS_ROS2, "<%s - %s>: Failed to get axes number for subdevice ",  m_node_name.c_str(), m_topic_cb.c_str());
+        yCError(RANGEFINDER2D_NWS_ROS2, "<%s - %s>: Failed to get axes number for attached device. ",  m_node_name.c_str(), m_topic_cb.c_str());
         return false;
     }
     if (tmp_axes <= 0) {
@@ -233,32 +232,12 @@ bool Rangefinder2D_controlBoard_nws_ros2::setDevice(yarp::dev::DeviceDriver* dri
         return false;
     }
 
-    m_subdevice_owned_cb = true;
+    m_isDeviceReady = true;
     return true;
 }
 
 bool Rangefinder2D_controlBoard_nws_ros2::open(yarp::os::Searchable &config)
 {
-    if(config.check("subdevice"))
-    {
-        Property       p;
-        p.fromString(config.toString(), false);
-        p.put("device", config.find("subdevice").asString());
-
-        if(!m_driver.open(p) || !m_driver.isValid())
-        {
-            yCError(RANGEFINDER2D_NWS_ROS2) << "Failed to open subdevice.. check params";
-            return false;
-        }
-
-        if(!attach(&m_driver))
-        {
-            yCError(RANGEFINDER2D_NWS_ROS2) << "Failed to open subdevice.. check params";
-            return false;
-        }
-        m_isDeviceOwned_laser = true;
-    }
-
     //wrapper params
     m_topic    = config.check("topic_name_lidar",  yarp::os::Value("topic_name_lidar"), "Name of the ROS2 topic").asString();
     m_topic_cb   = config.check("topic_name_joint",  yarp::os::Value("topic_name_joint"), "Name of the ROS2 topic").asString();
@@ -271,6 +250,8 @@ bool Rangefinder2D_controlBoard_nws_ros2::open(yarp::os::Searchable &config)
     m_publisher_laser = m_node->create_publisher<sensor_msgs::msg::LaserScan>(m_topic, 10);
     m_publisher_joint = m_node->create_publisher<sensor_msgs::msg::JointState>(m_topic_cb, 10);
     yCInfo(RANGEFINDER2D_NWS_ROS2, "Opened topic: %s", m_topic.c_str());
+
+    yCError(RANGEFINDER2D_NWS_ROS2) << "Waiting for device to attach";
 
     //start the publishing thread
     setPeriod(m_period);

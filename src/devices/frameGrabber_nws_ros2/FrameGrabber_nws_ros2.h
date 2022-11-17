@@ -48,9 +48,6 @@ private:
     ImageTopicType::SharedPtr publisher_image;
     CameraInfoTopicType::SharedPtr publisher_cameraInfo;
     rclcpp::Node::SharedPtr m_node;
-    // Subdevice
-    yarp::dev::PolyDriver* subdevice {nullptr};
-    bool isSubdeviceOwned {false};
 
     // Interfaces handled
     yarp::dev::IRgbVisualParams* iRgbVisualParams {nullptr};

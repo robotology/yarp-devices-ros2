@@ -101,21 +101,6 @@ bool Odometry2D_nws_ros2::open(yarp::os::Searchable &config)
     }
     m_baseFrame = config.find("base_frame").asString();
 
-    if (config.check("subdevice")) {
-        yarp::os::Property p;
-        p.fromString(config.toString(), false);
-        p.put("device", config.find("subdevice").asString());
-
-        if (!m_driver.open(p) || !m_driver.isValid()) {
-            yCError(ODOMETRY2D_NWS_ROS2) << "failed to open subdevice.. check params";
-            return false;
-        }
-
-        if (!attach(&m_driver)) {
-            yCError(ODOMETRY2D_NWS_ROS2) << "failed to open subdevice.. check params";
-            return false;
-        }
-    }
     rclcpp::NodeOptions node_options;
     node_options.allow_undeclared_parameters(true);
     node_options.automatically_declare_parameters_from_overrides(true);
@@ -131,6 +116,8 @@ bool Odometry2D_nws_ros2::open(yarp::os::Searchable &config)
     m_publisher_tf   = m_node->create_publisher<tf2_msgs::msg::TFMessage>(m_tf_topic, 10);
 
     ros2Publisher_odometry = m_node->create_publisher<nav_msgs::msg::Odometry>(m_topicName, 10);
+    
+    yCError(ODOMETRY2D_NWS_ROS2) << "Waiting for device to attach";
     return true;
 }
 

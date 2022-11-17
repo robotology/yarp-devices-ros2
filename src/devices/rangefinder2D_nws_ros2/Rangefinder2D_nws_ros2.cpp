@@ -148,26 +148,6 @@ void Rangefinder2D_nws_ros2::run()
 
 bool Rangefinder2D_nws_ros2::open(yarp::os::Searchable &config)
 {
-    if(config.check("subdevice"))
-    {
-        Property       p;
-        p.fromString(config.toString(), false);
-        p.put("device", config.find("subdevice").asString());
-
-        if(!m_driver.open(p) || !m_driver.isValid())
-        {
-            yCError(RANGEFINDER2D_NWS_ROS2) << "Failed to open subdevice.. check params";
-            return false;
-        }
-
-        if(!attach(&m_driver))
-        {
-            yCError(RANGEFINDER2D_NWS_ROS2) << "Failed to open subdevice.. check params";
-            return false;
-        }
-        m_isDeviceOwned = true;
-    }
-
     //wrapper params
     m_topic    = config.check("topic_name",  yarp::os::Value("laser_topic"), "Name of the ROS2 topic").asString();
     m_frame_id = config.check("frame_id",  yarp::os::Value("laser_frame"), "Name of the frameId").asString();
@@ -175,10 +155,11 @@ bool Rangefinder2D_nws_ros2::open(yarp::os::Searchable &config)
     m_period   = config.check("period", yarp::os::Value(0.010), "Period of the thread").asFloat64();
 
     //create the topic
-
     m_node = NodeCreator::createNode(m_node_name);
     m_publisher = m_node->create_publisher<sensor_msgs::msg::LaserScan>(m_topic, 10);
     yCInfo(RANGEFINDER2D_NWS_ROS2, "Opened topic: %s", m_topic.c_str());
+
+    yCInfo(RANGEFINDER2D_NWS_ROS2, "Waiting for device to attach");
 
     //start the publishig thread
     setPeriod(m_period);

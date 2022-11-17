@@ -87,29 +87,6 @@ bool Map2D_nws_ros2::open(yarp::os::Searchable &config)
     }
 
     m_rpcPortName = "/"+m_name+"/rpc";
-    //subdevice handling
-    if (config.check("subdevice"))
-    {
-        Property       p;
-        p.fromString(config.toString(), false);
-        p.put("device", config.find("subdevice").asString());
-
-        if (!m_drv.open(p) || !m_drv.isValid())
-        {
-            yCError(MAP2D_NWS_ROS2) << "Failed to open subdevice.. check params";
-            return false;
-        }
-
-        if (!attach(&m_drv))
-        {
-            yCError(MAP2D_NWS_ROS2) << "Failed to open subdevice.. check params";
-            return false;
-        }
-    }
-    else
-    {
-        yCInfo(MAP2D_NWS_ROS2) << "Waiting for device to attach";
-    }
 
     //open rpc port
     if (!m_rpcPort.open(m_rpcPortName))
@@ -157,6 +134,7 @@ bool Map2D_nws_ros2::open(yarp::os::Searchable &config)
     m_ros2Service_rosCmdParser = m_node->create_service<test_msgs::srv::BasicTypes>(m_rosCmdParserName,
                                                                                                   std::bind(&Map2D_nws_ros2::rosCmdParserCallback,this,_1,_2,_3));
 
+    yCInfo(MAP2D_NWS_ROS2) << "Waiting for device to attach";
     start();
 
     return true;

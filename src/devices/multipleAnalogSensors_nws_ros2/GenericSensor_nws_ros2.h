@@ -148,26 +148,7 @@ bool GenericSensor_nws_ros2<ROS_MSG>::open(yarp::os::Searchable & config)
         return false;
     }
 
-    if (config.check("subdevice"))
-    {
-        yarp::os::Property       p;
-        yarp::dev::PolyDriverList driverlist;
-        p.fromString(config.toString(), false);
-        p.put("device", config.find("subdevice").asString());
-
-        if (!m_subdevicedriver.open(p) || !m_subdevicedriver.isValid())
-        {
-            yCError(GENERICSENSOR_NWS_ROS2) << "Failed to open subdevice.. check params";
-            return false;
-        }
-
-        driverlist.push(&m_subdevicedriver, "1");
-        if (!attachAll(driverlist))
-        {
-            yCError(GENERICSENSOR_NWS_ROS2) << "Failed to open subdevice.. check params";
-            return false;
-        }
-    }
+    yCInfo(GENERICSENSOR_NWS_ROS2) << "Running, waiting for attach...";
 
     return true;
 }

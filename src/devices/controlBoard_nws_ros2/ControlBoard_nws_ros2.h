@@ -61,7 +61,6 @@
  * | topic_name     |      -         | string  | -              |   -           | Yes                         | set the name for ROS topic                                        | must start with a leading '/' |
  * | msgs_name      |      -         | string  | -              |   -           | No                          | set the base name for the topics and interfaces                   | If it is not specified, the control related topics and services will not be initialized |
  * | period         |      -         | double  | s              |   0.02        | No                          | refresh period of the broadcasted values in s                     | optional, default 20ms |
- * | subdevice      |      -         | string  | -              |   -           | No                          | name of the subdevice to instantiate                              | when used, parameters for the subdevice must be provided as well |
  *
  * ROS message type used is sensor_msgs/JointState.msg (http://docs.ros.org/api/sensor_msgs/html/msg/JointState.html)
  */
@@ -104,9 +103,7 @@ private:
 
     yarp::os::Stamp m_time; // envelope to attach to the state port
 
-    bool m_subdevice_owned    {false};
     size_t m_subdevice_joints {0};
-    bool m_subdevice_ready    {false};
 
     // Devices
     yarp::dev::DeviceDriver*     m_subdevice_ptr{nullptr};
@@ -128,8 +125,7 @@ private:
     rclcpp::Service<yarp_control_msgs::srv::SetControlModes>::SharedPtr          m_setControlModesSrv;
     rclcpp::Service<yarp_control_msgs::srv::GetAvailableControlModes>::SharedPtr m_getAvailableModesSrv;
 
-    bool setDevice(yarp::dev::DeviceDriver* device, bool owned);
-    bool openAndAttachSubDevice(yarp::os::Property& prop);
+    bool setDevice(yarp::dev::DeviceDriver* device);
     bool initRos2Control(const std::string& name);
 
     void closeDevice();

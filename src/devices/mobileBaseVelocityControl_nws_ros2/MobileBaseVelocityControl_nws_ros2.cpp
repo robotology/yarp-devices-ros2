@@ -29,28 +29,6 @@ namespace {
 
 bool MobileBaseVelocityControl_nws_ros2::open(yarp::os::Searchable& config)
 {
-    //attach subdevice if required
-    if (config.check("subdevice"))
-    {
-        Property       p;
-        p.fromString(config.toString(), false);
-        p.put("device", config.find("subdevice").asString());
-
-        if (!m_subdev.open(p) || !m_subdev.isValid())
-        {
-            yCError(MOBVEL_NWS_ROS2) << "Failed to open subdevice.. check params";
-            return false;
-        }
-
-        if (!attach(&m_subdev))
-        {
-            yCError(MOBVEL_NWS_ROS2) << "Failed to attach subdevice.. check params";
-            return false;
-        }
-    } else {
-        yCInfo(MOBVEL_NWS_ROS2) << "Waiting for device to attach";
-    }
-
     if (config.check("node_name"))
     {
         m_ros2_node_name = config.find("node_name").asString();
@@ -70,6 +48,8 @@ bool MobileBaseVelocityControl_nws_ros2::open(yarp::os::Searchable& config)
         yCError(MOBVEL_NWS_ROS2) << " opening " << m_ros2_topic_name << " Topic, check your ROS2 network configuration\n";
         return false;
     }
+
+    yCInfo(MOBVEL_NWS_ROS2) << "Waiting for device to attach";
 
     return true;
 }

@@ -20,6 +20,7 @@
 #include <std_msgs/msg/string.hpp>
 #include <sensor_msgs/msg/image.hpp>
 #include <sensor_msgs/msg/camera_info.hpp>
+#include "image_transport/image_transport.hpp"
 
 #include <mutex>
 
@@ -75,7 +76,13 @@ private:
     };
 
     rclcpp::Node::SharedPtr m_node;
-    rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr rosPublisher_color;
+  // ros::NodeHandle nh;
+   //image_transport::ImageTransport it(nh);
+   // image_transport::Publisher pub = it.advertise("out_image_base_topic", 1);
+  
+    //image_transport::ImageTransport* it; 
+    //rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr rosPublisher_color;
+    image_transport::Publisher rosPublisher_color;
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr rosPublisher_depth;
     rclcpp::Publisher<sensor_msgs::msg::CameraInfo>::SharedPtr rosPublisher_colorCaminfo;
     rclcpp::Publisher<sensor_msgs::msg::CameraInfo>::SharedPtr rosPublisher_depthCaminfo;
@@ -93,13 +100,6 @@ private:
     yarp::dev::IRGBDSensor* sensor_p {nullptr};
     yarp::dev::IFrameGrabberControls* fgCtrl {nullptr};
     bool forceInfoSync {true};
-
-
-    // If a subdevice parameter is given, the wrapper will open it and attach to immediately.
-    // Typical usage: simulator or command line
-    bool isSubdeviceOwned {false};
-    yarp::dev::PolyDriver* subDeviceOwned {nullptr};
-    bool openAndAttachSubDevice(yarp::os::Searchable& prop);
 
     bool writeData();
     bool setCamInfo(sensor_msgs::msg::CameraInfo& cameraInfo,

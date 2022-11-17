@@ -99,13 +99,6 @@ bool RgbdSensor_nws_ros2::open(yarp::os::Searchable &config)
         return false;
     }
 
-    // check if we need to create subdevice or if they are
-    // passed later on through attach()
-    if (isSubdeviceOwned && !openAndAttachSubDevice(config)) {
-        yCError(RGBDSENSOR_NWS_ROS2, "Error while opening subdevice");
-        return false;
-    }
-
     return true;
 }
 
@@ -176,20 +169,29 @@ bool RgbdSensor_nws_ros2::fromConfig(yarp::os::Searchable &config)
         forceInfoSync = config.find("forceInfoSync").asBool();
     }
 
-    if(config.check("subdevice")) {
-        isSubdeviceOwned=true;
-    } else {
-        isSubdeviceOwned=false;
-    }
-
     return true;
 }
 
 
 bool RgbdSensor_nws_ros2::initialize_ROS2(yarp::os::Searchable &params)
 {
-    m_node = NodeCreator::createNode(m_node_name);
-    rosPublisher_color = m_node->create_publisher<sensor_msgs::msg::Image>(m_color_topic_name, 10);
+char *args[] = {
+    (char*)"--dir",
+    (char*)"/some_path/",
+    NULL
+};
+    rclcpp::init(2,args);
+    //m_node = NodeCreator::createNode(m_node_name);
+        yCError(RGBDSENSOR_NWS_ROS2) << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>11111111111";
+    m_node = rclcpp::Node::make_shared("aaaaaaaaaaaaa"/*m_node_name.c_str()*/);
+    yCError(RGBDSENSOR_NWS_ROS2) << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>";
+    //it = new image_transport::ImageTransport (m_node);
+    yCError(RGBDSENSOR_NWS_ROS2) << ">>>>>>>>111111>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>";
+    //rosPublisher_color = m_node->create_publisher<sensor_msgs::msg::Image>(m_color_topic_name, 10);
+    //rosPublisher_color = new image_transport::Publisher;
+    rosPublisher_color = image_transport::create_publisher(m_node.get(), m_color_topic_name);
+    //auto rospub = image_transport::create_publisher(m_node.get(), m_color_topic_name);
+    yCError(RGBDSENSOR_NWS_ROS2) << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>";
     rosPublisher_depth = m_node->create_publisher<sensor_msgs::msg::Image>(m_depth_topic_name, 10);
     rosPublisher_colorCaminfo = m_node->create_publisher<sensor_msgs::msg::CameraInfo>(m_color_info_topic_name, 10);
     rosPublisher_depthCaminfo = m_node->create_publisher<sensor_msgs::msg::CameraInfo>(m_depth_info_topic_name, 10);
@@ -202,18 +204,8 @@ bool RgbdSensor_nws_ros2::close()
     yCTrace(RGBDSENSOR_NWS_ROS2, "Close");
     detach();
 
-    // close subdevice if it was created inside the open (--subdevice option)
-    if(isSubdeviceOwned)
-    {
-        if(subDeviceOwned)
-        {
-            delete subDeviceOwned;
-            subDeviceOwned=nullptr;
-        }
-        sensor_p = nullptr;
-        fgCtrl = nullptr;
-        isSubdeviceOwned = false;
-    }
+    sensor_p = nullptr;
+    fgCtrl = nullptr;
 
     return true;
 }
@@ -282,10 +274,6 @@ bool RgbdSensor_nws_ros2::detach()
     if (yarp::os::PeriodicThread::isRunning())
         yarp::os::PeriodicThread::stop();
 
-    //check if we already instantiated a subdevice previously
-    if (isSubdeviceOwned)
-        return false;
-
     sensor_p = nullptr;
     if (fgCtrl)
     {
@@ -293,35 +281,6 @@ bool RgbdSensor_nws_ros2::detach()
     }
     return true;
 }
-
-
-bool RgbdSensor_nws_ros2::openAndAttachSubDevice(yarp::os::Searchable& prop)
-{
-    yarp::os::Property p;
-    subDeviceOwned = new yarp::dev::PolyDriver;
-    p.fromString(prop.toString());
-
-    p.setMonitor(prop.getMonitor(), "subdevice"); // pass on any monitoring
-    p.unput("device");
-    p.put("device",prop.find("subdevice").asString());  // subdevice was already checked before
-
-    // if errors occurred during open, quit here.
-    yCDebug(RGBDSENSOR_NWS_ROS2, "Opening IRGBDSensor subdevice");
-    subDeviceOwned->open(p);
-
-    if (!subDeviceOwned->isValid())
-    {
-        yCError(RGBDSENSOR_NWS_ROS2, "Opening IRGBDSensor subdevice... FAILED");
-        return false;
-    }
-    isSubdeviceOwned = true;
-    if(!attach(subDeviceOwned)) {
-        return false;
-    }
-
-    return true;
-}
-
 
 bool RgbdSensor_nws_ros2::setCamInfo(sensor_msgs::msg::CameraInfo& cameraInfo,
                                      const std::string& frame_id,
@@ -472,7 +431,7 @@ bool RgbdSensor_nws_ros2::writeData()
         rColorImage.header.stamp.nanosec = static_cast<int>(1000000000UL * (colorStamp.getTime() - int(colorStamp.getTime()))); // FIXME
         rColorImage.is_bigendian = 0;
 
-        rosPublisher_color->publish(rColorImage);
+        rosPublisher_color.publish(rColorImage);
 
         sensor_msgs::msg::CameraInfo camInfoC;
         if (setCamInfo(camInfoC, m_color_frame_id, colorStamp, COLOR_SENSOR)) {

@@ -48,13 +48,6 @@ bool RgbdToPointCloudSensor_nws_ros2::open(yarp::os::Searchable &config)
         return false;
     }
 
-    // check if we need to create subdevice or if they are
-    // passed later on through attachAll()
-    if (isSubdeviceOwned && !openAndAttachSubDevice(config)) {
-        yCError(RGBDTOPOINTCLOUDSENSOR_NWS_ROS2, "Error while opening subdevice");
-        return false;
-    }
-
     return true;
 }
 
@@ -87,12 +80,6 @@ bool RgbdToPointCloudSensor_nws_ros2::fromConfig(yarp::os::Searchable &config)
         forceInfoSync = config.find("forceInfoSync").asBool();
     }
 
-    if(config.check("subdevice")) {
-        isSubdeviceOwned=true;
-    } else {
-        isSubdeviceOwned=false;
-    }
-
     return true;
 }
 
@@ -110,19 +97,6 @@ bool RgbdToPointCloudSensor_nws_ros2::close()
 {
     yCTrace(RGBDTOPOINTCLOUDSENSOR_NWS_ROS2, "Close");
     detachAll();
-
-    // close subdevice if it was created inside the open (--subdevice option)
-    if(isSubdeviceOwned)
-    {
-        if(subDeviceOwned)
-        {
-            delete subDeviceOwned;
-            subDeviceOwned=nullptr;
-        }
-        sensor_p = nullptr;
-        fgCtrl = nullptr;
-        isSubdeviceOwned = false;
-    }
 
     return true;
 }
@@ -187,10 +161,6 @@ bool RgbdToPointCloudSensor_nws_ros2::detach()
     if (yarp::os::PeriodicThread::isRunning())
         yarp::os::PeriodicThread::stop();
 
-    //check if we already instantiated a subdevice previously
-    if (isSubdeviceOwned)
-        return false;
-
     sensor_p = nullptr;
     if (fgCtrl)
     {
@@ -198,35 +168,6 @@ bool RgbdToPointCloudSensor_nws_ros2::detach()
     }
     return true;
 }
-
-
-bool RgbdToPointCloudSensor_nws_ros2::openAndAttachSubDevice(yarp::os::Searchable& prop)
-{
-    yarp::os::Property p;
-    subDeviceOwned = new yarp::dev::PolyDriver;
-    p.fromString(prop.toString());
-
-    p.setMonitor(prop.getMonitor(), "subdevice"); // pass on any monitoring
-    p.unput("device");
-    p.put("device",prop.find("subdevice").asString());  // subdevice was already checked before
-
-    // if errors occurred during open, quit here.
-    yCDebug(RGBDTOPOINTCLOUDSENSOR_NWS_ROS2, "Opening IRGBDSensor subdevice");
-    subDeviceOwned->open(p);
-
-    if (!subDeviceOwned->isValid())
-    {
-        yCError(RGBDTOPOINTCLOUDSENSOR_NWS_ROS2, "Opening IRGBDSensor subdevice... FAILED");
-        return false;
-    }
-    isSubdeviceOwned = true;
-    if(!attach(subDeviceOwned)) {
-        return false;
-    }
-
-    return true;
-}
-
 
 bool RgbdToPointCloudSensor_nws_ros2::writeData()
 {

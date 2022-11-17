@@ -38,7 +38,6 @@
  * | topic_name          |      -                  | string  | -              |   -           | Yes                            | name of the topic where the device must publish the data| must begin with an initial '/'     |
  * | odom_frame          |      -                  | string  | -              |   -           | Yes                            | name of the reference frame for odometry                |      |
  * | base_frame          |      -                  | string  | -              |   -           | Yes                            | name of the base frame for odometry                     |      |
- * | subdevice           |      -                  | string  | -              |   -           | alternative to 'attach' action | name of the subdevice to use as a data source           | when used, parameters for the subdevice must be provided as well |
  *
  * Example of configuration file using .ini format.
  *

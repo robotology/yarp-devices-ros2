@@ -57,7 +57,7 @@ public:
     bool open(yarp::os::Searchable& config) override;
     bool close() override;
 
-    bool setDevice(yarp::dev::DeviceDriver* device, bool owned);
+    bool setDevice(yarp::dev::DeviceDriver* device);
     bool updateAxisName();
 
     // PeriodicThread
@@ -78,14 +78,13 @@ private:
     rclcpp::Node::SharedPtr m_node;
     rclcpp::Publisher<sensor_msgs::msg::LaserScan>::SharedPtr m_publisher_laser;
     rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr m_publisher_joint;
-    bool m_isDeviceOwned_laser = false;
+    bool m_isDeviceReady = false;
     yarp::sig::Vector m_times;
 
     double m_minAngle, m_maxAngle;
     double m_minDistance, m_maxDistance;
     double m_resolution;
     double m_period;
-    bool   m_subdevice_owned_cb = false;
     sensor_msgs::msg::JointState m_ros_struct;
 
     std::string m_topic;

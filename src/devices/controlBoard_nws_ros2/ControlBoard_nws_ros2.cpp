@@ -93,17 +93,6 @@ bool ControlBoard_nws_ros2::open(Searchable& config)
         m_period = m_default_period;
     }
 
-    // Check if we need to create subdevice or if they are
-    // passed later on thorugh attach()
-    if (prop.check("subdevice")) {
-        prop.setMonitor(config.getMonitor());
-        if (!openAndAttachSubDevice(prop)) {
-            yCError(CONTROLBOARD_ROS2, "Error while opening subdevice");
-            return false;
-        }
-        m_subdevice_ready = true;
-    }
-
     // check for node_name parameter
     if (!config.check("node_name")) {
         yCError(CONTROLBOARD_ROS2) << " cannot find node_name parameter";
@@ -133,26 +122,6 @@ bool ControlBoard_nws_ros2::open(Searchable& config)
         m_msgs_name = config.find("msgs_name").asString();
         if (m_msgs_name[0] != '/') {
             m_msgs_name = "/"+m_msgs_name;
-        }
-    }
-
-    // In case attach is not deferred and the controlboard already owns a valid device
-    // we can start the thread. Otherwise this will happen when attach is called
-    if (m_subdevice_ready) {
-        setPeriod(m_period);
-        if (!start()) {
-            yCError(CONTROLBOARD_ROS2) << "Error starting thread";
-            return false;
-        }
-        if(!initRos2Control(m_msgs_name)){
-            yCError(CONTROLBOARD_ROS2) << "Error initializing the ROS2 control related topics and services";
-            RCLCPP_ERROR(m_node->get_logger(),"Error initializing the ROS2 control related topics and services");
-            return false;
-        }
-        if(m_spinner){
-            if(!m_spinner->start()){
-                yCError(CONTROLBOARD_ROS2) << "Error starting the spinner";
-            }
         }
     }
 
@@ -288,81 +257,54 @@ bool ControlBoard_nws_ros2::initRos2Control(const std::string& name){
 }
 
 
-// For the simulator, if a subdevice parameter is given to the wrapper, it will
-// open it and attach to immediately.
-bool ControlBoard_nws_ros2::openAndAttachSubDevice(Property& prop)
-{
-    Property p;
-    auto* subDeviceOwned = new PolyDriver;
-    p.fromString(prop.toString());
-
-    std::string subdevice = prop.find("subdevice").asString();
-    p.setMonitor(prop.getMonitor(), subdevice.c_str()); // pass on any monitoring
-    p.unput("device");
-    p.put("device", subdevice); // subdevice was already checked before
-
-    // if errors occurred during open, quit here.
-    yCDebug(CONTROLBOARD_ROS2, "opening subdevice");
-    subDeviceOwned->open(p);
-
-    if (!subDeviceOwned->isValid()) {
-        yCError(CONTROLBOARD_ROS2, "opening subdevice... FAILED");
-        return false;
-    }
-
-    return setDevice(subDeviceOwned, true);
-}
-
-
-bool ControlBoard_nws_ros2::setDevice(yarp::dev::DeviceDriver* driver, bool owned)
+bool ControlBoard_nws_ros2::setDevice(yarp::dev::DeviceDriver* driver)
 {
     yCAssert(CONTROLBOARD_ROS2, driver);
 
     // Save the pointer and subDeviceOwned
     m_subdevice_ptr = driver;
-    m_subdevice_owned = owned;
 
     m_subdevice_ptr->view(m_iPositionControl);
     if (!m_iPositionControl) {
-        yCError(CONTROLBOARD_ROS2, "<%s - %s>: IPositionControl interface was not found in subdevice.",  m_nodeName.c_str(), m_jointStateTopicName.c_str());
+        yCError(CONTROLBOARD_ROS2, "<%s - %s>: IPositionControl interface was not found in attached device.",  m_nodeName.c_str(), m_jointStateTopicName.c_str());
     }
 
     m_subdevice_ptr->view(m_iPositionDirect);
     if (!m_iPositionDirect) {
-        yCError(CONTROLBOARD_ROS2, "<%s - %s>: IPositionDirect interface was not found in subdevice.",  m_nodeName.c_str(), m_posTopicName.c_str());
+        yCError(CONTROLBOARD_ROS2, "<%s - %s>: IPositionDirect interface was not found in attached device.",  m_nodeName.c_str(), m_posTopicName.c_str());
     }
 
     m_subdevice_ptr->view(m_iVelocityControl);
     if (!m_iVelocityControl) {
-        yCError(CONTROLBOARD_ROS2, "<%s - %s>: IVelocityControl interface was not found in subdevice.",  m_nodeName.c_str(), m_posTopicName.c_str());
+        yCError(CONTROLBOARD_ROS2, "<%s - %s>: IVelocityControl interface was not found in attached device.",  m_nodeName.c_str(), m_posTopicName.c_str());
     }
 
     m_subdevice_ptr->view(m_iControlMode);
     if (!m_iControlMode) {
-        yCError(CONTROLBOARD_ROS2, "<%s - %s>: IControlMode interface was not found in subdevice.",  m_nodeName.c_str(), m_posTopicName.c_str());
+        yCError(CONTROLBOARD_ROS2, "<%s - %s>: IControlMode interface was not found in attached device.",  m_nodeName.c_str(), m_posTopicName.c_str());
     }
 
     m_subdevice_ptr->view(m_iEncodersTimed);
     if (!m_iEncodersTimed) {
-        yCError(CONTROLBOARD_ROS2, "<%s - %s>: IEncodersTimed interface was not found in subdevice. Quitting",  m_nodeName.c_str(), m_jointStateTopicName.c_str());
+        yCError(CONTROLBOARD_ROS2, "<%s - %s>: IEncodersTimed interface was not found in attached device. Quitting",  m_nodeName.c_str(), m_jointStateTopicName.c_str());
         return false;
     }
 
     m_subdevice_ptr->view(m_iTorqueControl);
     if (!m_iTorqueControl) {
-        yCWarning(CONTROLBOARD_ROS2, "<%s - %s>: ITorqueControl interface was not found in subdevice.",  m_nodeName.c_str(), m_jointStateTopicName.c_str());
+        yCWarning(CONTROLBOARD_ROS2, "<%s - %s>: ITorqueControl interface was not found in attached device.",  m_nodeName.c_str(), m_jointStateTopicName.c_str());
     }
 
     m_subdevice_ptr->view(m_iAxisInfo);
     if (!m_iAxisInfo) {
-        yCError(CONTROLBOARD_ROS2, "<%s - %s>: IAxisInfo interface was not found in subdevice. Quitting",  m_nodeName.c_str(), m_jointStateTopicName.c_str());
+        yCError(CONTROLBOARD_ROS2, "<%s - %s>: IAxisInfo interface was not found in attached device. Quitting",  m_nodeName.c_str(), m_jointStateTopicName.c_str());
         return false;
     }
 
     // Get the number of controlled joints
     int tmp_axes;
     if (!m_iEncodersTimed->getAxes(&tmp_axes)) {
-        yCError(CONTROLBOARD_ROS2, "<%s - %s>: Failed to get axes number for subdevice ",  m_nodeName.c_str(), m_jointStateTopicName.c_str());
+        yCError(CONTROLBOARD_ROS2, "<%s - %s>: Failed to get axes number for attached device ",  m_nodeName.c_str(), m_jointStateTopicName.c_str());
         return false;
     }
     if (tmp_axes <= 0) {
@@ -386,16 +328,8 @@ bool ControlBoard_nws_ros2::setDevice(yarp::dev::DeviceDriver* driver, bool owne
 
 void ControlBoard_nws_ros2::closeDevice()
 {
-    // If the subdevice is owned, close and delete the device
-    if (m_subdevice_owned) {
-        yCAssert(CONTROLBOARD_ROS2, m_subdevice_ptr);
-        m_subdevice_ptr->close();
-        delete m_subdevice_ptr;
-    }
     m_subdevice_ptr = nullptr;
-    m_subdevice_owned = false;
     m_subdevice_joints = 0;
-    m_subdevice_ready = false;
 
     m_times.clear();
 
@@ -408,12 +342,7 @@ void ControlBoard_nws_ros2::closeDevice()
 
 bool ControlBoard_nws_ros2::attach(yarp::dev::PolyDriver* poly)
 {
-    // Check if we already instantiated a subdevice previously
-    if (m_subdevice_ready) {
-        return false;
-    }
-
-    if (!setDevice(poly, false)) {
+    if (!setDevice(poly)) {
         return false;
     }
 
@@ -440,11 +369,6 @@ bool ControlBoard_nws_ros2::attach(yarp::dev::PolyDriver* poly)
 
 bool ControlBoard_nws_ros2::detach()
 {
-    //check if we already instantiated a subdevice previously
-    if (m_subdevice_owned) {
-        return false;
-    }
-
     // Ensure that the device is not running
     if (isRunning()) {
         stop();
