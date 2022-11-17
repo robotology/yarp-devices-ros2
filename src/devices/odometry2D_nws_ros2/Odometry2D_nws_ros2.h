@@ -123,7 +123,7 @@ private:
 
     //ros2 node
     rclcpp::Node::SharedPtr m_node;
-    rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr ros2Publisher_odometry;
+    rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr   m_ros2Publisher_odometry;
     rclcpp::Publisher<tf2_msgs::msg::TFMessage>::SharedPtr  m_publisher_tf;
 
     //interfaces

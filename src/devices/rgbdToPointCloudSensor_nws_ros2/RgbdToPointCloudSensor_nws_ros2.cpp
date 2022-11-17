@@ -63,9 +63,9 @@ bool RgbdToPointCloudSensor_nws_ros2::fromConfig(yarp::os::Searchable &config)
     //check if param exist and assign it to corresponding variable.. if it doesn't, initialize the variable with default value.
     std::vector<param<std::string>> rosStringParam;
 
-    rosStringParam.emplace_back(nodeName,       nodeName_param          );
-    rosStringParam.emplace_back(rosFrameId,     frameId_param           );
-    rosStringParam.emplace_back(pointCloudTopicName, pointCloudTopicName_param    );
+    rosStringParam.emplace_back(m_nodeName,       nodeName_param          );
+    rosStringParam.emplace_back(m_rosFrameId,     frameId_param           );
+    rosStringParam.emplace_back(m_pointCloudTopicName, pointCloudTopicName_param    );
 
     for (auto &prm : rosStringParam) {
         if (!config.check(prm.parname)) {
@@ -75,9 +75,9 @@ bool RgbdToPointCloudSensor_nws_ros2::fromConfig(yarp::os::Searchable &config)
         *(prm.var) = config.find(prm.parname).asString();
     }
 
-    if (config.check("forceInfoSync"))
+    if (config.check("m_forceInfoSync"))
     {
-        forceInfoSync = config.find("forceInfoSync").asBool();
+        m_forceInfoSync = config.find("m_forceInfoSync").asBool();
     }
 
     return true;
@@ -87,8 +87,8 @@ bool RgbdToPointCloudSensor_nws_ros2::fromConfig(yarp::os::Searchable &config)
 bool RgbdToPointCloudSensor_nws_ros2::initialize_ROS2(yarp::os::Searchable &params)
 {
 
-    m_node = NodeCreator::createNode(nodeName);
-    rosPublisher_pointCloud2 = m_node->create_publisher<sensor_msgs::msg::PointCloud2>(pointCloudTopicName, 10);
+    m_node = NodeCreator::createNode(m_nodeName);
+    m_rosPublisher_pointCloud2 = m_node->create_publisher<sensor_msgs::msg::PointCloud2>(m_pointCloudTopicName, 10);
     return true;
 }
 
@@ -105,9 +105,9 @@ bool RgbdToPointCloudSensor_nws_ros2::close()
 // PeriodicThread
 void RgbdToPointCloudSensor_nws_ros2::run()
 {
-    if (sensor_p!=nullptr) {
+    if (m_sensor_p!=nullptr) {
         static int i = 0;
-        switch (sensor_p->getSensorStatus()) {
+        switch (m_sensor_p->getSensorStatus()) {
             case(yarp::dev::IRGBDSensor::RGBD_SENSOR_OK_IN_USE) :
             if (!writeData()) {
                 yCError(RGBDTOPOINTCLOUDSENSOR_NWS_ROS2, "Image not captured.. check hardware configuration");
@@ -137,17 +137,17 @@ bool RgbdToPointCloudSensor_nws_ros2::attach(yarp::dev::PolyDriver* poly)
 {
     if(poly)
     {
-        poly->view(sensor_p);
-        poly->view(fgCtrl);
+        poly->view(m_sensor_p);
+        poly->view(m_fgCtrl);
     }
 
-    if(sensor_p == nullptr)
+    if(m_sensor_p == nullptr)
     {
         yCError(RGBDTOPOINTCLOUDSENSOR_NWS_ROS2) << "Attached device has no valid IRGBDSensor interface.";
         return false;
     }
 
-    if(fgCtrl == nullptr)
+    if(m_fgCtrl == nullptr)
     {
         yCWarning(RGBDTOPOINTCLOUDSENSOR_NWS_ROS2) << "Attached device has no valid IFrameGrabberControls interface.";
     }
@@ -161,10 +161,10 @@ bool RgbdToPointCloudSensor_nws_ros2::detach()
     if (yarp::os::PeriodicThread::isRunning())
         yarp::os::PeriodicThread::stop();
 
-    sensor_p = nullptr;
-    if (fgCtrl)
+    m_sensor_p = nullptr;
+    if (m_fgCtrl)
     {
-        fgCtrl = nullptr;
+        m_fgCtrl = nullptr;
     }
     return true;
 }
@@ -176,7 +176,7 @@ bool RgbdToPointCloudSensor_nws_ros2::writeData()
     yarp::os::Stamp colorStamp;
     yarp::os::Stamp depthStamp;
 
-    if (!sensor_p->getImages(colorImage, depthImage, &colorStamp, &depthStamp)) {
+    if (!m_sensor_p->getImages(colorImage, depthImage, &colorStamp, &depthStamp)) {
         return false;
     }
 
@@ -198,7 +198,7 @@ bool RgbdToPointCloudSensor_nws_ros2::writeData()
     } else {
         oldDepthStamp = depthStamp;
     }
-    intrinsic_ok = sensor_p->getRgbIntrinsicParam(propIntrinsic);
+    intrinsic_ok = m_sensor_p->getRgbIntrinsicParam(propIntrinsic);
 
 
     // TBD: We should check here somehow if the timestamp was correctly updated and, if not, update it ourselves.
@@ -217,7 +217,7 @@ bool RgbdToPointCloudSensor_nws_ros2::writeData()
                 sensor_msgs::msg::PointCloud2 pc2Ros;
 
                 // filling ros header
-                pc2Ros.header.frame_id = rosFrameId;
+                pc2Ros.header.frame_id = m_rosFrameId;
 
                 //pc2Ros.header.stamp.sec = depthStamp.;
                 pc2Ros.header.stamp.sec = int(depthStamp.getTime());
@@ -253,7 +253,7 @@ bool RgbdToPointCloudSensor_nws_ros2::writeData()
 
                 pc2Ros.point_step = sizeof(yarp::sig::DataXYZRGBA);
                 pc2Ros.row_step = static_cast<std::uint32_t>(sizeof(yarp::sig::DataXYZRGBA) * pc2Ros.width);
-                rosPublisher_pointCloud2->publish(pc2Ros);
+                m_rosPublisher_pointCloud2->publish(pc2Ros);
             }
         }
     }

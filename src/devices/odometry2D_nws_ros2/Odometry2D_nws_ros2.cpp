@@ -115,7 +115,7 @@ bool Odometry2D_nws_ros2::open(yarp::os::Searchable &config)
     const std::string m_tf_topic ="/tf";
     m_publisher_tf   = m_node->create_publisher<tf2_msgs::msg::TFMessage>(m_tf_topic, 10);
 
-    ros2Publisher_odometry = m_node->create_publisher<nav_msgs::msg::Odometry>(m_topicName, 10);
+    m_ros2Publisher_odometry = m_node->create_publisher<nav_msgs::msg::Odometry>(m_topicName, 10);
     
     yCError(ODOMETRY2D_NWS_ROS2) << "Waiting for device to attach";
     return true;
@@ -128,7 +128,7 @@ void Odometry2D_nws_ros2::threadRelease()
 void Odometry2D_nws_ros2::run()
 {
 
-    if (m_odometry2D_interface!=nullptr && ros2Publisher_odometry && m_publisher_tf) {
+    if (m_odometry2D_interface!=nullptr && m_ros2Publisher_odometry && m_publisher_tf) {
         yarp::dev::OdometryData odometryData;
         double synchronized_timestamp = 0;
         m_odometry2D_interface->getOdometry(odometryData, &synchronized_timestamp);
@@ -200,7 +200,7 @@ void Odometry2D_nws_ros2::run()
         }
 
 
-        ros2Publisher_odometry->publish(odometryMsg);
+        m_ros2Publisher_odometry->publish(odometryMsg);
 
         m_publisher_tf->publish(rosData);
 

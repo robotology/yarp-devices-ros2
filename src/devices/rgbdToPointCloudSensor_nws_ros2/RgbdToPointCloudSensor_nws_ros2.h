@@ -83,7 +83,7 @@ private:
     // defining types for shorter names
     typedef yarp::sig::ImageOf<yarp::sig::PixelFloat> DepthImage;
     typedef unsigned int UInt;
-    rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr rosPublisher_pointCloud2;
+    rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr m_rosPublisher_pointCloud2;
     rclcpp::Node::SharedPtr m_node;
 
     enum SensorType
@@ -106,15 +106,15 @@ private:
 
 
 
-    std::string nodeName;
-    std::string pointCloudTopicName;
-    std::string rosFrameId;
+    std::string m_nodeName;
+    std::string m_pointCloudTopicName;
+    std::string m_rosFrameId;
 
     UInt                  nodeSeq {0};
 
-    yarp::dev::IRGBDSensor*             sensor_p {nullptr};
-    yarp::dev::IFrameGrabberControls*   fgCtrl {nullptr};
-    bool                                forceInfoSync {true};
+    yarp::dev::IRGBDSensor*             m_sensor_p {nullptr};
+    yarp::dev::IFrameGrabberControls*   m_fgCtrl {nullptr};
+    bool                                m_forceInfoSync {true};
 
     // Synch
     yarp::os::Property m_conf;
