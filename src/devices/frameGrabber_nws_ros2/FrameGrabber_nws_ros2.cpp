@@ -229,27 +229,43 @@ void FrameGrabber_nws_ros2::run()
         m_stamp.update(yarp::os::Time::now());
     }
 
-    if (iFrameGrabberImage /* FIXME Can we check if there are subscribers connected in ROS2 */) {
-        iFrameGrabberImage->getImage(*yarpimg);
-        sensor_msgs::msg::Image rosimg;
-        rosimg.data.resize(yarpimg->getRawImageSize());
-        rosimg.width = yarpimg->width();
-        rosimg.height = yarpimg->height();
-        rosimg.encoding = yarp2RosPixelCode(yarpimg->getPixelCode());
-        rosimg.step = yarpimg->getRowSize();
-        rosimg.header.frame_id = m_frameId;
-//         rosimg.header.stamp.sec = static_cast<int>(m_stamp.getTime()); // FIXME
-//         rosimg.header.stamp.nanosec = static_cast<int>(1000000000UL * (m_stamp.getTime() - int(m_stamp.getTime()))); // FIXME
-        rosimg.is_bigendian = 0;
-        memcpy(rosimg.data.data(), yarpimg->getRawImage(), yarpimg->getRawImageSize());
-        publisher_image->publish(rosimg);
+    if (iFrameGrabberImage)
+    {
+        if (iFrameGrabberImage->getImage(*yarpimg))
+        {
+            sensor_msgs::msg::Image rosimg;
+            rosimg.data.resize(yarpimg->getRawImageSize());
+            rosimg.width = yarpimg->width();
+            rosimg.height = yarpimg->height();
+            rosimg.encoding = yarp2RosPixelCode(yarpimg->getPixelCode());
+            rosimg.step = yarpimg->getRowSize();
+            rosimg.header.frame_id = m_frameId;
+    //         rosimg.header.stamp.sec = static_cast<int>(m_stamp.getTime()); // FIXME
+    //         rosimg.header.stamp.nanosec = static_cast<int>(1000000000UL * (m_stamp.getTime() - int(m_stamp.getTime()))); // FIXME
+            rosimg.is_bigendian = 0;
+            memcpy(rosimg.data.data(), yarpimg->getRawImage(), yarpimg->getRawImageSize());
+            publisher_image->publish(rosimg);
+        }
+        else
+        {
+            yCError(FRAMEGRABBER_NWS_ROS2) << "Image not captured (getImage failed). Check hardware configuration."
+        }
+    }
+    else
+    {
+        yCError(FRAMEGRABBER_NWS_ROS2) << "Invalid call to interface iFrameGrabberImage";
     }
 
-    if (iRgbVisualParams /* FIXME Can we check if there are subscribers connected in ROS2 */) {
+    if (iRgbVisualParams)
+    {
         sensor_msgs::msg::CameraInfo cameraInfo;
         if (setCamInfo(cameraInfo)) {
             publisher_cameraInfo->publish(cameraInfo);
         }
+    }
+    else
+    {
+        yCError(FRAMEGRABBER_NWS_ROS2) << "Invalid call to interface iRgbVisualParams";
     }
 }
 
