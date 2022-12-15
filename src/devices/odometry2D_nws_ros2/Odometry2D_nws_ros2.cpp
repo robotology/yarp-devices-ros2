@@ -40,6 +40,8 @@ bool Odometry2D_nws_ros2::attach(yarp::dev::PolyDriver* driver)
         yCError(ODOMETRY2D_NWS_ROS2, "Subdevice passed to attach method is invalid");
         return false;
     }
+
+    yCInfo(ODOMETRY2D_NWS_ROS2, "Attach complete");
     PeriodicThread::setPeriod(m_period);
     return PeriodicThread::start();
 }
@@ -117,7 +119,7 @@ bool Odometry2D_nws_ros2::open(yarp::os::Searchable &config)
 
     m_ros2Publisher_odometry = m_node->create_publisher<nav_msgs::msg::Odometry>(m_topicName, 10);
     
-    yCError(ODOMETRY2D_NWS_ROS2) << "Waiting for device to attach";
+    yCInfo(ODOMETRY2D_NWS_ROS2) << "Waiting for device to attach";
     return true;
 }
 
