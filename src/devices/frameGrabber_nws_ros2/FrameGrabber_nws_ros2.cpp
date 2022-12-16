@@ -248,7 +248,7 @@ void FrameGrabber_nws_ros2::run()
         }
         else
         {
-            yCError(FRAMEGRABBER_NWS_ROS2) << "Image not captured (getImage failed). Check hardware configuration."
+            yCError(FRAMEGRABBER_NWS_ROS2) << "Image not captured (getImage failed). Check hardware configuration.";
         }
     }
     else
