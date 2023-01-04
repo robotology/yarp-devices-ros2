@@ -29,6 +29,20 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 set(YARP_FORCE_DYNAMIC_PLUGINS TRUE CACHE INTERNAL "yarp-devices-ros2 is always built with dynamic plugins")
 option(BUILD_SHARED_LIBS "Build libraries as shared as opposed to static" ON)
 
+find_package(YARP 3.7.2 COMPONENTS os sig dev rosmsg serversql OPTIONAL_COMPONENTS math REQUIRED)
+find_package(YARP 3.7.2 COMPONENTS catch2 dev_tests QUIET)
+
+if(YARP_catch2_FOUND AND YARP_dev_tests_FOUND)
+  option(YARP_COMPILE_TESTS "Enable YARP tests" OFF)
+  if(YARP_COMPILE_TESTS)
+    enable_testing()
+  endif()
+  message (STATUS "yarp_catch2 and yarp_dev_tests libraries found")
+else()
+  SET(YARP_COMPILE_TESTS OFF CACHE BOOL "yarp_catch2 and yarp_dev_tests libraries NOT found. Tests cannot be enabled" FORCE)
+  message (STATUS "yarp_catch2 and yarp_dev_tests libraries NOT found. Tests cannot be enabled")
+endif()
+
 option(YARP_ROS2_USE_SYSTEM_map2d_nws_ros2_msgs "If ON, use map2d_nws_ros2_msgs found in the system, otherwise build it with this project." OFF)
 option(YARP_ROS2_USE_SYSTEM_yarp_control_msgs "If ON, use yarp_control_msgs found in the system, otherwise build it with this project." OFF)
 
@@ -49,7 +63,6 @@ set_property(GLOBAL PROPERTY USE_FOLDERS 1)
 
 include(AddUninstallTarget)
 
-find_package(YARP 3.7.2 COMPONENTS os sig dev REQUIRED)
 set(CMAKE_C_FLAGS "${YARP_C_FLAGS} ${CMAKE_C_FLAGS}")
 set(CMAKE_CXX_FLAGS "${YARP_CXX_FLAGS} ${CMAKE_CXX_FLAGS}")
 
@@ -83,17 +96,7 @@ endif()
 
 add_subdirectory(src)
 #add_subdirectory(doc)
-
-#if(BUILD_TESTING)
-  #find_package(ament_lint_auto REQUIRED)
-  ## the following line skips the linter which checks for copyrights
-  ## uncomment the line when a copyright and license is not present in all source files
-  ##set(ament_cmake_copyright_FOUND TRUE)
-  ## the following line skips cpplint (only works in a git repo)
-  ## uncomment the line when this package is not in a git repo
-  ##set(ament_cmake_cpplint_FOUND TRUE)
-  #ament_lint_auto_find_test_dependencies()
-#endif()
+add_subdirectory(tests)
 
 ament_package()
 
