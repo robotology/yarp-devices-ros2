@@ -169,5 +169,9 @@ bool Rangefinder2D_nws_ros2::open(yarp::os::Searchable &config)
 
 bool Rangefinder2D_nws_ros2::close()
 {
+    if (PeriodicThread::isRunning())
+    {
+        PeriodicThread::stop();
+    }
     return true;
 }
