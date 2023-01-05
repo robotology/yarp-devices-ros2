@@ -48,10 +48,10 @@ public:
 
     // PeriodicThread
     void run() override;
-    
+
     // ROS2 Topic Callback
     void callback(sensor_msgs::msg::LaserScan::SharedPtr msg, std::string topic);
-        
+
 public:
     // IRangeFinder2D
     bool getLaserMeasurement(std::vector<yarp::dev::LaserMeasurementData> &data, double* timestamp = nullptr) override;
@@ -66,13 +66,13 @@ public:
     bool getScanRate(double& rate) override;
     bool setScanRate(double rate) override;
     bool getDeviceInfo(std::string &device_info) override;
-    
+
 private:
     std::string m_topic_name;
     std::string m_node_name;
     rclcpp::Node::SharedPtr m_node;
     Ros2Subscriber<Rangefinder2D_nwc_ros2,sensor_msgs::msg::LaserScan>* m_subscriber;
-    
+
     bool   m_verbose = false;
     bool   m_data_valid = false;
     std::mutex m_mutex;

@@ -146,4 +146,3 @@ target_include_directories(YARP_harness_no_network
 )
 
 set_property(TARGET YARP_harness_no_network PROPERTY FOLDER "Test")
-

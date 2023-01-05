@@ -118,7 +118,7 @@ bool Odometry2D_nws_ros2::open(yarp::os::Searchable &config)
     m_publisher_tf   = m_node->create_publisher<tf2_msgs::msg::TFMessage>(m_tf_topic, 10);
 
     m_ros2Publisher_odometry = m_node->create_publisher<nav_msgs::msg::Odometry>(m_topicName, 10);
-    
+
     yCInfo(ODOMETRY2D_NWS_ROS2) << "Waiting for device to attach";
     return true;
 }

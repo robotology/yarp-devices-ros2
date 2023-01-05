@@ -81,7 +81,7 @@ void Rangefinder2D_nwc_ros2::callback(sensor_msgs::msg::LaserScan::SharedPtr msg
 {
     yCTrace(RANGEFINDER2D_NWC_ROS2, "callback LaserScan");
     std::lock_guard<std::mutex> data_guard(m_mutex);
-    
+
     if (m_data_valid==false)
     {
         m_minAngle = msg->angle_min;
@@ -164,7 +164,7 @@ bool Rangefinder2D_nwc_ros2::setScanLimits(double min, double max)
     return false;
 }
 
-bool Rangefinder2D_nwc_ros2::getHorizontalResolution(double& step) 
+bool Rangefinder2D_nwc_ros2::getHorizontalResolution(double& step)
 {
     if (!m_data_valid) {return false;}
     std::lock_guard<std::mutex> data_guard(m_mutex);
@@ -172,7 +172,7 @@ bool Rangefinder2D_nwc_ros2::getHorizontalResolution(double& step)
     return true;
 }
 
-bool Rangefinder2D_nwc_ros2::setHorizontalResolution(double step) 
+bool Rangefinder2D_nwc_ros2::setHorizontalResolution(double step)
 {
     if (!m_data_valid) {return false;}
     std::lock_guard<std::mutex> data_guard(m_mutex);
@@ -180,14 +180,14 @@ bool Rangefinder2D_nwc_ros2::setHorizontalResolution(double step)
     return false;
 }
 
-bool Rangefinder2D_nwc_ros2::getScanRate(double& rate) 
+bool Rangefinder2D_nwc_ros2::getScanRate(double& rate)
 {
     if (!m_data_valid) {return false;}
     std::lock_guard<std::mutex> data_guard(m_mutex);
     return true;
 }
 
-bool Rangefinder2D_nwc_ros2::setScanRate(double rate) 
+bool Rangefinder2D_nwc_ros2::setScanRate(double rate)
 {
     if (!m_data_valid) {return false;}
     std::lock_guard<std::mutex> data_guard(m_mutex);
