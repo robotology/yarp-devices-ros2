@@ -47,3 +47,7 @@ yarp_install(
 )
 
 set_property(TARGET yarp_frameTransformSet_nwc_ros2 PROPERTY FOLDER "Plugins/Device")
+
+if(YARP_COMPILE_TESTS)
+  add_subdirectory(tests)
+endif()

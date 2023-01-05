@@ -8,8 +8,7 @@ yarp_prepare_plugin(wrenchStamped_nws_ros2
   CATEGORY device
   TYPE WrenchStamped_nws_ros2
   INCLUDE WrenchStamped_nws_ros2.h
-  EXTRA_CONFIG
-    WRAPPER=wrenchStamped_nws_ros2
+  EXTRA_CONFIG WRAPPER=wrenchStamped_nws_ros2
   DEPENDS "TARGET YARP::YARP_math"
   DEFAULT ON
 )
@@ -103,4 +102,9 @@ if(ENABLE_imu_nws_ros2)
   set(YARP_${YARP_PLUGIN_MASTER}_PRIVATE_DEPS ${YARP_${YARP_PLUGIN_MASTER}_PRIVATE_DEPS} PARENT_SCOPE)
 
   set_property(TARGET yarp_imu_nws_ros2 PROPERTY FOLDER "Plugins/Device")
+
+  if(YARP_COMPILE_TESTS)
+    add_subdirectory(tests)
+  endif()
+
 endif()

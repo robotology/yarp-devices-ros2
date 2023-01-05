@@ -46,3 +46,7 @@ yarp_install(
 )
 
 set_property(TARGET yarp_localization2D_nws_ros2 PROPERTY FOLDER "Plugins/Device")
+
+if(YARP_COMPILE_TESTS)
+  add_subdirectory(tests)
+endif()

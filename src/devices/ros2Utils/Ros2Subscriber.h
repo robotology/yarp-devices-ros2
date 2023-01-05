@@ -35,7 +35,7 @@ private:
 template <class CallbackClass, typename MsgClass>
 Ros2Subscriber<CallbackClass, MsgClass>::Ros2Subscriber(rclcpp::Node::SharedPtr node, CallbackClass* callbackClass)
 {
-    yInfo() << "simple subscrriber starting ";
+    yInfo() << "Ros2Subscriber starting";
     m_node = node;
     m_callbackClass = callbackClass;
 }
@@ -43,7 +43,7 @@ Ros2Subscriber<CallbackClass, MsgClass>::Ros2Subscriber(rclcpp::Node::SharedPtr 
 
 template <class CallbackClass, typename MsgClass>
 void Ros2Subscriber<CallbackClass, MsgClass>::subscribe_to_topic(std::string topic_name) {
-    yInfo() << "simple subscrriber creating topic " << topic_name;
+    yInfo() << "Ros2Subscriber creating topic " << topic_name;
     m_subscription.push_back(m_node->create_subscription<MsgClass>(
         topic_name,
         10,

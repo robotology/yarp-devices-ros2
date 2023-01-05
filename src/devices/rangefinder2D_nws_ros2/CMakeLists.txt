@@ -43,9 +43,8 @@ yarp_install(
   YARP_INI DESTINATION ${YARP_PLUGIN_MANIFESTS_INSTALL_DIR}
 )
 
+set_property(TARGET yarp_rangefinder2D_nws_ros2 PROPERTY FOLDER "Plugins/Device")
+
 if(YARP_COMPILE_TESTS)
   add_subdirectory(tests)
 endif()
-
-
-set_property(TARGET yarp_rangefinder2D_nws_ros2 PROPERTY FOLDER "Plugins/Device")
