@@ -118,8 +118,13 @@ jobs:
         mkdir -p build
         cd build
         # Python3_EXECUTABLE is set as a workaround for https://github.com/ros2/python_cmake_module/issues/6
-        cmake -GNinja -DBUILD_TESTING:BOOL=ON -DYARP_ROS2_USE_SYSTEM_map2d_nws_ros2_msgs:BOOL=OFF \
-              -DPython3_EXECUTABLE:PATH=$CONDA_PREFIX/bin/python3 -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_INSTALL_PREFIX=./install ..
+        cmake -GNinja -DBUILD_TESTING:BOOL=ON \
+                      -DYARP_ROS2_USE_SYSTEM_map2d_nws_ros2_msgs:BOOL=OFF \
+                      -DPython3_EXECUTABLE:PATH=$CONDA_PREFIX/bin/python3 \
+                      -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+                      -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+                      -DCMAKE_INSTALL_PREFIX=./install .. \
+                      -DYARP_COMPILE_TESTS:BOOL=ON
 
     - name: Configure [Windows]
       if: contains(matrix.os, 'windows')
@@ -128,7 +133,12 @@ jobs:
       run: |
         mkdir -p build
         cd build
-        cmake -G"Visual Studio 16 2019" -DBUILD_TESTING:BOOL=ON -DYARP_ROS2_USE_SYSTEM_map2d_nws_ros2_msgs:BOOL=OFF -DPython3_EXECUTABLE:PATH=%CONDA_PREFIX%\python.exe -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_INSTALL_PREFIX=.\install ..
+        cmake -G"Visual Studio 16 2019" -DBUILD_TESTING:BOOL=ON \
+                                        -DYARP_ROS2_USE_SYSTEM_map2d_nws_ros2_msgs:BOOL=OFF \
+                                        -DPython3_EXECUTABLE:PATH=%CONDA_PREFIX%\python.exe \
+                                        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+                                        -DCMAKE_INSTALL_PREFIX=.\install ..
+                                        -DYARP_COMPILE_TESTS:BOOL=ON
 
     - name: Build [Linux&macOS]
       if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
