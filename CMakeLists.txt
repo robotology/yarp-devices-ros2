@@ -7,7 +7,7 @@ include(FeatureSummary)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-find_package(YCM 0.12 REQUIRED)
+find_package(YCM 0.14 REQUIRED)
 
 include(GNUInstallDirs)
 
