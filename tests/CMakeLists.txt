@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2006-2021 Istituto Italiano di Tecnologia (IIT)
+# SPDX-FileCopyrightText: 2006-2023 Istituto Italiano di Tecnologia (IIT)
 # SPDX-FileCopyrightText: 2006-2010 RobotCub Consortium
 # SPDX-License-Identifier: BSD-3-Clause
 
@@ -146,3 +146,8 @@ target_include_directories(YARP_harness_no_network
 )
 
 set_property(TARGET YARP_harness_no_network PROPERTY FOLDER "Test")
+
+#########################################################################
+# Add subdirectories containing the actual tests
+
+add_subdirectory(misc)
