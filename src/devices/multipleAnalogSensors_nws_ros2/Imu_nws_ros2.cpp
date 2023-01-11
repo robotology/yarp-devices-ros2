@@ -6,7 +6,7 @@
 // We define and include this first to ensure
 // that no transitivetely-included header already
 // includes cmath withut defining _USE_MATH_DEFINES
-ifndef _USE_MATH_DEFINES
+#ifndef _USE_MATH_DEFINES
 #define _USE_MATH_DEFINES
 #endif
 
