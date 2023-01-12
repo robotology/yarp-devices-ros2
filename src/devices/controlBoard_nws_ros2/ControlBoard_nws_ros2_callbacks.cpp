@@ -68,6 +68,12 @@ inline double convertRadiansToDegrees(double degrees)
 {
     return degrees / M_PI * 180.0;
 }
+
+inline double convertDegreesToRadians(double radians)
+{
+    return radians / 180.0 * M_PI;
+}
+
 } // namespace
 
 // UTILITIES ------------------------------------------------------------------------------------------------------------- END //
@@ -470,6 +476,104 @@ void ControlBoard_nws_ros2::getControlModesCallback(const std::shared_ptr<rmw_re
     response->response = "OK";
 
     delete tempMode;
+}
+
+
+void ControlBoard_nws_ros2::getPositionCallback(const std::shared_ptr<rmw_request_id_t> request_header,
+                                                const std::shared_ptr<yarp_control_msgs::srv::GetPosition::Request> request,
+                                                std::shared_ptr<yarp_control_msgs::srv::GetPosition::Response> response) {
+    std::lock_guard <std::mutex> lg(m_cmdMutex);
+
+    bool noJoints = request->names.size() == 0;
+
+    if(!request){
+        yCError(CONTROLBOARD_ROS2) << "Invalid request";
+        RCLCPP_ERROR(m_node->get_logger(),"Invalid request");
+
+        response->response = "INVALID";
+
+        return;
+    }
+
+    if(!noJoints){
+        if(!namesCheck(request->names)){
+            response->response = "NAMES_ERROR";
+
+            return;
+        }
+    }
+
+    size_t forLimit = noJoints ? m_subdevice_joints : request->names.size();
+    double *tempPos = new double[m_jointNames.size()];
+    std::vector<double> positionsToSend;
+
+    if(!m_iEncodersTimed->getEncoders(tempPos)){
+        yCError(CONTROLBOARD_ROS2) << "Error while retrieving joints positions";
+        RCLCPP_ERROR(m_node->get_logger(),"Error while retrieving joints positions");
+        response->response = "RETRIEVE_ERROR";
+
+        delete tempPos;
+        return;
+    }
+
+    double posRad;
+    for (size_t i=0; i<forLimit; i++){
+        posRad = convertDegreesToRadians(tempPos[noJoints ? i : m_quickJointRef[request->names[i]]]);
+        positionsToSend.push_back(posRad);
+    }
+    response->positions = positionsToSend;
+    response->response = "OK";
+
+    delete tempPos;
+}
+
+
+void ControlBoard_nws_ros2::getVelocityCallback(const std::shared_ptr<rmw_request_id_t> request_header,
+                                                const std::shared_ptr<yarp_control_msgs::srv::GetVelocity::Request> request,
+                                                std::shared_ptr<yarp_control_msgs::srv::GetVelocity::Response> response) {
+    std::lock_guard <std::mutex> lg(m_cmdMutex);
+
+    bool noJoints = request->names.size() == 0;
+
+    if(!request){
+        yCError(CONTROLBOARD_ROS2) << "Invalid request";
+        RCLCPP_ERROR(m_node->get_logger(),"Invalid request");
+
+        response->response = "INVALID";
+
+        return;
+    }
+
+    if(!noJoints){
+        if(!namesCheck(request->names)){
+            response->response = "NAMES_ERROR";
+
+            return;
+        }
+    }
+
+    size_t forLimit = noJoints ? m_subdevice_joints : request->names.size();
+    double *tempVel = new double[m_jointNames.size()];
+    std::vector<double> velocitiesToSend;
+
+    if(!m_iEncodersTimed->getEncoderSpeeds(tempVel)){
+        yCError(CONTROLBOARD_ROS2) << "Error while retrieving joints speeds";
+        RCLCPP_ERROR(m_node->get_logger(),"Error while retrieving joints speeds");
+        response->response = "RETRIEVE_ERROR";
+
+        delete tempVel;
+        return;
+    }
+
+    double velRad;
+    for (size_t i=0; i<forLimit; i++){
+        velRad = convertDegreesToRadians(tempVel[noJoints ? i : m_quickJointRef[request->names[i]]]);
+        velocitiesToSend.push_back(velRad);
+    }
+    response->velocities = velocitiesToSend;
+    response->response = "OK";
+
+    delete tempVel;
 }
 
 
