@@ -120,9 +120,6 @@ bool ControlBoard_nws_ros2::open(Searchable& config)
 
     if (config.check("msgs_name")) {
         m_msgs_name = config.find("msgs_name").asString();
-        if (m_msgs_name[0] != '/') {
-            m_msgs_name = "/"+m_msgs_name;
-        }
     }
 
     return true;
@@ -352,10 +349,16 @@ bool ControlBoard_nws_ros2::attach(yarp::dev::PolyDriver* poly)
         return false;
     }
 
-    if(!initRos2Control(m_msgs_name)){
-        yCError(CONTROLBOARD_ROS2) << "Error initializing the ROS2 control related topics and services";
-        RCLCPP_ERROR(m_node->get_logger(),"Error initializing the ROS2 control related topics and services");
-        return false;
+    if(!m_msgs_name.empty())
+    {
+        if (m_msgs_name[0] != '/') {
+            m_msgs_name = "/"+m_msgs_name;
+        }
+        if(!initRos2Control(m_msgs_name)){
+            yCError(CONTROLBOARD_ROS2) << "Error initializing the ROS2 control related topics and services";
+            RCLCPP_ERROR(m_node->get_logger(),"Error initializing the ROS2 control related topics and services");
+            return false;
+        }
     }
 
     if(m_spinner){
