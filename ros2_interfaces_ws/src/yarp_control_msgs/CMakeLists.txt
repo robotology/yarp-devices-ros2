@@ -44,6 +44,8 @@ find_package(rosidl_default_generators REQUIRED)
 rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/SetControlModes.srv"
   "srv/GetControlModes.srv"
+  "srv/GetPosition.srv"
+  "srv/GetVelocity.srv"
   "srv/GetAvailableControlModes.srv"
   "srv/GetJointsNames.srv"
   "msg/Position.msg"
