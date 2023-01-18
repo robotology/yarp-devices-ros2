@@ -19,10 +19,8 @@ target_sources(yarp_frameTransformSet_nwc_ros2
     frameTransformSet_nwc_ros2.h
 )
 
-target_sources(yarp_frameTransformSet_nwc_ros2 PRIVATE $<TARGET_OBJECTS:FrameTransformUtils>)
 target_include_directories(yarp_frameTransformSet_nwc_ros2
                            PRIVATE
-                             $<TARGET_PROPERTY:FrameTransformUtils,INTERFACE_INCLUDE_DIRECTORIES>
                              $<TARGET_PROPERTY:Ros2Utils,INTERFACE_INCLUDE_DIRECTORIES>)
 
 target_link_libraries(yarp_frameTransformSet_nwc_ros2

@@ -23,7 +23,7 @@
 #include <geometry_msgs/msg/vector3.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
 #include <std_msgs/msg/header.hpp>
-#include <FrameTransformContainer.h>
+#include <yarp/dev/FrameTransformContainer.h>
 #include <Ros2Utils.h>
 #include <mutex>
 #include <map>
@@ -103,7 +103,7 @@ private:
     bool                                                                m_asynchPub{true};
     rclcpp::Publisher<tf2_msgs::msg::TFMessage>::SharedPtr              m_publisherFtTimed;
     rclcpp::Publisher<tf2_msgs::msg::TFMessage>::SharedPtr              m_publisherFtStatic;
-    FrameTransformContainer                                             m_ftContainer;
+    yarp::dev::FrameTransformContainer                                  m_ftContainer;
     rclcpp::Node::SharedPtr                                             m_node;
 };
 
