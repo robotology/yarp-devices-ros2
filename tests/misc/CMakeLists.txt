@@ -16,3 +16,13 @@ if(PERL_FOUND AND NOT WIN32 AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.git")
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
   )
 endif()
+
+find_package(Python)
+if(PYTHON_FOUND AND NOT WIN32 AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.git")
+  add_test(
+    NAME misc::check_tests
+    COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/check_tests.py"
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+  )
+endif()
+
