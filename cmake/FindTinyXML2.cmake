@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2006-2021 Istituto Italiano di Tecnologia (IIT)
+# SPDX-License-Identifier: BSD-3-Clause
+
 # TinyXML2_FOUND
 # TinyXML2_INCLUDE_DIRS
 # TinyXML2_LIBRARIES

@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2006-2023 Istituto Italiano di Tecnologia (IIT)
+# SPDX-FileCopyrightText: 2023 Istituto Italiano di Tecnologia (IIT)
 # SPDX-License-Identifier: BSD-3-Clause
 
 yarp_prepare_plugin(odometry2D_nws_ros2
