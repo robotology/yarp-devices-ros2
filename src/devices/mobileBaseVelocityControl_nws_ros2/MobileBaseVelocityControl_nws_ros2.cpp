@@ -1,6 +1,6 @@
 /*
- * SPDX-FileCopyrightText: 2006-2023 Istituto Italiano di Tecnologia (IIT)
- * SPDX-License-Identifier: LGPL-2.1-or-later
+ * SPDX-FileCopyrightText: 2023 Istituto Italiano di Tecnologia (IIT)
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #define _USE_MATH_DEFINES

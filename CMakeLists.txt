@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2023 Istituto Italiano di Tecnologia (IIT)
+# SPDX-License-Identifier: BSD-3-Clause
+
 cmake_minimum_required(VERSION 3.16)
 project(yarp-devices-ros2
         LANGUAGES CXX

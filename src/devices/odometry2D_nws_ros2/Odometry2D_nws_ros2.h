@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2006-2023 Istituto Italiano di Tecnologia (IIT)
- * SPDX-License-Identifier: LGPL-2.1-or-later
+ * SPDX-FileCopyrightText: 2023 Istituto Italiano di Tecnologia (IIT)
+ * SPDX-License-Identifier: BSD-3-Clause
  */
-
 
 #ifndef YARP_ROS2_ODOMETRY2D_NWS_ROS2_H
 #define YARP_ROS2_ODOMETRY2D_NWS_ROS2_H
