@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# SPDX-FileCopyrightText: 2006-2023 Istituto Italiano di Tecnologia (IIT)
+# SPDX-FileCopyrightText: 2006-2021 Istituto Italiano di Tecnologia (IIT)
 # SPDX-License-Identifier: BSD-3-Clause
 
 my $verbose_output = 0;
@@ -21,7 +21,7 @@ open my $handle, '<', "tests/misc/check_license_skip.txt";
 chomp(my @skip_files = <$handle>);
 close $handle;
 
-my $copyright_iit = "2006-2023 Istituto Italiano di Tecnologia \\(IIT\\)";
+my $copyright_iit = "(2006-2021|2006-2022|2006-2023|2023|2023-2023) Istituto Italiano di Tecnologia \\(IIT\\)";
 my $copyright_robocub = "2006-2010 RobotCub Consortium";
 
 my $str_bsd3_cpp = <<END;
