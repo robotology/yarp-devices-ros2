@@ -69,7 +69,8 @@ include(AddUninstallTarget)
 set(CMAKE_C_FLAGS "${YARP_C_FLAGS} ${CMAKE_C_FLAGS}")
 set(CMAKE_CXX_FLAGS "${YARP_CXX_FLAGS} ${CMAKE_CXX_FLAGS}")
 
-yarp_configure_plugins_installation(yarp-devices-ros2)
+yarp_configure_plugins_installation(${PROJECT_NAME})
+yarp_configure_external_installation(${PROJECT_NAME})
 
 find_package(ament_cmake REQUIRED)
 find_package(Doxygen)
@@ -100,6 +101,7 @@ endif()
 add_subdirectory(src)
 #add_subdirectory(doc)
 add_subdirectory(tests)
+add_subdirectory(resources)
 
 ament_package()
 
