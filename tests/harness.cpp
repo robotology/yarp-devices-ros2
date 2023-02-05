@@ -54,7 +54,10 @@ static void setup_Environment()
         std::string{yarp::conf::environment::path_separator}  +
        (*it);
     }
-    std::cout << "YARP_DATA_DIRS set to:" << yarp_data_dirs << std::endl;
+
+    //not sure about how to print, since this cout will make the whole test fail
+    //std::cout << "YARP_DATA_DIRS set to:" << yarp_data_dirs << std::endl;
+
     yarp::conf::environment::set_string("YARP_DATA_DIRS", yarp_data_dirs);
 
     //YARP_DATA_HOME is set to a non existent directory

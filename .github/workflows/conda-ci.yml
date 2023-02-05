@@ -96,7 +96,8 @@ jobs:
         cd build
         cmake -GNinja -DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX} \
                       -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} .. \
-                      -DYARP_COMPILE_TESTS:BOOL=ON
+                      -DYARP_COMPILE_TESTS:BOOL=ON \
+                      -DYARP_COMPILE_ALL_FAKE_DEVICES:BOOL=ON
         cmake --build . --config ${{ matrix.build_type }}
         cmake --install . --config ${{ matrix.build_type }}
 
@@ -111,7 +112,8 @@ jobs:
         cd build
         cmake -G"Visual Studio 16 2019" -DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX}/Library \
                                         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} .. \
-                                        -DYARP_COMPILE_TESTS:BOOL=ON
+                                        -DYARP_COMPILE_TESTS:BOOL=ON \
+                                        -DYARP_COMPILE_ALL_FAKE_DEVICES:BOOL=ON
         cmake --build . --config ${{ matrix.build_type }}
         cmake --install . --config ${{ matrix.build_type }}
 

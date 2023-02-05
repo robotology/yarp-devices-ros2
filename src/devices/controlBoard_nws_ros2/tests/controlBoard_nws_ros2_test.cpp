@@ -68,7 +68,7 @@ TEST_CASE("dev::controlBoard_nws_ros2_test", "[yarp::dev]")
             bool result_att = ww_nws->attach(&ddfake);
             REQUIRE(result_att);
         }
-        
+
         //"Close all polydrivers and check"
         {
             CHECK(ddnws.close());
