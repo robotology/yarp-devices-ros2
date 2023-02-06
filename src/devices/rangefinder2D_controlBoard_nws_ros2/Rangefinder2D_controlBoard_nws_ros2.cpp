@@ -248,7 +248,7 @@ bool Rangefinder2D_controlBoard_nws_ros2::open(yarp::os::Searchable &config)
     m_publisher_joint = m_node->create_publisher<sensor_msgs::msg::JointState>(m_topic_cb, 10);
     yCInfo(RANGEFINDER2D_NWS_ROS2, "Opened topic: %s", m_topic.c_str());
 
-    yCError(RANGEFINDER2D_NWS_ROS2) << "Waiting for device to attach";
+    yCWarning(RANGEFINDER2D_NWS_ROS2) << "Waiting for device to attach";
 
     //start the publishing thread
     setPeriod(m_period);

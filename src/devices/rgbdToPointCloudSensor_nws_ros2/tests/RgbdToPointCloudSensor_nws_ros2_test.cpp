@@ -16,7 +16,8 @@ using namespace yarp::os;
 TEST_CASE("dev::rgbdToPointCloudSensor_nws_ros2_test", "[yarp::dev]")
 {
     YARP_REQUIRE_PLUGIN("rgbdToPointCloudSensor_nws_ros2", "device");
-
+    YARP_REQUIRE_PLUGIN("fakeDepthCamera", "device");
+    
     Network::setLocalMode(true);
 
     SECTION("Checking the nws alone")
@@ -26,9 +27,10 @@ TEST_CASE("dev::rgbdToPointCloudSensor_nws_ros2_test", "[yarp::dev]")
         ////////"Checking opening nws"
         {
             Property pcfg;
-            pcfg.put("device", "controlBoard_nws_ros2");
-            pcfg.put("node_name", "controlboard_node");
-            pcfg.put("topic_name","/controlBoard_nws_ros2/robot_part");
+            pcfg.put("device", "rgbdToPointCloudSensor_nws_ros2");
+            pcfg.put("node_name", "pcl_node");
+            pcfg.put("topic_name","/pcl_topic");
+            pcfg.put("frame_id","cameraframe");
             REQUIRE(ddnws.open(pcfg));
         }
 
@@ -47,17 +49,17 @@ TEST_CASE("dev::rgbdToPointCloudSensor_nws_ros2_test", "[yarp::dev]")
         ////////"Checking opening nws"
         {
             Property pcfg;
-            pcfg.put("device", "controlBoard_nws_ros2");
-            pcfg.put("node_name", "controlboard_node");
-            pcfg.put("topic_name","/controlBoard_nws_ros2/robot_part");
+            pcfg.put("device", "rgbdToPointCloudSensor_nws_ros2");
+            pcfg.put("node_name", "pcl_node");
+            pcfg.put("topic_name","/pcl_topic");
+            pcfg.put("frame_id","cameraframe");
             REQUIRE(ddnws.open(pcfg));
         }
 
         ////////"Checking opening device"
         {
             Property pcfg_fake;
-            pcfg_fake.put("device", "fakeMotionControl");
-            pcfg_fake.put("node_name", "controlboard_node");
+            pcfg_fake.put("device", "fakeDepthCamera");
             REQUIRE(ddfake.open(pcfg_fake));
         }
 

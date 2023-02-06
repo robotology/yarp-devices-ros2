@@ -16,7 +16,7 @@ using namespace yarp::os;
 TEST_CASE("dev::localization2D_nws_ros2_test", "[yarp::dev]")
 {
     YARP_REQUIRE_PLUGIN("localization2D_nws_ros2", "device");
-    YARP_REQUIRE_PLUGIN("fakeLocalization", "device");
+    YARP_REQUIRE_PLUGIN("fakeLocalizer", "device");
 
     Network::setLocalMode(true);
 
@@ -57,7 +57,7 @@ TEST_CASE("dev::localization2D_nws_ros2_test", "[yarp::dev]")
         ////////"Checking opening device"
         {
             Property pcfg_fake;
-            pcfg_fake.put("device", "fakeLocalization");
+            pcfg_fake.put("device", "fakeLocalizer");
             REQUIRE(ddfake.open(pcfg_fake));
         }
 

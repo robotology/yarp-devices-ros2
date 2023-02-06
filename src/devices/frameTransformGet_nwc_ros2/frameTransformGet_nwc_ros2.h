@@ -44,7 +44,7 @@
  * | GENERAL        |      -               | group   | -              | -                     | No           |                                                                   |
  * | -              | refresh_interval     | double  | seconds        | 0.1                   | No           | The time interval outside which timed ft will be deleted          |
  * | ROS2           |      -               | group   | -              | -                     | No           |                                                                   |
- * | -              | ft_node              | string  | -              | /tfNodeGet            | No           | The of the ROS2 node                                              |
+ * | -              | ft_node              | string  | -              | /tfNodeGet            | No           | The name of the ROS2 node                                              |
  * | -              | ft_topic             | string  | -              | /tf                   | No           | The name of the ROS2 topic from which fts will be received        |
  * | -              | ft_topic_static      | string  | -              | /tf_static            | No           | The name of the ROS2 topic from which static fts will be received |
 

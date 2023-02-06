@@ -23,12 +23,10 @@ TEST_CASE("dev::frameTransformGet_nwc_ros2_test", "[yarp::dev]")
     {
         PolyDriver ddnwc;
 
-        ////////"Checking opening nws"
+        ////////"Checking opening nwc"
         {
             Property pcfg;
             pcfg.put("device", "frameTransformGet_nwc_ros2");
-            pcfg.put("node_name", "controlboard_node");
-            pcfg.put("topic_name","/controlBoard_nws_ros2/robot_part");
             REQUIRE(ddnwc.open(pcfg));
         }
 

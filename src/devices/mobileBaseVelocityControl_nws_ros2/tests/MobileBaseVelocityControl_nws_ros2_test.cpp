@@ -13,9 +13,9 @@
 using namespace yarp::dev;
 using namespace yarp::os;
 
-TEST_CASE("dev::MobileBaseVelocityControl_nws_ros2", "[yarp::dev]")
+TEST_CASE("dev::mobileBaseVelocityControl_nws_ros2", "[yarp::dev]")
 {
-    YARP_REQUIRE_PLUGIN("MobileBaseVelocityControl_nws_ros2", "device");
+    YARP_REQUIRE_PLUGIN("mobileBaseVelocityControl_nws_ros2", "device");
     YARP_REQUIRE_PLUGIN("fakeNavigation", "device");
 
     Network::setLocalMode(true);
@@ -27,9 +27,9 @@ TEST_CASE("dev::MobileBaseVelocityControl_nws_ros2", "[yarp::dev]")
         ////////"Checking opening nws"
         {
             Property pcfg;
-            pcfg.put("device", "controlBoard_nws_ros2");
-            pcfg.put("node_name", "controlboard_node");
-            pcfg.put("topic_name","/controlBoard_nws_ros2/robot_part");
+            pcfg.put("device", "mobileBaseVelocityControl_nws_ros2");
+            pcfg.put("node_name", "navigation_node");
+            pcfg.put("topic_name","/mobileBaseVelocityControl_nws_ros2");
             REQUIRE(ddnws.open(pcfg));
         }
 
@@ -48,17 +48,16 @@ TEST_CASE("dev::MobileBaseVelocityControl_nws_ros2", "[yarp::dev]")
         ////////"Checking opening nws"
         {
             Property pcfg;
-            pcfg.put("device", "controlBoard_nws_ros2");
-            pcfg.put("node_name", "controlboard_node");
-            pcfg.put("topic_name","/controlBoard_nws_ros2/robot_part");
+            pcfg.put("device", "mobileBaseVelocityControl_nws_ros2");
+            pcfg.put("node_name", "navigation_node");
+            pcfg.put("topic_name","/mobileBaseVelocityControl_nws_ros2");
             REQUIRE(ddnws.open(pcfg));
         }
 
         ////////"Checking opening device"
         {
             Property pcfg_fake;
-            pcfg_fake.put("device", "fakeMotionControl");
-            pcfg_fake.put("node_name", "controlboard_node");
+            pcfg_fake.put("device", "fakeNavigation");
             REQUIRE(ddfake.open(pcfg_fake));
         }
 

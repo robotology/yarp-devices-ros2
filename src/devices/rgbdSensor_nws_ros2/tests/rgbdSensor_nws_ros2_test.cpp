@@ -6,17 +6,20 @@
 #include <yarp/os/Network.h>
 #include <yarp/dev/PolyDriver.h>
 #include <yarp/dev/WrapperSingle.h>
+#include <yarp/dev/IRGBDSensor.h>
+#include <yarp/dev/tests/IRGBDSensorTest.h>
 
 #include <catch2/catch_amalgamated.hpp>
 #include <harness.h>
 
 using namespace yarp::dev;
+using namespace yarp::sig;
 using namespace yarp::os;
 
-TEST_CASE("dev::odometry2D_nws_ros2_test", "[yarp::dev]")
+TEST_CASE("dev::Rangefinder2D_nws_ros2_test", "[yarp::dev]")
 {
-    YARP_REQUIRE_PLUGIN("odometry2D_nws_ros2", "device");
-    YARP_REQUIRE_PLUGIN("fakeOdometry", "device");
+    YARP_REQUIRE_PLUGIN("fakeDepthCamera", "device");
+    YARP_REQUIRE_PLUGIN("rgbdSensor_nws_ros2", "device");
 
     Network::setLocalMode(true);
 
@@ -27,11 +30,12 @@ TEST_CASE("dev::odometry2D_nws_ros2_test", "[yarp::dev]")
         ////////"Checking opening nws"
         {
             Property pcfg;
-            pcfg.put("device", "odometry2D_nws_ros2");
-            pcfg.put("node_name", "odometry_node");
-            pcfg.put("topic_name","/robot_odometry");
-            pcfg.put("odom_frame","odometry_frame");
-            pcfg.put("base_frame","base_frame");
+            pcfg.put("device", "rgbdSensor_nws_ros2");
+            pcfg.put("node_name", "rgbd_node");
+            pcfg.put("depth_topic_name","/depth_topic");
+            pcfg.put("color_topic_name","/rgbd_topic");
+            pcfg.put("depth_frame_id","depthframe");
+            pcfg.put("color_frame_id","colorframe");
             REQUIRE(ddnws.open(pcfg));
         }
 
@@ -50,18 +54,19 @@ TEST_CASE("dev::odometry2D_nws_ros2_test", "[yarp::dev]")
         ////////"Checking opening nws"
         {
             Property pcfg;
-            pcfg.put("device", "odometry2D_nws_ros2");
-            pcfg.put("node_name", "odometry_node");
-            pcfg.put("topic_name","/robot_odometry");
-            pcfg.put("odom_frame","odometry_frame");
-            pcfg.put("base_frame","base_frame");
+            pcfg.put("device", "rgbdSensor_nws_ros2");
+            pcfg.put("node_name", "rgbd_node");
+            pcfg.put("depth_topic_name","/depth_topic");
+            pcfg.put("color_topic_name","/rgbd_topic");
+            pcfg.put("depth_frame_id","depthframe");
+            pcfg.put("color_frame_id","colorframe");
             REQUIRE(ddnws.open(pcfg));
         }
 
         ////////"Checking opening device"
         {
             Property pcfg_fake;
-            pcfg_fake.put("device", "fakeOdometry");
+            pcfg_fake.put("device", "fakeDepthCamera");
             REQUIRE(ddfake.open(pcfg_fake));
         }
 

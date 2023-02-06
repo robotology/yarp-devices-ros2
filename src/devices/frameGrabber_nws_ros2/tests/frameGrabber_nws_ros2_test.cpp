@@ -43,6 +43,7 @@ TEST_CASE("dev::frameGrabber_nws_ros2_test", "[yarp::dev]")
             pcfg.put("device", "frameGrabber_nws_ros2");
             pcfg.put("node_name", "frameGrabber_node");
             pcfg.put("topic_name","/controlBoard_nws_ros2/robot_part");
+            pcfg.put("frame_id","test_frame");
             REQUIRE(ddnws.open(pcfg));
         }
 

@@ -13,9 +13,9 @@
 using namespace yarp::dev;
 using namespace yarp::os;
 
-TEST_CASE("dev::RangeFinder2D_controlBoard_nws_ros2_test", "[yarp::dev]")
+TEST_CASE("dev::rangefinder2D_controlBoard_nws_ros2_test", "[yarp::dev]")
 {
-    YARP_REQUIRE_PLUGIN("RangeFinder2D_controlBoard_nws_ros2", "device");
+    YARP_REQUIRE_PLUGIN("rangefinder2D_controlBoard_nws_ros2", "device");
     YARP_REQUIRE_PLUGIN("fakeLaserWithMotor", "device");
 
     Network::setLocalMode(true);
@@ -27,9 +27,9 @@ TEST_CASE("dev::RangeFinder2D_controlBoard_nws_ros2_test", "[yarp::dev]")
         ////////"Checking opening nws"
         {
             Property pcfg;
-            pcfg.put("device", "controlBoard_nws_ros2");
-            pcfg.put("node_name", "controlboard_node");
-            pcfg.put("topic_name","/controlBoard_nws_ros2/robot_part");
+            pcfg.put("device", "rangefinder2D_controlBoard_nws_ros2");
+            pcfg.put("node_name", "Rangefinder2D_controlBoard_node");
+            pcfg.put("topic_name","/Rangefinder2D_controlBoard");
             REQUIRE(ddnws.open(pcfg));
         }
 
@@ -48,17 +48,16 @@ TEST_CASE("dev::RangeFinder2D_controlBoard_nws_ros2_test", "[yarp::dev]")
         ////////"Checking opening nws"
         {
             Property pcfg;
-            pcfg.put("device", "controlBoard_nws_ros2");
-            pcfg.put("node_name", "controlboard_node");
-            pcfg.put("topic_name","/controlBoard_nws_ros2/robot_part");
+            pcfg.put("device", "rangefinder2D_controlBoard_nws_ros2");
+            pcfg.put("node_name", "Rangefinder2D_controlBoard_node");
+            pcfg.put("topic_name","/Rangefinder2D_controlBoard_node");
             REQUIRE(ddnws.open(pcfg));
         }
 
         ////////"Checking opening device"
         {
             Property pcfg_fake;
-            pcfg_fake.put("device", "fakeMotionControl");
-            pcfg_fake.put("node_name", "controlboard_node");
+            pcfg_fake.put("device", "fakeLaserWithMotor");
             REQUIRE(ddfake.open(pcfg_fake));
         }
 
