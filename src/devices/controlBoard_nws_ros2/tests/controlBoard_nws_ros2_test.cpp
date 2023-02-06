@@ -58,7 +58,6 @@ TEST_CASE("dev::controlBoard_nws_ros2_test", "[yarp::dev]")
         {
             Property pcfg_fake;
             pcfg_fake.put("device", "fakeMotionControl");
-            pcfg_fake.put("node_name", "controlboard_node");
             REQUIRE(ddfake.open(pcfg_fake));
         }
 

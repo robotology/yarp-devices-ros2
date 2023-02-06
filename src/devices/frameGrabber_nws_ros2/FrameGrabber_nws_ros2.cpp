@@ -142,18 +142,6 @@ bool FrameGrabber_nws_ros2::open(yarp::os::Searchable& config)
     }
     m_frameId = config.find("frame_id").asString();
 
-    // Check "frame_id" option
-    if (!config.check("node_name"))
-    {
-        yCError(FRAMEGRABBER_NWS_ROS2) << "Missing node_name parameter";
-        return false;
-    }
-    m_nodeName = config.find("node_name").asString();
-    if(m_nodeName[0] == '/'){
-        yCError(FRAMEGRABBER_NWS_ROS2) << "node_name cannot have an initial /";
-        return false;
-    }
-
     yCInfo(FRAMEGRABBER_NWS_ROS2) << "Running, waiting for attach...";
 
     m_active = true;

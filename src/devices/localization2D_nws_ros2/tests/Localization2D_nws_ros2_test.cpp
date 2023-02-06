@@ -13,10 +13,10 @@
 using namespace yarp::dev;
 using namespace yarp::os;
 
-TEST_CASE("dev::controlBoard_nws_ros2_test", "[yarp::dev]")
+TEST_CASE("dev::localization2D_nws_ros2_test", "[yarp::dev]")
 {
-    YARP_REQUIRE_PLUGIN("controlBoard_nws_ros2", "device");
-    YARP_REQUIRE_PLUGIN("fakeMotionControl", "device");
+    YARP_REQUIRE_PLUGIN("localization2D_nws_ros2", "device");
+    YARP_REQUIRE_PLUGIN("fakeLocalization", "device");
 
     Network::setLocalMode(true);
 
@@ -27,9 +27,9 @@ TEST_CASE("dev::controlBoard_nws_ros2_test", "[yarp::dev]")
         ////////"Checking opening nws"
         {
             Property pcfg;
-            pcfg.put("device", "controlBoard_nws_ros2");
-            pcfg.put("node_name", "controlboard_node");
-            pcfg.put("topic_name","/controlBoard_nws_ros2/robot_part");
+            pcfg.put("device", "localization2D_nws_ros2");
+            pcfg.put("node_name", "localization_node");
+            pcfg.put("topic_name","/localization_nws_ros2");
             REQUIRE(ddnws.open(pcfg));
         }
 
@@ -48,17 +48,16 @@ TEST_CASE("dev::controlBoard_nws_ros2_test", "[yarp::dev]")
         ////////"Checking opening nws"
         {
             Property pcfg;
-            pcfg.put("device", "controlBoard_nws_ros2");
-            pcfg.put("node_name", "controlboard_node");
-            pcfg.put("topic_name","/controlBoard_nws_ros2/robot_part");
+            pcfg.put("device", "localization2D_nws_ros2");
+            pcfg.put("node_name", "localization_node");
+            pcfg.put("topic_name","/localization_nws_ros2");
             REQUIRE(ddnws.open(pcfg));
         }
 
         ////////"Checking opening device"
         {
             Property pcfg_fake;
-            pcfg_fake.put("device", "fakeMotionControl");
-            pcfg_fake.put("node_name", "controlboard_node");
+            pcfg_fake.put("device", "fakeLocalization");
             REQUIRE(ddfake.open(pcfg_fake));
         }
 

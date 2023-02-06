@@ -13,7 +13,7 @@
 using namespace yarp::dev;
 using namespace yarp::os;
 
-TEST_CASE("dev::controlBoard_nws_ros2_test", "[yarp::dev]")
+TEST_CASE("dev::frameTransformSet_nwc_ros2_test", "[yarp::dev]")
 {
     YARP_REQUIRE_PLUGIN("controlBoard_nws_ros2", "device");
     YARP_REQUIRE_PLUGIN("fakeMotionControl", "device");

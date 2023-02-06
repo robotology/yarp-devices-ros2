@@ -19,7 +19,7 @@ using namespace yarp::os;
 TEST_CASE("dev::Rangefinder2D_nws_ros2_test", "[yarp::dev]")
 {
     YARP_REQUIRE_PLUGIN("fakeDepthCamera", "device");
-    YARP_REQUIRE_PLUGIN("rgbdSensor_nws_ros2impot", "device");
+    YARP_REQUIRE_PLUGIN("rgbdSensor_nws_ros2", "device");
 
     Network::setLocalMode(true);
 

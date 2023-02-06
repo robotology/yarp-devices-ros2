@@ -24,6 +24,7 @@ using namespace yarp::os;
 TEST_CASE("dev::Map2D_nws_ros2_test", "[yarp::dev]")
 {
     YARP_REQUIRE_PLUGIN("map2D_nws_ros2", "device");
+    YARP_REQUIRE_PLUGIN("map2DStorage", "device");
 
     Network::setLocalMode(true);
 
