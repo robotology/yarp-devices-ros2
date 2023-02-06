@@ -100,6 +100,7 @@ jobs:
                       -DYARP_COMPILE_ALL_FAKE_DEVICES:BOOL=ON
         cmake --build . --config ${{ matrix.build_type }}
         cmake --install . --config ${{ matrix.build_type }}
+        echo "YARP_DATA_DIRS=${CONDA_PREFIX}/share/yarp::${YARP_DATA_DIRS}" >> $GITHUB_ENV
 
     - name: Dependencies from source [Windows]
       if: contains(matrix.os, 'windows')
@@ -116,6 +117,7 @@ jobs:
                                         -DYARP_COMPILE_ALL_FAKE_DEVICES:BOOL=ON
         cmake --build . --config ${{ matrix.build_type }}
         cmake --install . --config ${{ matrix.build_type }}
+        echo "YARP_DATA_DIRS=${CONDA_PREFIX}/Library/share/yarp;${YARP_DATA_DIRS}" >> $GITHUB_ENV
 
     - name: Configure [Linux&macOS]
       if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
