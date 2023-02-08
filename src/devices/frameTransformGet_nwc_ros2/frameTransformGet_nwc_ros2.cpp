@@ -59,23 +59,20 @@ bool FrameTransformGet_nwc_ros2::open(yarp::os::Searchable& config)
                                                                                    this, _1));
 
 
-    start();
+    m_spinner = new Ros2Spinner(m_node);
+    m_spinner->start();
 
+    yCInfo(FRAMETRANSFORGETNWCROS2) << "opened";
+    
     return true;
 }
 
 bool FrameTransformGet_nwc_ros2::close()
 {
-    rclcpp::shutdown();
+    yCInfo(FRAMETRANSFORGETNWCROS2, "closing...");
+    delete m_spinner;
+    yCInfo(FRAMETRANSFORGETNWCROS2, "closed");
     return true;
-}
-
-void FrameTransformGet_nwc_ros2::run()
-{
-    yCTrace(FRAMETRANSFORGETNWCROS2);
-    rclcpp::spin(m_node);
-
-    return;
 }
 
 bool FrameTransformGet_nwc_ros2::getTransforms(std::vector<yarp::math::FrameTransform>& transforms) const

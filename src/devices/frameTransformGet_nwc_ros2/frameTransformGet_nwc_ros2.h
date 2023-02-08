@@ -10,7 +10,7 @@
 #include <yarp/os/Network.h>
 #include <yarp/dev/IFrameTransformStorage.h>
 #include <yarp/sig/Vector.h>
-#include <yarp/os/PeriodicThread.h>
+#include <Ros2Spinner.h>
 #include <yarp/dev/PolyDriver.h>
 #include <yarp/dev/IMultipleWrapper.h>
 #include <rclcpp/rclcpp.hpp>
@@ -67,8 +67,7 @@
 
 class FrameTransformGet_nwc_ros2 :
     public yarp::dev::DeviceDriver,
-    public yarp::dev::IFrameTransformStorageGet,
-    public yarp::os::Thread
+    public yarp::dev::IFrameTransformStorageGet
 {
 public:
     ~FrameTransformGet_nwc_ros2()=default;
@@ -77,8 +76,8 @@ public:
     bool open(yarp::os::Searchable& config) override;
     bool close() override;
 
-    //Thread
-    void run() override;
+    // Spinner
+    Ros2Spinner*            m_spinner{nullptr};
 
     //IFrameTransformStorageGet interface
     bool getTransforms(std::vector<yarp::math::FrameTransform>& transforms) const override;

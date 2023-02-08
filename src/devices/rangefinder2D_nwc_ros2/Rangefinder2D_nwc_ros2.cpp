@@ -49,7 +49,7 @@ bool Rangefinder2D_nwc_ros2::open(yarp::os::Searchable &config)
 
     m_verbose = config.check("verbose");
 
-    m_node = NodeCreator::createNode(m_node_name);    
+    m_node = NodeCreator::createNode(m_node_name);
     m_subscriber= new Ros2Subscriber<Rangefinder2D_nwc_ros2, sensor_msgs::msg::LaserScan>(m_node, this);
     m_subscriber->subscribe_to_topic(m_topic_name);
 
