@@ -30,20 +30,6 @@ Rangefinder2D_nwc_ros2::Rangefinder2D_nwc_ros2()
 {
 }
 
-void Rangefinder2D_nwc_ros2::run()
-{
-    yCTrace(RANGEFINDER2D_NWC_ROS2);
-
-    if(!rclcpp::ok())
-    {
-        rclcpp::init(/*argc*/ 0, /*argv*/ nullptr);
-    }
-    m_node = std::make_shared<rclcpp::Node>(m_node_name);
-    m_subscriber= new Ros2Subscriber<Rangefinder2D_nwc_ros2, sensor_msgs::msg::LaserScan>(m_node, this);
-    m_subscriber->subscribe_to_topic(m_topic_name);
-    rclcpp::spin(m_node);
-}
-
 bool Rangefinder2D_nwc_ros2::open(yarp::os::Searchable &config)
 {
     // node_name check
@@ -62,15 +48,24 @@ bool Rangefinder2D_nwc_ros2::open(yarp::os::Searchable &config)
     m_topic_name = config.find("topic_name").asString();
 
     m_verbose = config.check("verbose");
-    start();
+
+    m_node = NodeCreator::createNode(m_node_name);    
+    m_subscriber= new Ros2Subscriber<Rangefinder2D_nwc_ros2, sensor_msgs::msg::LaserScan>(m_node, this);
+    m_subscriber->subscribe_to_topic(m_topic_name);
+
+    m_spinner = new Ros2Spinner(m_node);
+    m_spinner->start();
+
+    yCInfo(RANGEFINDER2D_NWC_ROS2) << "opened";
+
     return true;
 }
 
 bool Rangefinder2D_nwc_ros2::close()
 {
-    yCTrace(RANGEFINDER2D_NWC_ROS2);
-    yCInfo(RANGEFINDER2D_NWC_ROS2, "shutting down");
-    rclcpp::shutdown();
+    yCInfo(RANGEFINDER2D_NWC_ROS2, "closing...");
+    delete m_spinner;
+    yCInfo(RANGEFINDER2D_NWC_ROS2, "closed");
     return true;
 }
 

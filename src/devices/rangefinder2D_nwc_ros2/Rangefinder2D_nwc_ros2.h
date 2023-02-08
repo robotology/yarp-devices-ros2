@@ -9,7 +9,8 @@
 #include <yarp/dev/WrapperSingle.h>
 #include <yarp/dev/IRangefinder2D.h>
 #include <yarp/dev/DeviceDriver.h>
-#include <yarp/os/PeriodicThread.h>
+#include <Ros2Spinner.h>
+
 
 #include <rclcpp/rclcpp.hpp>
 #include <std_msgs/msg/string.hpp>
@@ -28,7 +29,6 @@
  */
 class Rangefinder2D_nwc_ros2 :
         public yarp::dev::DeviceDriver,
-        public yarp::os::Thread,
         public yarp::dev::IRangefinder2D
 {
 public:
@@ -43,8 +43,8 @@ public:
     bool open(yarp::os::Searchable& config) override;
     bool close() override;
 
-    // PeriodicThread
-    void run() override;
+    // Spinner
+    Ros2Spinner*            m_spinner{nullptr};
 
     // ROS2 Topic Callback
     void callback(sensor_msgs::msg::LaserScan::SharedPtr msg, std::string topic);

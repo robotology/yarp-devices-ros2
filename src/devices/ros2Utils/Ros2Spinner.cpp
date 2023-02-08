@@ -19,14 +19,14 @@ m_node(input_node)
 
 void Ros2Spinner::run()
 {
-    if(!m_spun)  //This is just a temporary solution.
+    if(!m_spun)
     {
-        rclcpp::spin(m_node);
         m_spun = true;
+        rclcpp::spin(m_node);
     }
 }
 
-void Ros2Spinner::threadRelease()
+Ros2Spinner::~Ros2Spinner()
 {
     if(m_spun)
     {
