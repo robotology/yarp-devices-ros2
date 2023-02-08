@@ -32,7 +32,7 @@ TEST_CASE("dev::frameGrabber_nws_ros2_test", "[yarp::dev]")
     YARP_REQUIRE_PLUGIN("frameGrabber_nws_ros2", "device");
 
     Network::setLocalMode(true);
-    
+
     SECTION("Checking the nws alone")
     {
         PolyDriver ddnws;
@@ -64,7 +64,7 @@ TEST_CASE("dev::frameGrabber_nws_ros2_test", "[yarp::dev]")
         p_nws.put("node_name", "frameGrabber_node");
         p_nws.put("topic_name","/controlBoard_nws_ros2/robot_part");
         p_nws.put("frame_id","test_frame");
-        
+
         p_fake.put("device", "fakeFrameGrabber");
 
         REQUIRE(dd_fake.open(p_fake));

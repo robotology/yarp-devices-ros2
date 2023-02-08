@@ -17,7 +17,7 @@ TEST_CASE("dev::Rangefinder2D_nws_ros2_test", "[yarp::dev]")
 {
     YARP_REQUIRE_PLUGIN("rangefinder2D_nws_ros2", "device");
     YARP_REQUIRE_PLUGIN("fakeLaser", "device");
-    
+
     Network::setLocalMode(true);
 
     SECTION("Checking the nws alone")

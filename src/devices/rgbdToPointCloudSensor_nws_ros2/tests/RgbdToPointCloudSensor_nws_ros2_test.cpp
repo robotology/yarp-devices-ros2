@@ -17,7 +17,7 @@ TEST_CASE("dev::rgbdToPointCloudSensor_nws_ros2_test", "[yarp::dev]")
 {
     YARP_REQUIRE_PLUGIN("rgbdToPointCloudSensor_nws_ros2", "device");
     YARP_REQUIRE_PLUGIN("fakeDepthCamera", "device");
-    
+
     Network::setLocalMode(true);
 
     SECTION("Checking the nws alone")
