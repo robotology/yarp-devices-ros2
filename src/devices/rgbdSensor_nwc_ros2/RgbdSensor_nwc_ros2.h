@@ -16,7 +16,7 @@
 #include <yarp/dev/IRGBDSensor.h>
 #include <yarp/dev/IVisualParams.h>
 #include <yarp/os/Property.h>
-#include <yarp/os/Thread.h>
+#include <Ros2Spinner.h>
 #include <yarp/sig/all.h>
 #include <yarp/sig/Matrix.h>
 #include <yarp/os/Stamp.h>
@@ -73,7 +73,6 @@ typedef yarp::sig::FlexImage flexImage;
  */
 class RgbdSensor_nwc_ros2:
         public yarp::dev::DeviceDriver,
-        public yarp::os::Thread,
         public yarp::dev::IRGBDSensor
         {
         private:
@@ -114,6 +113,9 @@ class RgbdSensor_nwc_ros2:
             // yarp variables
             int      m_verbose{2};
 
+            // Spinner
+            Ros2Spinner*            m_spinner{nullptr};
+
             //ros2 node and subscribers
             Ros2Subscriber<RgbdSensor_nwc_ros2, sensor_msgs::msg::CameraInfo>* m_sub1;
             Ros2Subscriber<RgbdSensor_nwc_ros2, sensor_msgs::msg::Image>* m_sub2;
@@ -132,9 +134,6 @@ class RgbdSensor_nwc_ros2:
             // DeviceDriver
             bool open(yarp::os::Searchable& config) override;
             bool close() override;
-
-            // Thread
-            void run() override;
 
             // IRGBDSensor
             int    getRgbHeight() override;

@@ -5,7 +5,7 @@ yarp_prepare_plugin(rgbdSensor_nwc_ros2
   CATEGORY device
   TYPE RgbdSensor_nwc_ros2
   INCLUDE RgbdSensor_nwc_ros2.h
-  EXTRA_CONFIG WRAPPER=RgbdSensor_nwc_ros2
+  EXTRA_CONFIG WRAPPER=rgbdSensor_nwc_ros2
   INTERNAL ON
 )
 
