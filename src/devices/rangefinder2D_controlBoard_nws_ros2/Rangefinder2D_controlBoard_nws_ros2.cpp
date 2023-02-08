@@ -258,6 +258,7 @@ bool Rangefinder2D_controlBoard_nws_ros2::open(yarp::os::Searchable &config)
 
 bool Rangefinder2D_controlBoard_nws_ros2::close()
 {
+    detach();
     return true;
 }
 
