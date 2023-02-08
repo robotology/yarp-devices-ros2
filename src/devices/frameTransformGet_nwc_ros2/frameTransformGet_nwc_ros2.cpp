@@ -63,7 +63,7 @@ bool FrameTransformGet_nwc_ros2::open(yarp::os::Searchable& config)
     m_spinner->start();
 
     yCInfo(FRAMETRANSFORGETNWCROS2) << "opened";
-    
+
     return true;
 }
 

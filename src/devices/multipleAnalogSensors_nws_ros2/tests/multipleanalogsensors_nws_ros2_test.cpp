@@ -25,7 +25,8 @@ using namespace yarp::dev;
 TEST_CASE("dev::MultipleAnalogSensors_nws_ros2_test", "[yarp::dev]")
 {
     YARP_REQUIRE_PLUGIN("fakeIMU", "device");
-    YARP_REQUIRE_PLUGIN("multipleanalogsensors_nws_ros2", "device");
+    YARP_REQUIRE_PLUGIN("wrenchStamped_nws_ros2", "device");
+    YARP_REQUIRE_PLUGIN("imu_nws_ros2", "device");
 
 //#if defined(DISABLE_FAILING_TESTS)
 //    YARP_SKIP_TEST("Skipping failing tests")
@@ -38,10 +39,10 @@ TEST_CASE("dev::MultipleAnalogSensors_nws_ros2_test", "[yarp::dev]")
         PolyDriver wrapper;
 
         Property pWrapper;
-        pWrapper.put("device", "multipleanalogsensors_nws_ros2");
-        std::string serverPrefix = "/test/mas/server";
-        pWrapper.put("name", serverPrefix);
-        pWrapper.put("period", 10);
+        pWrapper.put("device", "imu_nws_ros2");
+        pWrapper.put("node_name", "imu_node");
+        pWrapper.put("topic_name", "/imu_topic");
+        pWrapper.put("period", 0.01);
         REQUIRE(wrapper.open(pWrapper)); // multipleanalogsensorsserver open reported successful
 
         // Close devices
@@ -66,10 +67,10 @@ TEST_CASE("dev::MultipleAnalogSensors_nws_ros2_test", "[yarp::dev]")
         CHECK(nrOfSensors == 1); // getNrOfOrientationSensors of fakeIMU works correctly
 
         Property pWrapper;
-        pWrapper.put("device", "multipleanalogsensors_nws_ros2");
-        std::string serverPrefix = "/test/mas/server";
-        pWrapper.put("name", serverPrefix);
-        pWrapper.put("period", 10);
+        pWrapper.put("device", "imu_nws_ros2");
+        pWrapper.put("node_name", "imu_node");
+        pWrapper.put("topic_name", "/imu_topic");
+        pWrapper.put("period", 0.01);
         REQUIRE(wrapper.open(pWrapper)); // multipleanalogsensorsserver open reported successful
 
         yarp::dev::IMultipleWrapper *iwrap = nullptr;
