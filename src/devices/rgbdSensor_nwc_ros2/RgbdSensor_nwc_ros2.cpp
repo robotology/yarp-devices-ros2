@@ -17,7 +17,9 @@
 
 #include <yarp/os/LogComponent.h>
 #include <yarp/os/LogStream.h>
-#include<Ros2RGBDConversionUtils.h>
+
+#include <Ros2Utils.h>
+#include <Ros2RGBDConversionUtils.h>
 
 using namespace std::chrono_literals;
 using namespace std::placeholders;
@@ -61,34 +63,28 @@ bool RgbdSensor_nwc_ros2::open(yarp::os::Searchable& config)
 
     m_verbose = config.check("verbose");
 
-    start();
-    return true;
-}
-
-bool RgbdSensor_nwc_ros2::close()
-{
-    yCTrace(RGBDSENSOR_NWC_ROS2);
-    yCInfo(RGBDSENSOR_NWC_ROS2, "shutting down");
-    rclcpp::shutdown();
-    return true;
-}
-
-void RgbdSensor_nwc_ros2::run()
-{
-    yCTrace(RGBDSENSOR_NWC_ROS2);
-    // ros 2 initialisation
-    if(!rclcpp::ok())
-    {
-        rclcpp::init(/*argc*/ 0, /*argv*/ nullptr);
-    }
-    m_node = std::make_shared<rclcpp::Node>(m_ros2_node_name);
+    m_node = NodeCreator::createNode(m_ros2_node_name);
     m_sub1= new Ros2Subscriber<RgbdSensor_nwc_ros2, sensor_msgs::msg::CameraInfo>(m_node, this);
     m_sub1->subscribe_to_topic(m_topic_rgb_camera_info);
     m_sub1->subscribe_to_topic(m_topic_depth_camera_info);
     m_sub2= new Ros2Subscriber<RgbdSensor_nwc_ros2, sensor_msgs::msg::Image>(m_node, this);
     m_sub2->subscribe_to_topic(m_topic_rgb_image_raw);
     m_sub2->subscribe_to_topic(m_topic_depth_image_raw);
-    rclcpp::spin(m_node);
+
+    m_spinner = new Ros2Spinner(m_node);
+    m_spinner->start();
+
+    yCInfo(RGBDSENSOR_NWC_ROS2) << "opened";
+
+    return true;
+}
+
+bool RgbdSensor_nwc_ros2::close()
+{
+    yCInfo(RGBDSENSOR_NWC_ROS2, "closing...");
+    delete m_spinner;
+    yCInfo(RGBDSENSOR_NWC_ROS2, "closed");
+    return true;
 }
 
 void RgbdSensor_nwc_ros2::callback(sensor_msgs::msg::Image::SharedPtr msg, std::string topic)

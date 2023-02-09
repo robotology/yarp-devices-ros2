@@ -1,1 +1,3 @@
 ./src/devices/ros2test
+./src/devices/ros2Utils
+./src/devices/ros2RGBDConversionUtils

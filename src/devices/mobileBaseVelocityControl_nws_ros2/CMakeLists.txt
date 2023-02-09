@@ -52,4 +52,9 @@ if(NOT SKIP_mobileBaseVelocityControl_nws_ros2)
   set(YARP_${YARP_PLUGIN_MASTER}_PRIVATE_DEPS ${YARP_${YARP_PLUGIN_MASTER}_PRIVATE_DEPS} PARENT_SCOPE)
 
   set_property(TARGET yarp_mobileBaseVelocityControl_nws_ros2 PROPERTY FOLDER "Plugins/Device/NWS")
+
+  if(YARP_COMPILE_TESTS)
+    add_subdirectory(tests)
+  endif()
+
 endif()

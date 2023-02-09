@@ -9,15 +9,19 @@
 #include <yarp/conf/filesystem.h>
 
 #if !defined(WITHOUT_NETWORK)
-#  include <yarp/os/Network.h>
-#  include <yarp/os/Property.h>
-#  include <yarp/os/NameStore.h>
-#  include <yarp/os/YarpPlugin.h>
+  #include <yarp/os/Network.h>
+  #include <yarp/os/Property.h>
+  #include <yarp/os/NameStore.h>
+  #include <yarp/os/YarpPlugin.h>
+  #include <yarp/serversql/yarpserversql.h>
+#include <yarp/os/Log.h>
+#include <yarp/os/LogStream.h>
 
-#  include <yarp/serversql/yarpserversql.h>
 #endif // WITHOUT_NETWORK
 
 #include <YarpBuildLocation.h>
+#include <yarp/conf/dirs.h>
+#include <iostream>
 
 static int yarp_tests_skipped = 0;
 
@@ -27,20 +31,36 @@ static bool verbose = false;
 
 static void setup_Environment()
 {
+    std::string yarp_data_dirs;
+
     // To make sure that the dev test are able to find all and only the devices
     // compiled by YARP, including the ones compiled as dynamic plugins,
-    // YARP_DATA_DIRS is set to the build directory + the TEST_DATA_DIR
-    // and YARP_DATA_HOME is set to a non existent directory
-    std::string yarp_data_dirs =
-            CMAKE_BINARY_DIR +
-            std::string{yarp::conf::filesystem::preferred_separator} +
-            "share" +
-            std::string{yarp::conf::filesystem::preferred_separator} +
-            "yarp" +
-            std::string{yarp::conf::environment::path_separator}  +
-            TEST_DATA_DIR;
+    // YARP_DATA_DIRS is set to the build directory + the TEST_DATA_DIR + the old data dirs.
+    yarp_data_dirs +=
+        CMAKE_BINARY_DIR +
+        std::string{yarp::conf::filesystem::preferred_separator} +
+        "share" +
+        std::string{yarp::conf::filesystem::preferred_separator} +
+        "yarp";
+
+    yarp_data_dirs +=
+        std::string{yarp::conf::environment::path_separator}  +
+        TEST_DATA_DIR;
+
+    auto yarp_data_dirs_vec = yarp::conf::dirs::yarpdatadirs();
+    for (auto it = yarp_data_dirs_vec.begin(); it != yarp_data_dirs_vec.end(); it++)
+    {
+        yarp_data_dirs +=
+        std::string{yarp::conf::environment::path_separator}  +
+       (*it);
+    }
+
+    //not sure about how to print, since this cout will make the whole test fail
+    //std::cout << "YARP_DATA_DIRS set to:" << yarp_data_dirs << std::endl;
+
     yarp::conf::environment::set_string("YARP_DATA_DIRS", yarp_data_dirs);
 
+    //YARP_DATA_HOME is set to a non existent directory
     std::string yarp_data_home =
             CMAKE_BINARY_DIR +
             std::string{yarp::conf::filesystem::preferred_separator} +

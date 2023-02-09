@@ -94,7 +94,7 @@ template <class ROS_MSG>
 bool GenericSensor_nws_ros2<ROS_MSG>::open(yarp::os::Searchable & config)
 {
     if (!config.check("topic_name")) {
-        yCError(GENERICSENSOR_NWS_ROS2, "Missing `topic` parameter, exiting.");
+        yCError(GENERICSENSOR_NWS_ROS2, "Missing `topic_name` parameter, exiting.");
         return false;
     }
 

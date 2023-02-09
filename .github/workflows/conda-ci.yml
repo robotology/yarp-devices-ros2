@@ -85,7 +85,7 @@ jobs:
       run: |
         cd ${GITHUB_WORKSPACE}
         git clone https://github.com/robotology/yarp
-      
+
     - name: Dependencies from source [Linux&macOS]
       if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
       shell: bash -l {0}
@@ -94,22 +94,30 @@ jobs:
         cd yarp
         mkdir build
         cd build
-        cmake -GNinja -DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
-        cmake --build . --config ${{ matrix.build_type }}        
+        cmake -GNinja -DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX} \
+                      -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} .. \
+                      -DYARP_COMPILE_TESTS:BOOL=ON \
+                      -DYARP_COMPILE_ALL_FAKE_DEVICES:BOOL=ON
+        cmake --build . --config ${{ matrix.build_type }}
         cmake --install . --config ${{ matrix.build_type }}
+        echo "YARP_DATA_DIRS=${CONDA_PREFIX}/share/yarp::${YARP_DATA_DIRS}" >> $GITHUB_ENV
 
     - name: Dependencies from source [Windows]
       if: contains(matrix.os, 'windows')
       shell: bash -l {0}
-      run: |  
+      run: |
         cd ${GITHUB_WORKSPACE}
         git clone https://github.com/robotology/yarp
         cd yarp
         mkdir build
         cd build
-        cmake -G"Visual Studio 16 2019" -DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX}/Library -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
-        cmake --build . --config ${{ matrix.build_type }}        
+        cmake -G"Visual Studio 16 2019" -DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX}/Library \
+                                        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} .. \
+                                        -DYARP_COMPILE_TESTS:BOOL=ON \
+                                        -DYARP_COMPILE_ALL_FAKE_DEVICES:BOOL=ON
+        cmake --build . --config ${{ matrix.build_type }}
         cmake --install . --config ${{ matrix.build_type }}
+        echo "YARP_DATA_DIRS=${CONDA_PREFIX}/Library/share/yarp;${YARP_DATA_DIRS}" >> $GITHUB_ENV
 
     - name: Configure [Linux&macOS]
       if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
@@ -118,8 +126,13 @@ jobs:
         mkdir -p build
         cd build
         # Python3_EXECUTABLE is set as a workaround for https://github.com/ros2/python_cmake_module/issues/6
-        cmake -GNinja -DBUILD_TESTING:BOOL=ON -DYARP_ROS2_USE_SYSTEM_map2d_nws_ros2_msgs:BOOL=OFF \
-              -DPython3_EXECUTABLE:PATH=$CONDA_PREFIX/bin/python3 -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_INSTALL_PREFIX=./install ..
+        cmake -GNinja -DBUILD_TESTING:BOOL=ON \
+                      -DYARP_ROS2_USE_SYSTEM_map2d_nws_ros2_msgs:BOOL=OFF \
+                      -DPython3_EXECUTABLE:PATH=$CONDA_PREFIX/bin/python3 \
+                      -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+                      -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+                      -DCMAKE_INSTALL_PREFIX=./install .. \
+                      -DYARP_COMPILE_TESTS:BOOL=ON
 
     - name: Configure [Windows]
       if: contains(matrix.os, 'windows')
@@ -128,7 +141,12 @@ jobs:
       run: |
         mkdir -p build
         cd build
-        cmake -G"Visual Studio 16 2019" -DBUILD_TESTING:BOOL=ON -DYARP_ROS2_USE_SYSTEM_map2d_nws_ros2_msgs:BOOL=OFF -DPython3_EXECUTABLE:PATH=%CONDA_PREFIX%\python.exe -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_INSTALL_PREFIX=.\install ..
+        cmake -G"Visual Studio 16 2019" -DBUILD_TESTING:BOOL=ON \
+                                        -DYARP_ROS2_USE_SYSTEM_map2d_nws_ros2_msgs:BOOL=OFF \
+                                        -DPython3_EXECUTABLE:PATH=%CONDA_PREFIX%\python.exe \
+                                        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+                                        -DCMAKE_INSTALL_PREFIX=.\install ..
+                                        -DYARP_COMPILE_TESTS:BOOL=ON
 
     - name: Build [Linux&macOS]
       if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
@@ -150,7 +168,7 @@ jobs:
       run: |
         cd build
         cmake --install . --config ${{ matrix.build_type }}
-  
+
     - name: Build [Windows]
       if: contains(matrix.os, 'windows')
       shell: cmd /C CALL {0}
@@ -159,7 +177,7 @@ jobs:
         cmake --build . --config ${{ matrix.build_type }}
 
     - name: Test [Windows]
-      if: contains(matrix.os, 'windows') 
+      if: contains(matrix.os, 'windows')
       shell: cmd /C CALL {0}
       run: |
         cd build

@@ -11,7 +11,7 @@
 #include <yarp/dev/ControlBoardHelpers.h>
 #include <yarp/sig/Vector.h>
 #include <yarp/os/Time.h>
-#include <yarp/os/Thread.h>
+#include <Ros2Spinner.h>
 #include <yarp/dev/PolyDriver.h>
 #include <yarp/dev/INavigation2D.h>
 #include <yarp/dev/WrapperSingle.h>
@@ -42,13 +42,12 @@ public:
   *  Parameters required by this device are:
   * | Parameter name | SubParameter   | Type    | Units          | Default Value                  | Required     | Description                                                       | Notes |
   * |:--------------:|:--------------:|:-------:|:--------------:|:------------------------------:|:------------:|:-----------------------------------------------------------------:|:-----:|
-  * | node_name      |      -         | string  | -              | /mobileBase_VelControl_nws_ros2 | No           | Full name of the opened ros2 node                                  |       |
-  * | topic_name     |     -          | string  | -              | /velocity_input                | No           | Full name of the opened ros2 topic                                 |       |
+  * | node_name      |      -         | string  | -              | -                              | Yes           | Full name of the opened ros2 node                                |       |
+  * | topic_name     |     -          | string  | -              | -                              | Yes           | Full name of the opened ros2 topic                               |       |
   */
 
 class MobileBaseVelocityControl_nws_ros2 :
     public yarp::dev::DeviceDriver,
-    public yarp::os::Thread,
     public yarp::dev::WrapperSingle
 {
 
@@ -62,11 +61,12 @@ public:
     bool detach() override;
     bool attach(yarp::dev::PolyDriver* driver) override;
 
-    void run() override;
-
 private:
-    std::string                   m_ros2_node_name = "/mobileBase_VelControl_nws_ros2";
-    std::string                   m_ros2_topic_name = "/velocity_input";
+    // Spinner
+    Ros2Spinner*                  m_spinner{nullptr};
+    
+    std::string                   m_node_name = "/mobileBase_VelControl_nws_ros2";
+    std::string                   m_topic_name = "/velocity_input";
     rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr m_ros2_subscriber;
     rclcpp::Node::SharedPtr m_node;
     yarp::dev::Nav2D::INavigation2DVelocityActions* m_iNavVel = nullptr;

@@ -29,25 +29,33 @@ namespace {
 
 bool MobileBaseVelocityControl_nws_ros2::open(yarp::os::Searchable& config)
 {
-    if (config.check("node_name"))
-    {
-        m_ros2_node_name = config.find("node_name").asString();
+    // node_name check
+    if (!config.check("node_name")) {
+        yCError(MOBVEL_NWS_ROS2) << "missing node_name parameter";
+        return false;
     }
+    m_node_name = config.find("node_name").asString();
 
-    if (config.check("topic_name"))
-    {
-        m_ros2_topic_name = config.find("topic_name").asString();
+    // topic_name name check
+    if (!config.check("topic_name")) {
+        yCError(MOBVEL_NWS_ROS2) << "missing topic_name parameter";
+        return false;
     }
-    m_node = NodeCreator::createNode(m_ros2_node_name);
-    m_ros2_subscriber = m_node->create_subscription<geometry_msgs::msg::Twist>(m_ros2_topic_name,
+    m_topic_name = config.find("topic_name").asString();
+
+    m_node = NodeCreator::createNode(m_node_name);
+    m_ros2_subscriber = m_node->create_subscription<geometry_msgs::msg::Twist>(m_topic_name,
                                                                                 10,
                                                                                 std::bind(&MobileBaseVelocityControl_nws_ros2::twist_callback, this, _1));
 
     if (!m_ros2_subscriber)
     {
-        yCError(MOBVEL_NWS_ROS2) << " opening " << m_ros2_topic_name << " Topic, check your ROS2 network configuration\n";
+        yCError(MOBVEL_NWS_ROS2) << " opening " << m_topic_name << " Topic, check your ROS2 network configuration\n";
         return false;
     }
+
+    m_spinner = new Ros2Spinner(m_node);
+    m_spinner->start();
 
     yCInfo(MOBVEL_NWS_ROS2) << "Waiting for device to attach";
 
@@ -81,19 +89,16 @@ bool MobileBaseVelocityControl_nws_ros2::attach(PolyDriver* driver)
         return false;
     }
 
-    return this->start();
+    yCInfo(MOBVEL_NWS_ROS2) << "Device attached";
+
+    return true;
 }
 
 
 bool MobileBaseVelocityControl_nws_ros2::close()
 {
-    yCInfo(MOBVEL_NWS_ROS2, "shutting down");
-    rclcpp::shutdown();
+    yCInfo(MOBVEL_NWS_ROS2, "closing...");
+    delete m_spinner;
+    yCInfo(MOBVEL_NWS_ROS2, "closed");
     return true;
-}
-
-void MobileBaseVelocityControl_nws_ros2::run()
-{
-    yCInfo(MOBVEL_NWS_ROS2, "starting");
-    rclcpp::spin(m_node);
 }
