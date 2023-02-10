@@ -36,3 +36,8 @@ builtin_interfaces::msg::Time ros2TimeFromYarp(double yarpTime)
     ros2Time.nanosec = (uint32_t)nsec_part;
     return ros2Time;
 }
+
+double yarpTimeFromRos2(builtin_interfaces::msg::Time ros2Time)
+{
+    return double(ros2Time.sec) + (double(ros2Time.nanosec) / 1000000000.0);
+}
