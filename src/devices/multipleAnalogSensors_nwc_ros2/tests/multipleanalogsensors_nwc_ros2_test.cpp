@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <yarp/dev/tests/IOrientationSensorsTest.h>
 #include <yarp/dev/MultipleAnalogSensorsInterfaces.h>
 
 #include <yarp/os/Time.h>
@@ -13,12 +12,12 @@
 #include <cmath>
 #include <chrono>
 #include <thread>
+#include <random>
 
 #include <catch2/catch_amalgamated.hpp>
 #include <harness.h>
 
-using namespace yarp::os;
-using namespace yarp::dev;
+using namespace std::chrono_literals;
 
 
 TEST_CASE("dev::MultipleAnalogSensors_nwc_ros2_test", "[yarp::dev]")
@@ -30,13 +29,13 @@ TEST_CASE("dev::MultipleAnalogSensors_nwc_ros2_test", "[yarp::dev]")
 //    YARP_SKIP_TEST("Skipping failing tests")
 //#endif
 
-    Network::setLocalMode(true);
+    yarp::os::Network::setLocalMode(true);
 
     SECTION("Test the nwc alone")
     {
-        PolyDriver nwc;
+        yarp::dev::PolyDriver nwc;
 
-        Property pNwc;
+        yarp::os::Property pNwc;
         pNwc.put("device", "imu_nwc_ros2");
         pNwc.put("node_name", "imu_node");
         pNwc.put("topic_name", "/imu_topic");
@@ -55,5 +54,112 @@ TEST_CASE("dev::MultipleAnalogSensors_nwc_ros2_test", "[yarp::dev]")
      *            the nwc by calling all the methods of the interfaces exposed by the nwc
      */
 
-    Network::setLocalMode(false);
+    SECTION("Test topic data reception")
+    {
+        yarp::dev::IThreeAxisGyroscopes* iTestGyro;
+        yarp::dev::IThreeAxisLinearAccelerometers* iTestAccel;
+        yarp::dev::IOrientationSensors *iTestOrient;
+
+        yarp::dev::PolyDriver nwc;
+
+        yarp::os::Property pNwc;
+        pNwc.put("device", "imu_nwc_ros2");
+        pNwc.put("node_name", "imu_node");
+        pNwc.put("topic_name", "/imu_topic");
+        pNwc.put("sensor_name", "imu_sensor");
+        REQUIRE(nwc.open(pNwc)); // multipleanalogsensors nwc open reported successful
+
+        // Check Interfaces
+        REQUIRE(nwc.view(iTestGyro)); // IThreeAxisGyroscopes view reported successul
+        REQUIRE(iTestGyro != nullptr);
+        REQUIRE(nwc.view(iTestAccel)); // IThreeAxisLinearAccelerometers view reported successul
+        REQUIRE(iTestAccel != nullptr);
+        REQUIRE(nwc.view(iTestOrient)); // IOrientationSensors view reported successul
+        REQUIRE(iTestOrient != nullptr);
+
+        std::stringstream callStream;
+
+        // Calculate time stamp
+        uint64_t sec_part;
+        uint64_t nsec_part;
+        double yarpTime = yarp::os::Time::now();
+        sec_part = int(yarpTime);
+        nsec_part = (yarpTime - sec_part)*1000000000UL;
+
+        // Example values
+
+        double lower_bound = 0.0;
+        double upper_bound = 45.0;
+        std::uniform_real_distribution<double> unif_orient(lower_bound,upper_bound);
+        std::default_random_engine re;
+        double roll = unif_orient(re);
+        double pitch = unif_orient(re);
+        double yaw = unif_orient(re);
+        double cr = cos((roll*M_PI/180.0) * 0.5);
+        double sr = sin((roll*M_PI/180.0) * 0.5);
+        double cp = cos((pitch*M_PI/180.0) * 0.5);
+        double sp = sin((pitch*M_PI/180.0) * 0.5);
+        double cy = cos((yaw*M_PI/180.0) * 0.5);
+        double sy = sin((yaw*M_PI/180.0) * 0.5);
+
+        double orientW = cr * cp * cy + sr * sp * sy;
+        double orientX = sr * cp * cy - cr * sp * sy;
+        double orientY = cr * sp * cy + sr * cp * sy;
+        double orientZ = cr * cp * sy - sr * sp * cy;
+
+        upper_bound = 5.0;
+        std::uniform_real_distribution<double> unif_angVel(lower_bound,upper_bound);
+        double angSpX = unif_angVel(re);
+        double angSpY = unif_angVel(re);
+        double angSpZ = unif_angVel(re);
+
+        upper_bound = 9.8;
+        std::uniform_real_distribution<double> unif_linAcc(lower_bound,upper_bound);
+        double linAccX = unif_linAcc(re);
+        double linAccY = unif_linAcc(re);
+        double linAccZ = unif_linAcc(re);
+
+        callStream << "ros2 topic pub --once /imu_topic sensor_msgs/msg/Imu \"{header: {stamp: {sec: ";
+        callStream << sec_part << ", nanosec: " << nsec_part << "}, frame_id: 'test_imu_device'}, orientation: {x: ";
+        callStream << orientX << ", y: " << orientY << ", z: " << orientZ << ", w: " << orientW << "}, angular_velocity: ";
+        callStream << "{x: " << angSpX*M_PI/180.0 << ", y: " << angSpY*M_PI/180.0 << ", z: " << angSpZ*M_PI/180.0 << "}, linear_acceleration: ";
+        callStream << "{x: " << linAccX << ", y: " << linAccY << ", z: " << linAccZ << "}}\"";
+
+        system(callStream.str().c_str());
+
+        while(iTestGyro->getThreeAxisGyroscopeStatus(0) != yarp::dev::MAS_status::MAS_OK)
+        {
+            std::this_thread::sleep_for(250ms);
+        }
+
+        yarp::sig::Vector linAccel(3);
+        yarp::sig::Vector orient(3);
+        yarp::sig::Vector angSpeed(3);
+        double timeStamp;
+
+
+
+        // Test IOrientationSensors
+        REQUIRE(iTestOrient->getOrientationSensorMeasureAsRollPitchYaw(0,orient,timeStamp));
+        REQUIRE(roll == Catch::Approx(orient[0]));
+        REQUIRE(pitch == Catch::Approx(orient[1]));
+        REQUIRE(yaw == Catch::Approx(orient[2]));
+
+        // Test IThreeAxisGyroscopes
+        REQUIRE(iTestGyro->getThreeAxisGyroscopeMeasure(0,angSpeed,timeStamp));
+        REQUIRE(angSpX == Catch::Approx(angSpeed[0]));
+        REQUIRE(angSpY == Catch::Approx(angSpeed[1]));
+        REQUIRE(angSpZ == Catch::Approx(angSpeed[2]));
+
+        // Test IThreeAxisLinearAccelerometers
+        REQUIRE(iTestAccel->getThreeAxisLinearAccelerometerMeasure(0,linAccel,timeStamp));
+        REQUIRE(linAccX == Catch::Approx(linAccel[0]));
+        REQUIRE(linAccY == Catch::Approx(linAccel[1]));
+        REQUIRE(linAccZ == Catch::Approx(linAccel[2]));
+
+        // Close devices
+        nwc.close();
+    }
+
+    yarp::os::Network::setLocalMode(false);
 }

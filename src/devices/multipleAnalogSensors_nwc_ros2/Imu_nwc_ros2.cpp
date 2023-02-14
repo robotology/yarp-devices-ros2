@@ -21,14 +21,7 @@ void Imu_nwc_ros2::subscription_callback(const std::shared_ptr<sensor_msgs::msg:
 {
     std::lock_guard<std::mutex> dataGuard(m_dataMutex);
     if(m_internalStatus == yarp::dev::MAS_status::MAS_WAITING_FOR_FIRST_READ) { m_internalStatus = yarp::dev::MAS_status::MAS_OK; }
-    yCInfo(GENERICSENSOR_NWC_ROS2) << "Imu data received at " << yarpTimeFromRos2(msg->header.stamp);
-    m_currentData.header = msg->header;
-    m_currentData.angular_velocity = msg->angular_velocity;
-    m_currentData.angular_velocity_covariance = msg->angular_velocity_covariance;
-    m_currentData.linear_acceleration = msg->linear_acceleration;
-    m_currentData.linear_acceleration_covariance = msg->linear_acceleration_covariance;
-    m_currentData.orientation = msg->orientation;
-    m_currentData.orientation_covariance = msg->orientation_covariance;
+    m_currentData = *msg;
 }
 
 // IThreeAxisLinearAccelerometers ------------------------------------------------------------------------------------------------- START //
