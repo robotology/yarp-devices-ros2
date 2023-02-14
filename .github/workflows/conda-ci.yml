@@ -145,7 +145,7 @@ jobs:
                                         -DYARP_ROS2_USE_SYSTEM_map2d_nws_ros2_msgs:BOOL=OFF \
                                         -DPython3_EXECUTABLE:PATH=%CONDA_PREFIX%\python.exe \
                                         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-                                        -DCMAKE_INSTALL_PREFIX=.\install ..
+                                        -DCMAKE_INSTALL_PREFIX=.\install .. \
                                         -DYARP_COMPILE_TESTS:BOOL=ON
 
     - name: Build [Linux&macOS]
