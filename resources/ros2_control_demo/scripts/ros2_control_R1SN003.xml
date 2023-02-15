@@ -14,7 +14,7 @@
 
    <module>
       <name>ros2</name>
-      <parameters>launch cer_ros2_control cer_R1SN003_neck_pos_only.launch.py launch_rviz2</parameters>
+      <parameters>launch cer_ros2_control cer_R1SN003_neck_pos_only.launch.py</parameters>
       <node>r1-base</node>
    </module>
 
