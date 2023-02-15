@@ -46,14 +46,6 @@ TEST_CASE("dev::MultipleAnalogSensors_nwc_ros2_test", "[yarp::dev]")
         nwc.close();
     }
 
-    /* TODO: The test needs another section.
-     *       This new section should:
-     *          - Open a ROS2 publisher for the ROS" message managed by the nwc
-     *          - Instantiate and open the nwc
-     *          - Publish a test message and check if the data are correctly received by
-     *            the nwc by calling all the methods of the interfaces exposed by the nwc
-     */
-
     SECTION("Test topic data reception")
     {
         yarp::dev::IThreeAxisGyroscopes* iTestGyro;
@@ -63,10 +55,13 @@ TEST_CASE("dev::MultipleAnalogSensors_nwc_ros2_test", "[yarp::dev]")
         yarp::dev::PolyDriver nwc;
 
         yarp::os::Property pNwc;
+        std::string node_name = "imu_node";
+        std::string topic_name = "/imu_topic";
+        std::string sensor_name = "imu_sensor";
         pNwc.put("device", "imu_nwc_ros2");
-        pNwc.put("node_name", "imu_node");
-        pNwc.put("topic_name", "/imu_topic");
-        pNwc.put("sensor_name", "imu_sensor");
+        pNwc.put("node_name", node_name);
+        pNwc.put("topic_name", topic_name);
+        pNwc.put("sensor_name", sensor_name);
         REQUIRE(nwc.open(pNwc)); // multipleanalogsensors nwc open reported successful
 
         // Check Interfaces
@@ -87,7 +82,7 @@ TEST_CASE("dev::MultipleAnalogSensors_nwc_ros2_test", "[yarp::dev]")
         nsec_part = (yarpTime - sec_part)*1000000000UL;
 
         // Example values
-
+        std::string frame_name = "test_imu_device";
         double lower_bound = 0.0;
         double upper_bound = 45.0;
         std::uniform_real_distribution<double> unif_orient(lower_bound,upper_bound);
@@ -119,8 +114,8 @@ TEST_CASE("dev::MultipleAnalogSensors_nwc_ros2_test", "[yarp::dev]")
         double linAccY = unif_linAcc(re);
         double linAccZ = unif_linAcc(re);
 
-        callStream << "ros2 topic pub --once /imu_topic sensor_msgs/msg/Imu \"{header: {stamp: {sec: ";
-        callStream << sec_part << ", nanosec: " << nsec_part << "}, frame_id: 'test_imu_device'}, orientation: {x: ";
+        callStream << "ros2 topic pub --once " << topic_name << " sensor_msgs/msg/Imu \"{header: {stamp: {sec: ";
+        callStream << sec_part << ", nanosec: " << nsec_part << "}, frame_id: '" << frame_name << "'}, orientation: {x: ";
         callStream << orientX << ", y: " << orientY << ", z: " << orientZ << ", w: " << orientW << "}, angular_velocity: ";
         callStream << "{x: " << angSpX*M_PI/180.0 << ", y: " << angSpY*M_PI/180.0 << ", z: " << angSpZ*M_PI/180.0 << "}, linear_acceleration: ";
         callStream << "{x: " << linAccX << ", y: " << linAccY << ", z: " << linAccZ << "}}\"";
@@ -132,26 +127,45 @@ TEST_CASE("dev::MultipleAnalogSensors_nwc_ros2_test", "[yarp::dev]")
             std::this_thread::sleep_for(250ms);
         }
 
-        yarp::sig::Vector linAccel(3);
-        yarp::sig::Vector orient(3);
-        yarp::sig::Vector angSpeed(3);
         double timeStamp;
-
-
+        std::string gotSensName;
+        std::string gotFrameName;
+        size_t gotSensNum;
 
         // Test IOrientationSensors
+        yarp::sig::Vector orient(3);
+        gotSensNum = iTestOrient->getNrOfOrientationSensors();
+        REQUIRE(gotSensNum==1);
+        REQUIRE(iTestOrient->getOrientationSensorName(0,gotSensName));
+        REQUIRE(gotSensName==sensor_name);
+        REQUIRE(iTestOrient->getOrientationSensorFrameName(0,gotFrameName));
+        REQUIRE(gotFrameName==frame_name);
         REQUIRE(iTestOrient->getOrientationSensorMeasureAsRollPitchYaw(0,orient,timeStamp));
         REQUIRE(roll == Catch::Approx(orient[0]));
         REQUIRE(pitch == Catch::Approx(orient[1]));
         REQUIRE(yaw == Catch::Approx(orient[2]));
 
         // Test IThreeAxisGyroscopes
+        yarp::sig::Vector angSpeed(3);
+        gotSensNum = iTestGyro->getNrOfThreeAxisGyroscopes();
+        REQUIRE(gotSensNum==1);
+        REQUIRE(iTestGyro->getThreeAxisGyroscopeName(0,gotSensName));
+        REQUIRE(gotSensName==sensor_name);
+        REQUIRE(iTestGyro->getThreeAxisGyroscopeFrameName(0,gotFrameName));
+        REQUIRE(gotFrameName==frame_name);
         REQUIRE(iTestGyro->getThreeAxisGyroscopeMeasure(0,angSpeed,timeStamp));
         REQUIRE(angSpX == Catch::Approx(angSpeed[0]));
         REQUIRE(angSpY == Catch::Approx(angSpeed[1]));
         REQUIRE(angSpZ == Catch::Approx(angSpeed[2]));
 
         // Test IThreeAxisLinearAccelerometers
+        yarp::sig::Vector linAccel(3);
+        gotSensNum = iTestAccel->getNrOfThreeAxisLinearAccelerometers();
+        REQUIRE(gotSensNum==1);
+        REQUIRE(iTestAccel->getThreeAxisLinearAccelerometerName(0,gotSensName));
+        REQUIRE(gotSensName==sensor_name);
+        REQUIRE(iTestAccel->getThreeAxisLinearAccelerometerFrameName(0,gotFrameName));
+        REQUIRE(gotFrameName==frame_name);
         REQUIRE(iTestAccel->getThreeAxisLinearAccelerometerMeasure(0,linAccel,timeStamp));
         REQUIRE(linAccX == Catch::Approx(linAccel[0]));
         REQUIRE(linAccY == Catch::Approx(linAccel[1]));
