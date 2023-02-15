@@ -176,6 +176,13 @@ jobs:
         cd build
         cmake --build . --config ${{ matrix.build_type }}
 
+    - name: Install [Windows]
+      if: contains(matrix.os, 'windows')
+      shell: cmd /C CALL {0}
+      run: |
+        cd build
+        cmake --install . --config ${{ matrix.build_type }}
+
     - name: Test [Windows]
       if: contains(matrix.os, 'windows')
       shell: cmd /C CALL {0}
@@ -183,9 +190,3 @@ jobs:
         cd build
         ctest --output-on-failure -C ${{ matrix.build_type }}
 
-    - name: Install [Windows]
-      if: contains(matrix.os, 'windows')
-      shell: cmd /C CALL {0}
-      run: |
-        cd build
-        cmake --install . --config ${{ matrix.build_type }}
