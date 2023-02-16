@@ -33,4 +33,5 @@ Ros2Spinner::~Ros2Spinner()
         rclcpp::shutdown();
         m_spun = false;
     }
+    this->join();
 }
