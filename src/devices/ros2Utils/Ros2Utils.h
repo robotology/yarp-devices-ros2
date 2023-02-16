@@ -18,5 +18,6 @@ public:
 
 
 builtin_interfaces::msg::Time ros2TimeFromYarp(double yarpTime);
+double yarpTimeFromRos2(builtin_interfaces::msg::Time ros2Time);
 
 #endif // YARP_ROS2_ROS2UTILS_H
