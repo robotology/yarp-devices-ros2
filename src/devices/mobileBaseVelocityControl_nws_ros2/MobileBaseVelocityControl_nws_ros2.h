@@ -64,7 +64,7 @@ public:
 private:
     // Spinner
     Ros2Spinner*                  m_spinner{nullptr};
-    
+
     std::string                   m_node_name = "/mobileBase_VelControl_nws_ros2";
     std::string                   m_topic_name = "/velocity_input";
     rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr m_ros2_subscriber;
