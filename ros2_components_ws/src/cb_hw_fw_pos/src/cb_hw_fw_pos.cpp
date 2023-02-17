@@ -36,8 +36,9 @@ bool CbHwFwPos::_checkJoints(const std::vector<hardware_interface::ComponentInfo
         }
         RCLCPP_INFO(m_node->get_logger(), "service not available, waiting again...");
     }
-    auto namesResponse = m_getJointsNamesClient->async_send_request(namesRequest);
-    if(rclcpp::spin_until_future_complete(m_node, namesResponse) == rclcpp::FutureReturnCode::SUCCESS) {
+    auto namesFuture = m_getJointsNamesClient->async_send_request(namesRequest);
+    if(rclcpp::spin_until_future_complete(m_node, namesFuture) == rclcpp::FutureReturnCode::SUCCESS) {
+        auto namesResponse = namesFuture.get();
         RCLCPP_INFO(m_node->get_logger(), "Got joints names");
         all_joints = namesResponse.get()->names;
     }
@@ -55,6 +56,33 @@ bool CbHwFwPos::_checkJoints(const std::vector<hardware_interface::ComponentInfo
         }
         m_jointNames.push_back(joint.name);
     }
+
+    auto modeRequest = std::make_shared<yarp_control_msgs::srv::GetControlModes::Request>();
+    while (!m_getControlModesClient->wait_for_service(1s)) {
+        if (!rclcpp::ok()) {
+            RCLCPP_ERROR(m_node->get_logger(), "Interrupted while waiting for the service. Exiting.");
+            return false;
+        }
+        RCLCPP_INFO(m_node->get_logger(), "service not available, waiting again...");
+    }
+    modeRequest->names = m_jointNames;
+    auto modeFuture = m_getControlModesClient->async_send_request(modeRequest);
+    if(rclcpp::spin_until_future_complete(m_node, modeFuture) == rclcpp::FutureReturnCode::SUCCESS) {
+        auto modeResponse = modeFuture.get();
+        for(size_t i=0; i<m_jointNames.size(); i++)
+        {
+            if(modeResponse->modes[i] != "POSITION")
+            {
+                RCLCPP_ERROR(m_node->get_logger(), "Joint %s in not in control mode POSITION. Check your configuration and, if possible, change the joint control mode",m_jointNames[i].c_str());
+                return false;
+            }
+        }
+    }
+    else {
+        RCLCPP_ERROR(m_node->get_logger(),"Failed to get joints control modes");
+        return false;
+    }
+
     return true;
 }
 
@@ -161,9 +189,7 @@ CallbackReturn CbHwFwPos::on_init(const hardware_interface::HardwareInfo & info)
     // Initialize topics and services names ------------------------------------------------------------------- //
     m_posTopicName = m_msgs_name+"/position";
     m_getModesClientName = m_msgs_name+"/get_modes";
-    m_setModesClientName = m_msgs_name+"/set_modes";
     m_getPositionClientName = m_msgs_name+"/get_position";
-    m_getAvailableModesClientName = m_msgs_name+"/get_available_modes";
     m_getJointsNamesClientName = m_msgs_name+"/get_joints_names";
 
     // Initialize publishers ---------------------------------------------------------------------------------- //
@@ -187,16 +213,6 @@ CallbackReturn CbHwFwPos::on_init(const hardware_interface::HardwareInfo & info)
     m_getPositionClient = m_node->create_client<yarp_control_msgs::srv::GetPosition>(m_getPositionClientName);
     if(!m_getPositionClient){
         RCLCPP_ERROR(m_node->get_logger(),"Could not initialize the GetPosition service client");
-        return CallbackReturn::ERROR;
-    }
-    m_setControlModesClient = m_node->create_client<yarp_control_msgs::srv::SetControlModes>(m_setModesClientName);
-    if(!m_setControlModesClient){
-        RCLCPP_ERROR(m_node->get_logger(),"Could not initialize the SetControlModes service client");
-        return CallbackReturn::ERROR;
-    }
-    m_getAvailableModesClient = m_node->create_client<yarp_control_msgs::srv::GetAvailableControlModes>(m_getAvailableModesClientName);
-    if(!m_getAvailableModesClient){
-        RCLCPP_ERROR(m_node->get_logger(),"Could not initialize the GetAvailableControlModes service client");
         return CallbackReturn::ERROR;
     }
 

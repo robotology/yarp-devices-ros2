@@ -57,9 +57,7 @@ private:
     std::string  m_posTopicName;                 // Position commands topic
     std::string  m_getModesClientName;           // Service client for joints current control modes
     std::string  m_getPositionClientName;        // Service client to get current position values
-    std::string  m_setModesClientName;           // Service client to set joints control modes
     std::string  m_getJointsNamesClientName;     // Service client to get the available joints names
-    std::string  m_getAvailableModesClientName;  // Services client to get the available control modes
     mutable std::mutex       m_cmdMutex;
     std::vector<std::string> m_jointNames; // name of the joints
 
@@ -82,8 +80,6 @@ private:
     rclcpp::Client<yarp_control_msgs::srv::GetJointsNames>::SharedPtr           m_getJointsNamesClient;
     rclcpp::Client<yarp_control_msgs::srv::GetControlModes>::SharedPtr          m_getControlModesClient;
     rclcpp::Client<yarp_control_msgs::srv::GetPosition>::SharedPtr              m_getPositionClient;
-    rclcpp::Client<yarp_control_msgs::srv::SetControlModes>::SharedPtr          m_setControlModesClient;
-    rclcpp::Client<yarp_control_msgs::srv::GetAvailableControlModes>::SharedPtr m_getAvailableModesClient;
 
     // Internal functions
     /* Check whether or not the joints specified in the ros2 robot configuration files are actually
