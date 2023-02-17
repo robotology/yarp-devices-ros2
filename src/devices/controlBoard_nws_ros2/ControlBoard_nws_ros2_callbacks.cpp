@@ -335,7 +335,7 @@ void ControlBoard_nws_ros2::velocityTopic_callback(const yarp_control_msgs::msg:
         }
         convertedVel.push_back(tempVel);
     }
-    if(!noJoints){
+    if(noJoints){
         if(!noAccel){
             m_iVelocityControl->setRefAccelerations(&convertedAccel[0]);
         }
