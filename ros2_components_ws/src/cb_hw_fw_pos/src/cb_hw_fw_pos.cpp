@@ -136,12 +136,6 @@ CallbackReturn CbHwFwPos::on_init(const hardware_interface::HardwareInfo & info)
     {
         return CallbackReturn::ERROR;
     }
-    /* controllare i giunti in ingresso e verificare che siano tra quelli disponibili tramite il client
-     * di getJointNames. A quel punto si espongono solo le interfacce di comando provenienti dall'esterno
-     * tramite il parametro "info".
-     * Le interfacce attive saranno quelle corrispondenti ai control mode dei vari giunti.
-     * Come si controlla sta cosa? Boh...
-     */
     if(info.hardware_parameters.count("node_name")<=0)
     {
         RCLCPP_FATAL(rclcpp::get_logger("CbHwFwPos"),"No node name specified");
@@ -261,18 +255,12 @@ hardware_interface::return_type CbHwFwPos::read(const rclcpp::Time & time, const
 
 hardware_interface::return_type CbHwFwPos::write(const rclcpp::Time & time, const rclcpp::Duration & period)
 {
-    // RCLCPP_INFO(m_node->get_logger(), "####################################\n");
-    // for (auto x : m_hwCommandsPositions){
-    //     RCLCPP_INFO(m_node->get_logger(), "Got write: %f",x);
-    // }
-    // RCLCPP_INFO(m_node->get_logger(), "\n####################################");
     if(!m_active)
     {
         return hardware_interface::return_type::OK;
     }
     else if(m_hwCommandsPositions == m_oldPositions && !m_continuousPosWrite)
     {
-        //RCLCPP_INFO(m_node->get_logger(), "No changes in the stored command values. Skipping");
         return hardware_interface::return_type::OK;
     }
     yarp_control_msgs::msg::Position posToSend;

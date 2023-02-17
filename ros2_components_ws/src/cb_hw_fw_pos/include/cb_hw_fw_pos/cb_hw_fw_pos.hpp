@@ -33,25 +33,38 @@ namespace cb_hw_fw_pos {
 
 using CallbackReturn = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
 
+/*
+ * ROS2 ros2_control hardare interface for sending position commands to a controlBoard_nws_ros2.
+ * It has been created to allow controlling a YARP based robot through ros2_control tools
+ * Since it is a "write-only" interface, it cannot be used with controllers that require to get
+ * data back from the hardware component.
+ *
+ * ---
+ *
+ * This interface can either publish continuously the values stored in "CbHwFwPos::m_hwCommandsPositions"
+ * basically locking, as long as the interface is active, the joints in position or it can publish it only
+ * if the stored values change.
+ */
+
 class CbHwFwPos : public hardware_interface::SystemInterface
 {
 private:
     bool         m_active{false};
     bool         m_continuousPosWrite{true};
     std::string  m_nodeName;             // name of the rosNode
-    std::string  m_jointStateTopicName;  // name of the rosTopic
-    std::string  m_msgs_name;
-    std::string  m_posTopicName;
-    std::string  m_getModesClientName;
-    std::string  m_getPositionClientName;
-    std::string  m_setModesClientName;
-    std::string  m_getJointsNamesClientName;
-    std::string  m_getAvailableModesClientName;
+    std::string  m_msgs_name;            // prefix for control_board_nws_ros2 services and topics
+    // ControlBoard_nws_ros2 related topics and services names
+    std::string  m_posTopicName;                 // Position commands topic
+    std::string  m_getModesClientName;           // Service client for joints current control modes
+    std::string  m_getPositionClientName;        // Service client to get current position values
+    std::string  m_setModesClientName;           // Service client to set joints control modes
+    std::string  m_getJointsNamesClientName;     // Service client to get the available joints names
+    std::string  m_getAvailableModesClientName;  // Services client to get the available control modes
     mutable std::mutex       m_cmdMutex;
     std::vector<std::string> m_jointNames; // name of the joints
 
-    // State and command interfaces
-    // Store the commands for the simulated robot
+    // Command interfaces
+    // Store the commands for the robot
     std::vector<double> m_hwCommandsPositions;
     std::vector<double> m_oldPositions; // This array has to be used in order to avoid sending
                                         // the same position commans over and over
@@ -63,7 +76,9 @@ private:
 
     // Ros2 related attributes
     rclcpp::Node::SharedPtr m_node;
-    rclcpp::Publisher<yarp_control_msgs::msg::Position>::SharedPtr               m_posPublisher;
+
+    //  yarp_control_msgs clients and publisher
+    rclcpp::Publisher<yarp_control_msgs::msg::Position>::SharedPtr              m_posPublisher;
     rclcpp::Client<yarp_control_msgs::srv::GetJointsNames>::SharedPtr           m_getJointsNamesClient;
     rclcpp::Client<yarp_control_msgs::srv::GetControlModes>::SharedPtr          m_getControlModesClient;
     rclcpp::Client<yarp_control_msgs::srv::GetPosition>::SharedPtr              m_getPositionClient;
@@ -71,8 +86,16 @@ private:
     rclcpp::Client<yarp_control_msgs::srv::GetAvailableControlModes>::SharedPtr m_getAvailableModesClient;
 
     // Internal functions
+    /* Check whether or not the joints specified in the ros2 robot configuration files are actually
+     * available on the robot
+     */
     bool _checkJoints(const std::vector<hardware_interface::ComponentInfo>& joints);
+    /* It initializes the m_hwCommandsPositions and m_oldPositions arrays and checks that the
+     * command interfaces specified in the Component infos are only "position"
+     */
     CallbackReturn _initExportableInterfaces(const std::vector<hardware_interface::ComponentInfo>& joints);
+    /* Simply read the current position values
+     */
     CallbackReturn _getHWCurrentValues();
 
 public:
