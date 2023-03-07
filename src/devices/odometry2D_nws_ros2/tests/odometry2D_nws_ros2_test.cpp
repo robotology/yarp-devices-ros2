@@ -16,7 +16,7 @@ using namespace yarp::os;
 TEST_CASE("dev::odometry2D_nws_ros2_test", "[yarp::dev]")
 {
     YARP_REQUIRE_PLUGIN("odometry2D_nws_ros2", "device");
-    YARP_REQUIRE_PLUGIN("fakeOdometry", "device");
+    YARP_REQUIRE_PLUGIN("fakeOdometry2D", "device");
 
     Network::setLocalMode(true);
 
@@ -61,7 +61,7 @@ TEST_CASE("dev::odometry2D_nws_ros2_test", "[yarp::dev]")
         ////////"Checking opening device"
         {
             Property pcfg_fake;
-            pcfg_fake.put("device", "fakeOdometry");
+            pcfg_fake.put("device", "fakeOdometry2D");
             REQUIRE(ddfake.open(pcfg_fake));
         }
 
