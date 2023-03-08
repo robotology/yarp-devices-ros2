@@ -82,6 +82,8 @@ bool RgbdSensor_nwc_ros2::open(yarp::os::Searchable& config)
 bool RgbdSensor_nwc_ros2::close()
 {
     yCInfo(RGBDSENSOR_NWC_ROS2, "closing...");
+    delete m_sub1;
+    delete m_sub2;
     delete m_spinner;
     yCInfo(RGBDSENSOR_NWC_ROS2, "closed");
     return true;

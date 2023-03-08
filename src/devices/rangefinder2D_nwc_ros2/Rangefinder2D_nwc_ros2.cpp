@@ -64,6 +64,7 @@ bool Rangefinder2D_nwc_ros2::open(yarp::os::Searchable &config)
 bool Rangefinder2D_nwc_ros2::close()
 {
     yCInfo(RANGEFINDER2D_NWC_ROS2, "closing...");
+    delete m_subscriber;
     delete m_spinner;
     yCInfo(RANGEFINDER2D_NWC_ROS2, "closed");
     return true;
