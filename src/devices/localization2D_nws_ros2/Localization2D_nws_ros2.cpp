@@ -27,6 +27,7 @@ YARP_LOG_COMPONENT(LOCALIZATION2D_NWS_ROS2, "yarp.ros2.localization2D_nws_ros2",
 Localization2D_nws_ros2::Localization2D_nws_ros2() :
         yarp::os::PeriodicThread(0.01)
 {
+    m_stats_time_last = yarp::os::Time::now();
 }
 
 bool Localization2D_nws_ros2::attach(yarp::dev::PolyDriver* poly)
