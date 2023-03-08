@@ -49,6 +49,8 @@ endif()
 option(YARP_ROS2_USE_SYSTEM_map2d_nws_ros2_msgs "If ON, use map2d_nws_ros2_msgs found in the system, otherwise build it with this project." OFF)
 option(YARP_ROS2_USE_SYSTEM_yarp_control_msgs "If ON, use yarp_control_msgs found in the system, otherwise build it with this project." OFF)
 
+include(YarpValgrindOptions)
+
 include(AddInstallRPATHSupport)
 add_install_rpath_support(BIN_DIRS "${CMAKE_INSTALL_FULL_BINDIR}"
                           LIB_DIRS "${CMAKE_INSTALL_FULL_LIBDIR}"
