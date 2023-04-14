@@ -87,7 +87,6 @@ public:
     void frameTransformStaticGet_callback(const tf2_msgs::msg::TFMessage::SharedPtr msg);
 
     //own
-    double yarpStampFromROS2(const builtin_interfaces::msg::Time& ros2Time);
     void ros2TransformToYARP(const geometry_msgs::msg::TransformStamped& input, yarp::math::FrameTransform& output, bool isStatic);
     bool updateBuffer(const std::vector<geometry_msgs::msg::TransformStamped>& transforms, bool areStatic);
     bool setTransform(const yarp::math::FrameTransform& transform);

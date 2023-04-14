@@ -54,10 +54,12 @@ bool FrameTransformGet_nwc_ros2::open(yarp::os::Searchable& config)
     m_subscriptionFtTimed = m_node->create_subscription<tf2_msgs::msg::TFMessage>(m_ftTopic, 10,
                                                                                   std::bind(&FrameTransformGet_nwc_ros2::frameTransformTimedGet_callback,
                                                                                   this, _1));
-    m_subscriptionFtStatic = m_node->create_subscription<tf2_msgs::msg::TFMessage>(m_ftTopicStatic, 10,
+
+    rclcpp::QoS qos(10);
+    qos = qos.transient_local(); // This line and the previous are needed to reestablish the "latched" behaviour for the subscriptio
+    m_subscriptionFtStatic = m_node->create_subscription<tf2_msgs::msg::TFMessage>(m_ftTopicStatic, qos,
                                                                                    std::bind(&FrameTransformGet_nwc_ros2::frameTransformStaticGet_callback,
                                                                                    this, _1));
-
 
     m_spinner = new Ros2Spinner(m_node);
     m_spinner->start();
@@ -89,26 +91,16 @@ bool FrameTransformGet_nwc_ros2::getTransforms(std::vector<yarp::math::FrameTran
 
 void FrameTransformGet_nwc_ros2::frameTransformTimedGet_callback(const tf2_msgs::msg::TFMessage::SharedPtr msg)
 {
+    std::lock_guard<std::mutex> lock(m_trf_mutex);
     yCTrace(FRAMETRANSFORGETNWCROS2);
     updateBuffer(msg->transforms,false);
 }
 
 void FrameTransformGet_nwc_ros2::frameTransformStaticGet_callback(const tf2_msgs::msg::TFMessage::SharedPtr msg)
 {
+    std::lock_guard<std::mutex> lock(m_trf_mutex);
     yCTrace(FRAMETRANSFORGETNWCROS2);
     updateBuffer(msg->transforms,true);
-}
-
-double FrameTransformGet_nwc_ros2::yarpStampFromROS2(const builtin_interfaces::msg::Time& ros2Time)
-{
-    double yarpTime;
-    double sec_part;
-    double nsec_part;
-    sec_part = (double)ros2Time.sec;
-    nsec_part = ((double)ros2Time.nanosec)/1000000000.0;
-    yarpTime = sec_part+nsec_part;
-
-    return yarpTime;
 }
 
 void FrameTransformGet_nwc_ros2::ros2TransformToYARP(const geometry_msgs::msg::TransformStamped& input, yarp::math::FrameTransform& output, bool isStatic)
@@ -122,7 +114,7 @@ void FrameTransformGet_nwc_ros2::ros2TransformToYARP(const geometry_msgs::msg::T
     output.rotation.y() = input.transform.rotation.y;
     output.rotation.z() = input.transform.rotation.z;
 
-    output.timestamp = yarpStampFromROS2(input.header.stamp);
+    output.timestamp = yarpTimeFromRos2(input.header.stamp);
     output.src_frame_id = input.header.frame_id;
     output.dst_frame_id = input.child_frame_id;
     output.isStatic = isStatic;
