@@ -516,10 +516,20 @@ void ControlBoard_nws_ros2::getPositionCallback(const std::shared_ptr<rmw_reques
         return;
     }
 
-    double posRad;
+    double position;
+    JointTypeEnum jType;
     for (size_t i=0; i<forLimit; i++){
-        posRad = convertDegreesToRadians(tempPos[noJoints ? i : m_quickJointRef[request->names[i]]]);
-        positionsToSend.push_back(posRad);
+        size_t index = noJoints ? i : m_quickJointRef[request->names[i]];
+        m_iAxisInfo->getJointType(index, jType);
+        if(jType == VOCAB_JOINTTYPE_REVOLUTE)
+        {
+            position = convertDegreesToRadians(tempPos[index]);
+        }
+        else
+        {
+            position = tempPos[index];
+        }
+        positionsToSend.push_back(position);
     }
     response->positions = positionsToSend;
     response->response = "OK";
@@ -565,10 +575,20 @@ void ControlBoard_nws_ros2::getVelocityCallback(const std::shared_ptr<rmw_reques
         return;
     }
 
-    double velRad;
+    double velocity;
+    JointTypeEnum jType;
     for (size_t i=0; i<forLimit; i++){
-        velRad = convertDegreesToRadians(tempVel[noJoints ? i : m_quickJointRef[request->names[i]]]);
-        velocitiesToSend.push_back(velRad);
+        size_t index = noJoints ? i : m_quickJointRef[request->names[i]];
+        m_iAxisInfo->getJointType(index, jType);
+        if(jType == VOCAB_JOINTTYPE_REVOLUTE)
+        {
+            velocity = convertDegreesToRadians(tempVel[index]);
+        }
+        else
+        {
+            velocity = tempVel[index];
+        }
+        velocitiesToSend.push_back(velocity);
     }
     response->velocities = velocitiesToSend;
     response->response = "OK";
