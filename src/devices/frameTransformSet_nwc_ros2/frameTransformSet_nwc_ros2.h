@@ -32,19 +32,20 @@
 /**
  * @ingroup dev_impl_nwc_ros2
  *
- * @brief `frameTransformSet_nwc_ros2`: A ros network wrapper client that receives frame transforms from a ros2 topic and makes them available through an IFrameTransformStorageGet interface. See \subpage FrameTransform for additional info.
- *
+ * @brief `frameTransformSet_nwc_ros2`: A ros network wrapper client which publishes the transforms received on the yarp::dev::IFrameTransformStorageSet interface to a ros2 topic. See \subpage FrameTransform for additional info.
  * \section FrameTransformSet_nwc_ros2_device_parameters Parameters
  *
  *   Parameters required by this device are:
- * | Parameter name | SubParameter         | Type    | Units          | Default Value         | Required     | Description                                    -------            |
- * |:--------------:|:--------------------:|:-------:|:--------------:|:---------------------:|:-----------: |:-----------------------------------------------------------------:|
- * | GENERAL        |      -               | group   | -              | -                     | No           |                                                                   |
- * | -              | refresh_interval     | double  | seconds        | 0.1                   | No           | The time interval outside which timed ft will be deleted          |
- * | ROS2           |      -               | group   | -              | -                     | No           |                                                                   |
- * | -              | ft_node              | string  | -              | /tfNodeGet            | No           | The name of the ROS2 node                                              |
- * | -              | ft_topic             | string  | -              | /tf                   | No           | The name of the ROS2 topic from which fts will be received        |
- * | -              | ft_topic_static      | string  | -              | /tf_static            | No           | The name of the ROS2 topic from which static fts will be received |
+ * | Parameter name | SubParameter         | Type    | Units          | Default Value         | Required     | Description                                                                                           |
+ * |:--------------:|:--------------------:|:-------:|:--------------:|:---------------------:|:-----------: |:-----------------------------------------------------------------------------------------------------:|
+ * | GENERAL        |      -               | group   | -              | -                     | No           |                                                                                                       |
+ * | -              | period               | double  | seconds        | 0.01                  | No           | The PeriodicThread period in seconds                                                                  |
+ * | -              | refresh_interval     | double  | seconds        | 0.1                   | No           | The time interval outside which timed ft will be deleted                                              |
+ * | -              | asynch_pub           | int     | -              | 1                     | No           | If 1, the fts will be published not only every "period" seconds but also when set functions are called|
+ * | ROS2           |      -               | group   | -              | -                     | No           |                                                                                                       |
+ * | -              | ft_node              | string  | -              | /tfNodeGet            | No           | The name of the ROS2 node                                                                             |
+ * | -              | ft_topic             | string  | -              | /tf                   | No           | The name of the ROS2 topic on which fts will be published                                             |
+ * | -              | ft_topic_static      | string  | -              | /tf_static            | No           | The name of the ROS2 topic on which static fts will be published                                      |
 
  * **N.B.** pay attention to the difference between **tf** and **ft**
  *
@@ -55,7 +56,7 @@
  * [GENERAL]
  * period 0.05
  * refresh_interval 0.2
- * [ROS]
+ * [ROS2]
  * ft_topic /tf
  * ft_topic_static /tf_static
  * ft_node /tfNodeGet
