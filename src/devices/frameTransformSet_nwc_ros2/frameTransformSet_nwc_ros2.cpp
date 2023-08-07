@@ -151,7 +151,7 @@ void FrameTransformSet_nwc_ros2::yarpTransformToROS2Transform(const yarp::math::
 
     tempTransl.x = input.translation.tX;
     tempTransl.y = input.translation.tY;
-    tempTransl.z = input.translation.tY;
+    tempTransl.z = input.translation.tZ;
 
     tempRotation.w = input.rotation.w();
     tempRotation.x = input.rotation.x();
