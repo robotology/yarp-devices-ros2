@@ -83,21 +83,6 @@ bool Battery_nws_ros2::open(yarp::os::Searchable &config)
         return false;
     }
 
-    if (config.check("subdevice")) {
-        yarp::os::Property p;
-        p.fromString(config.toString(), false);
-        p.put("device", config.find("subdevice").asString());
-
-        if (!m_driver.open(p) || !m_driver.isValid()) {
-            yCError(BATTERY_NWS_ROS2) << "failed to open subdevice.. check params";
-            return false;
-        }
-
-        if (!attach(&m_driver)) {
-            yCError(BATTERY_NWS_ROS2) << "failed to open subdevice.. check params";
-            return false;
-        }
-    }
     rclcpp::NodeOptions node_options;
     node_options.allow_undeclared_parameters(true);
     node_options.automatically_declare_parameters_from_overrides(true);
@@ -120,12 +105,12 @@ void Battery_nws_ros2::run()
     if (m_battery_interface==nullptr)
     {
         yCError(BATTERY_NWS_ROS2) << "the interface is not valid";
-	}
-	else if (!m_ros2Publisher)
-	{
+    }
+    else if (!m_ros2Publisher)
+    {
         yCError(BATTERY_NWS_ROS2) << "the publisher is not ready";
-	}
-	else
+    }
+    else
     {
         double voltage=0;
         double current=0;
@@ -155,7 +140,7 @@ void Battery_nws_ros2::run()
         battMsg.present=true;
         battMsg.location="";
         battMsg.serial_number="";
-        
+
         battMsg.header.frame_id = "" ;
         battMsg.header.stamp.sec = int(m_timeStamp.getTime());
         battMsg.header.stamp.nanosec = int(1000000000UL * (m_timeStamp.getTime() - int(m_timeStamp.getTime())));
