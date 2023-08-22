@@ -15,8 +15,9 @@
 
 using namespace std::chrono_literals;
 
-YARP_LOG_COMPONENT(ROS2TEST, "yarp.ros2.ros2test", yarp::os::Log::TraceType);
+YARP_LOG_COMPONENT(ROS2PUBTEST, "yarp.ros2.ros2PubTest", yarp::os::Log::TraceType);
 
+//----------------------------------------------------------------------
 
 Ros2Init::Ros2Init()
 {
@@ -30,36 +31,32 @@ Ros2Init& Ros2Init::get()
     return instance;
 }
 
+//----------------------------------------------------------------------
 
-Ros2Test::Ros2Test() :
+Ros2PubTest::Ros2PubTest() :
         yarp::os::PeriodicThread(0.5)
 {
 }
 
-bool Ros2Test::open(yarp::os::Searchable& config)
+bool Ros2PubTest::open(yarp::os::Searchable& config)
 {
-    yCTrace(ROS2TEST);
-    m_topic = config.check("topic", yarp::os::Value("ros2test_topic"), "Name of the ROS topic").asString();
-    yCInfo(ROS2TEST, "Ros2Test::open - %s", m_topic.c_str());
-
-    m_publisher = Ros2Init::get().node->create_publisher<std_msgs::msg::String>(m_topic, 10);
-
+    m_publisher = Ros2Init::get().node->create_publisher<std_msgs::msg::String>("/pub_test_topic", 10);
     start();
     return true;
 }
 
-bool Ros2Test::close()
+bool Ros2PubTest::close()
 {
-    yCTrace(ROS2TEST);
-    yCInfo(ROS2TEST, "Ros2Test::close");
+    yCTrace(ROS2PUBTEST);
+    yCInfo(ROS2PUBTEST, "Ros2PubTest::close");
     return true;
 }
 
-void Ros2Test::run()
+void Ros2PubTest::run()
 {
-    yCTrace(ROS2TEST);
+    yCTrace(ROS2PUBTEST);
     auto message = std_msgs::msg::String();
     message.data = "Hello, " + m_topic + "! " + std::to_string(m_count++);
-    yCInfo(ROS2TEST, "Publishing: '%s'", message.data.c_str());
+    yCInfo(ROS2PUBTEST, "Publishing: '%s'", message.data.c_str());
     m_publisher->publish(message);
 }
