@@ -165,6 +165,12 @@ bool Localization2D_nws_ros2::open(yarp::os::Searchable &config)
 
 bool Localization2D_nws_ros2::close()
 {
+    yCTrace(LOCALIZATION2D_NWS_ROS2);
+    if (PeriodicThread::isRunning())
+    {
+        PeriodicThread::stop();
+    }
+
     detach();
     return true;
 }
