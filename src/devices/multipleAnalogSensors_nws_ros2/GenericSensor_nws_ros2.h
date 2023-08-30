@@ -185,10 +185,20 @@ bool GenericSensor_nws_ros2<ROS_MSG>::attachAll(const yarp::dev::PolyDriverList 
 
     // View all the interfaces
     bool ok = viewInterfaces();
+    if (!ok)
+    {
+        yCError(GENERICSENSOR_NWS_ROS2, "viewInterfaces failed.");
+        return false;
+    }
 
     // Set rate period
     ok &= this->setPeriod(m_periodInS);
     ok &= this->start();
+    if (!ok)
+    {
+        yCError(GENERICSENSOR_NWS_ROS2, "thread->start() failed.");
+        return false;
+    }
 
     return ok;
 }
