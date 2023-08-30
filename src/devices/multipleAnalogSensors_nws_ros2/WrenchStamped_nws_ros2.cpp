@@ -12,7 +12,12 @@ bool WrenchStamped_nws_ros2::viewInterfaces()
     // View all the interfaces
     bool ok = m_poly->view(m_iFTsens);
     m_iFTsens->getSixAxisForceTorqueSensorFrameName(m_sens_index, m_framename);
-    return ok;
+    if (!ok)
+    {
+        yCError(GENERICSENSOR_NWS_ROS2) << "getSixAxisForceTorqueSensorFrameName() failed";
+        return false;
+    }
+    return true;
 }
 
 void WrenchStamped_nws_ros2::run()
