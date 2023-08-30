@@ -52,7 +52,12 @@ bool Imu_nws_ros2::viewInterfaces()
 
     // Get frame Name
     ok = m_iThreeAxisGyroscopes->getThreeAxisGyroscopeFrameName(m_sens_index, m_framename);
-    return ok;
+    if (!ok) {
+        yCError(GENERICSENSOR_NWS_ROS2) << "getThreeAxisGyroscopeFrameName() failed";
+        return false;
+    }
+
+    return true;
 }
 
 void Imu_nws_ros2::run()
