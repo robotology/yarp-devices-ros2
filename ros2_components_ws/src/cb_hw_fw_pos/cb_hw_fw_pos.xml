@@ -1,0 +1,9 @@
+<library path="cb_hw_fw_pos">
+    <class name="cb_hw_fw_pos/CbHwFwPos"
+           type="cb_hw_fw_pos::CbHwFwPos"
+           base_class_type="hardware_interface::SystemInterface">
+        <description>
+            Hardware interface to forward position commands to yarp controlBoard_nws_ros2
+        </description>
+    </class>
+</library>

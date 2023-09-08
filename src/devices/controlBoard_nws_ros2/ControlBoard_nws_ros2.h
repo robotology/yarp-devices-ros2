@@ -33,6 +33,8 @@
 
 //Custom ros2 interfaces
 #include <yarp_control_msgs/srv/get_control_modes.hpp>
+#include <yarp_control_msgs/srv/get_position.hpp>
+#include <yarp_control_msgs/srv/get_velocity.hpp>
 #include <yarp_control_msgs/srv/set_control_modes.hpp>
 #include <yarp_control_msgs/srv/get_available_control_modes.hpp>
 #include <yarp_control_msgs/srv/get_joints_names.hpp>
@@ -80,6 +82,8 @@ private:
     std::string                  m_posDirTopicName;
     std::string                  m_velTopicName;
     std::string                  m_getModesSrvName;
+    std::string                  m_getPositionSrvName;
+    std::string                  m_getVelocitySrvName;
     std::string                  m_setModesSrvName;
     std::string                  m_getJointsNamesSrvName;
     std::string                  m_getAvailableModesSrvName;
@@ -119,6 +123,8 @@ private:
     rclcpp::Subscription<yarp_control_msgs::msg::Velocity>::SharedPtr            m_velSubscription;
     rclcpp::Service<yarp_control_msgs::srv::GetJointsNames>::SharedPtr           m_getJointsNamesSrv;
     rclcpp::Service<yarp_control_msgs::srv::GetControlModes>::SharedPtr          m_getControlModesSrv;
+    rclcpp::Service<yarp_control_msgs::srv::GetPosition>::SharedPtr              m_getPositionSrv;
+    rclcpp::Service<yarp_control_msgs::srv::GetVelocity>::SharedPtr              m_getVelocitySrv;
     rclcpp::Service<yarp_control_msgs::srv::SetControlModes>::SharedPtr          m_setControlModesSrv;
     rclcpp::Service<yarp_control_msgs::srv::GetAvailableControlModes>::SharedPtr m_getAvailableModesSrv;
 
@@ -139,6 +145,12 @@ private:
     void getControlModesCallback(const std::shared_ptr<rmw_request_id_t> request_header,
                                  const std::shared_ptr<yarp_control_msgs::srv::GetControlModes::Request> request,
                                  std::shared_ptr<yarp_control_msgs::srv::GetControlModes::Response> response);
+    void getPositionCallback(const std::shared_ptr<rmw_request_id_t> request_header,
+                             const std::shared_ptr<yarp_control_msgs::srv::GetPosition::Request> request,
+                             std::shared_ptr<yarp_control_msgs::srv::GetPosition::Response> response);
+    void getVelocityCallback(const std::shared_ptr<rmw_request_id_t> request_header,
+                             const std::shared_ptr<yarp_control_msgs::srv::GetVelocity::Request> request,
+                             std::shared_ptr<yarp_control_msgs::srv::GetVelocity::Response> response);
     void setControlModesCallback(const std::shared_ptr<rmw_request_id_t> request_header,
                                  const std::shared_ptr<yarp_control_msgs::srv::SetControlModes::Request> request,
                                  std::shared_ptr<yarp_control_msgs::srv::SetControlModes::Response> response);

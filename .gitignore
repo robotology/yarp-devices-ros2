@@ -30,3 +30,5 @@ compile_commands.json
 /.cache/
 /ros2_interfaces_ws/install/
 /ros2_interfaces_ws/log/
+/ros2_components_ws/install/
+/ros2_components_ws/log/

@@ -130,6 +130,8 @@ bool ControlBoard_nws_ros2::initRos2Control(const std::string& name){
     m_velTopicName = name+"/velocity";
     m_getModesSrvName = name+"/get_modes";
     m_setModesSrvName = name+"/set_modes";
+    m_getVelocitySrvName = name+"/get_velocity";
+    m_getPositionSrvName = name+"/get_position";
     m_getAvailableModesSrvName = name+"/get_available_modes";
     m_getJointsNamesSrvName = name+"/get_joints_names";
 
@@ -195,6 +197,26 @@ bool ControlBoard_nws_ros2::initRos2Control(const std::string& name){
     if(!m_getControlModesSrv){
         yCError(CONTROLBOARD_ROS2) << "Could not initialize the GetControlModes service";
         RCLCPP_ERROR(m_node->get_logger(),"Could not initialize the GetControlModes service");
+
+        return false;
+    }
+    m_getPositionSrv = m_node->create_service<yarp_control_msgs::srv::GetPosition>(m_getPositionSrvName,
+                                                                                   std::bind(&ControlBoard_nws_ros2::getPositionCallback,
+                                                                                               this,std::placeholders::_1,std::placeholders::_2,
+                                                                                               std::placeholders::_3));
+    if(!m_getPositionSrv){
+        yCError(CONTROLBOARD_ROS2) << "Could not initialize the GetPosition service";
+        RCLCPP_ERROR(m_node->get_logger(),"Could not initialize the GetPosition service");
+
+        return false;
+    }
+    m_getVelocitySrv = m_node->create_service<yarp_control_msgs::srv::GetVelocity>(m_getVelocitySrvName,
+                                                                                   std::bind(&ControlBoard_nws_ros2::getVelocityCallback,
+                                                                                               this,std::placeholders::_1,std::placeholders::_2,
+                                                                                               std::placeholders::_3));
+    if(!m_getVelocitySrv){
+        yCError(CONTROLBOARD_ROS2) << "Could not initialize the GetVelocity service";
+        RCLCPP_ERROR(m_node->get_logger(),"Could not initialize the GetVelocity service");
 
         return false;
     }
