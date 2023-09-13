@@ -267,7 +267,7 @@ void ControlBoard_nws_ros2::positionDirectTopic_callback(const yarp_control_msgs
     std::vector<double> convertedPos;
     std::vector<int> selectedJoints;
 
-    for(size_t i=0; i<noJoints ? m_subdevice_joints : msg->positions.size(); i++){
+    for(size_t i=0; i<(noJoints ? m_subdevice_joints : msg->positions.size()); i++){
         size_t index = noJoints ? i : m_quickJointRef[msg->names[i]];
         if(!noJoints) {selectedJoints.push_back(index);}
         m_iAxisInfo->getJointType(index, jType);
@@ -314,7 +314,7 @@ void ControlBoard_nws_ros2::velocityTopic_callback(const yarp_control_msgs::msg:
     std::vector<int> selectedJoints;
     std::vector<double> convertedAccel;
 
-    for(size_t i=0; i<noJoints ? m_subdevice_joints : msg->velocities.size(); i++){
+    for(size_t i=0; i<(noJoints ? m_subdevice_joints : msg->velocities.size()); i++){
         size_t index = noJoints ? i : m_quickJointRef[msg->names[i]];
         if(!noJoints) {selectedJoints.push_back(index);}
         m_iAxisInfo->getJointType(index, jType);
