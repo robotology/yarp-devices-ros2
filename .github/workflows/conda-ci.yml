@@ -320,12 +320,12 @@ jobs:
     # environment: code-analysis
     name: "SonarCloud"
     needs: [select_environment]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         build_type: [Release]
         ros_distro: [humble]
-        os: [ubuntu-latest]
+        os: [ubuntu-20.04]
     steps:
       - uses: conda-incubator/setup-miniconda@v2
         with:
@@ -414,19 +414,97 @@ jobs:
           echo "sonar_cache_path=${SONAR_CACHE_PATH}" >> $GITHUB_OUTPUT
   
       - name: Dependencies
-        shell: bash -l {0}
+        if: runner.os == 'Linux'
+        shell: bash
         run: |
-          # Compilation related dependencies
-          mamba install cmake compilers make ninja pkg-config
-          sudo apt-get update && sudo apt-get install -qq -y  ccache \
-                                                              lcov \
-                                                              gcovr \
-                                                              xsltproc \
-                                                              libxml2-utils \
-                                                              source-highlight
-          # Actual dependencies
-          mamba install -c conda-forge -c robostack-staging ycm-cmake-modules eigen ace ros-${{ matrix.ros_distro }}-ros-base ros-${{ matrix.ros_distro }}-test-msgs
-  
+          # Install Robotology dependencies from robotology ppa
+          sudo apt-add-repository -y ppa:robotology/ppa
+          sudo apt-get install -qq -y librobottestingframework-dev
+
+          sudo apt-get install -qq -y cmake
+          which cmake
+          cmake --version
+          /usr/bin/cmake --version
+          
+          # Install ycm
+          wget -nv https://github.com/robotology/ycm/releases/download/v0.15.1/ycm-cmake-modules-0.15.1-all.deb
+          sudo dpkg -i ycm-cmake-modules-0.15.1-all.deb
+          
+          # Install build tools
+          sudo apt-get install -qq -y ccache \
+                                      ninja-build \
+                                      valgrind
+          
+          sudo apt-get install -qq -y libace-dev \
+                                      libsqlite3-dev \
+                                      libtinyxml-dev \
+                                      libedit-dev \
+                                      qtbase5-dev \
+                                      qtdeclarative5-dev \
+                                      qtmultimedia5-dev \
+                                      libqt5opengl5-dev \
+                                      libqcustomplot-dev \
+                                      libopencv-dev \
+                                      libeigen3-dev \
+                                      libgraphviz-dev \
+                                      libgstreamer1.0-dev \
+                                      libgstreamer-plugins-base1.0-dev \
+                                      libpng-dev \
+                                      libv4l-dev \
+                                      libavcodec-dev \
+                                      libavdevice-dev \
+                                      libavformat-dev \
+                                      libavutil-dev \
+                                      portaudio19-dev \
+                                      libsdl1.2-dev \
+                                      libopenni2-dev \
+                                      libftdi-dev \
+                                      libi2c-dev \
+                                      libjpeg-dev \
+                                      libpcl-dev
+          
+          # Install SWIG and bindings dependencies
+          sudo apt-get install -qq -y swig \
+                                      mono-mcs \
+                                      liblua5.3-dev \
+                                      lua5.3 \
+                                      tcl-dev \
+                                      tk-dev \
+                                      python3-dev \
+                                      liboctave-dev \
+                                      default-jdk \
+                                      ruby-dev \
+                                      ruby \
+                                      perl
+          
+          # Other tools useful in github actions
+          sudo apt-get install -qq -y jq \
+                                      wget \
+                                      curl \
+                                      lcov \
+                                      gcovr \
+                                      wget \
+                                      curl \
+                                      clang-11 \
+                                      clang-tidy-11 \
+                                      xsltproc \
+                                      libxml2-utils \
+                                      source-highlight
+          
+          # Remove old packages from apt cache
+          sudo apt-get autoclean -qq
+
+          # Install Ros2
+          sudo apt install software-properties-common
+          sudo add-apt-repository universe
+          sudo apt update && sudo apt install curl -y
+          sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
+          sudo apt update
+          sudo apt install -qq -y ros-humble-desktop 
+          sudo apt install -qq -y ros-humble-test-msgs 
+          sudo apt install -qq -y ros-dev-tools
+
       - name: Download YARP [Linux&macOS]
         if: runner.os == 'Linux'
         run: |
@@ -441,12 +519,12 @@ jobs:
           cd yarp
           mkdir build
           cd build
-          cmake -GNinja -DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX} \
-                        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} .. \
+          cmake -DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX} \
+                        -DCMAKE_BUILD_TYPE=Release .. \
                         -DYARP_COMPILE_TESTS:BOOL=ON \
                         -DYARP_COMPILE_ALL_FAKE_DEVICES:BOOL=ON
-          cmake --build . --config ${{ matrix.build_type }}
-          cmake --install . --config ${{ matrix.build_type }}
+          cmake --build . --config Release
+          cmake --install . --config Release
           echo "YARP_DATA_DIRS=${CONDA_PREFIX}/share/yarp::${YARP_DATA_DIRS}" >> $GITHUB_ENV
 
       - name: Prepare ccache environment variables
@@ -500,7 +578,7 @@ jobs:
         run: |
           mkdir -p build
           cd build
-          cmake -GNinja -DBUILD_TESTING:BOOL=ON \
+          cmake -DBUILD_TESTING:BOOL=ON \
                         -DCMAKE_C_FLAGS=-fdiagnostics-color=always \
                         -DCMAKE_CXX_FLAGS=-fdiagnostics-color=always \
                         -DCMAKE_BUILD_TYPE=Profile \
