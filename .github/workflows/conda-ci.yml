@@ -13,7 +13,7 @@ jobs:
 
   select_environment:
     name: 'Prepare Environment'
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     outputs:
       timestamp: ${{ steps.select.outputs.timestamp }}
       repository_owner: ${{ steps.select.outputs.repository_owner }}
@@ -320,17 +320,17 @@ jobs:
     # environment: code-analysis
     name: "SonarCloud"
     needs: [select_environment]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         build_type: [Release]
         ros_distro: [humble]
-        os: [ubuntu-20.04]
+        os: [ubuntu-latest]
     steps:
-      - uses: conda-incubator/setup-miniconda@v2
-        with:
-          miniforge-variant: Mambaforge
-          miniforge-version: latest
+      # - uses: conda-incubator/setup-miniconda@v2
+      #   with:
+      #     miniforge-variant: Mambaforge
+      #     miniforge-version: latest
       - name: Clone repository
         uses: actions/checkout@v3
         with:
@@ -417,14 +417,12 @@ jobs:
         if: runner.os == 'Linux'
         shell: bash
         run: |
-          # Install Robotology dependencies from robotology ppa
-          sudo apt-add-repository -y ppa:robotology/ppa
-          sudo apt-get install -qq -y librobottestingframework-dev
-
-          sudo apt-get install -qq -y cmake
-          which cmake
-          cmake --version
-          /usr/bin/cmake --version
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake
+          # sudo apt-get install -qq -y cmake
+          # which cmake
+          # cmake --version
+          # /usr/bin/cmake --version
           
           # Install ycm
           wget -nv https://github.com/robotology/ycm/releases/download/v0.15.1/ycm-cmake-modules-0.15.1-all.deb
@@ -500,8 +498,7 @@ jobs:
           sudo apt update && sudo apt install curl -y
           sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
           echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
-          sudo apt update
-          sudo apt install -qq -y ros-humble-desktop 
+          sudo apt update && sudo apt install -qq -y ros-humble-desktop 
           sudo apt install -qq -y ros-humble-test-msgs 
           sudo apt install -qq -y ros-dev-tools
 
