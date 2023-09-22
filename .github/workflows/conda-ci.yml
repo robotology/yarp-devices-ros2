@@ -320,12 +320,12 @@ jobs:
     # environment: code-analysis
     name: "SonarCloud"
     needs: [select_environment]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         build_type: [Release]
         ros_distro: [humble]
-        os: [ubuntu-20.04]
+        os: [ubuntu-latest]
     steps:
       - uses: conda-incubator/setup-miniconda@v2
         with:
@@ -422,7 +422,8 @@ jobs:
                                                               lcov \
                                                               gcovr \
                                                               xsltproc \
-                                                              libxml2-utils
+                                                              libxml2-utils \
+                                                              source-highlight
           # Actual dependencies
           mamba install -c conda-forge -c robostack-staging ycm-cmake-modules eigen ace ros-${{ matrix.ros_distro }}-ros-base ros-${{ matrix.ros_distro }}-test-msgs
   
@@ -511,7 +512,6 @@ jobs:
                         -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=ON \
                         -DYARP_ROS2_USE_SYSTEM_map2d_nws_ros2_msgs:BOOL=OFF \
                         -DPython3_EXECUTABLE:PATH=$CONDA_PREFIX/bin/python3 \
-                        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
                         -DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX} .. \
                         -DYARP_COMPILE_TESTS:BOOL=ON
 
@@ -523,25 +523,25 @@ jobs:
         run: |
           build-wrapper-linux-x86-64 --out-dir build_wrapper_output_directory cmake --build build --config Profile
 
-      # - name: Run tests
-      #   run: |
-      #     # Download CTest2JUnit.xsl
-      #     wget https://raw.githubusercontent.com/zanata/zanata-tests/master/scripts/CTest2JUnit.xsl -O CTest2JUnit.xsl
+      - name: Run tests
+        run: |
+          # Download CTest2JUnit.xsl
+          wget https://raw.githubusercontent.com/zanata/zanata-tests/master/scripts/CTest2JUnit.xsl -O CTest2JUnit.xsl
   
-      #     # -T Test produces the xml output with the results
-      #     cd build && ctest -T test --rerun-failed --output-on-failure --verbose -C ${{ matrix.build_type }}
-      #     xsltproc CTest2JUnit.xsl build/Testing/$(head -n 1 < build/Testing/TAG)/Test.xml > build/JUnitTestResults.xml
+          -T Test produces the xml output with the results
+          cd build && ctest -T test --rerun-failed --output-on-failure --verbose -C ${{ matrix.build_type }}
+          xsltproc CTest2JUnit.xsl build/Testing/$(head -n 1 < build/Testing/TAG)/Test.xml > build/JUnitTestResults.xml
   
-      # - name: Print tests results file
-      #   run: |
-      #     xmllint --format build/JUnitTestResults.xml | source-highlight -s xml --out-format=esc -o STDOUT
+      - name: Print tests results file
+        run: |
+          xmllint --format build/JUnitTestResults.xml | source-highlight -s xml --out-format=esc -o STDOUT
   
-      # - name: Print ccache stats after build
-      #   run: |
-      #     set -x
+      - name: Print ccache stats after build
+        run: |
+          set -x
   
-      #     # Print ccache stats
-      #     ccache -s
+          # Print ccache stats
+          ccache -s
   
       - name: Capture coverage info
         run: |
