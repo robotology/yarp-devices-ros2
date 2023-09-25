@@ -426,15 +426,9 @@ jobs:
           # cmake --version
           # /usr/bin/cmake --version
           
-          # Install ycm
-          sudo apt-get update
-          wget -nv https://github.com/robotology/ycm/releases/download/v0.15.1/ycm-cmake-modules-0.15.1-all.deb
-          sudo dpkg -i ycm-cmake-modules-0.15.1-all.deb
-          
           # Install build tools
           sudo apt-get update
           sudo apt-get install -qq -y ccache \
-                                      ninja-build \
                                       valgrind
           
           sudo apt-get install -qq -y libace-dev \
@@ -505,6 +499,18 @@ jobs:
           sudo apt update && sudo apt install -qq -y ros-humble-desktop 
           sudo apt install -qq -y ros-humble-test-msgs 
           sudo apt install -qq -y ros-dev-tools
+
+        # Install ycm
+      - name: Download YCM [Linux]
+        if: runner.os == 'Linux'
+        run: |
+            cd ${GITHUB_WORKSPACE}
+            git clone https://github.com/robotology/ycm.git
+            && cd ycm && mkdir build \
+            && cd build 
+            cmake -DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX} .. 
+            cmake --build . --config Release
+            cmake --install . --config Release
 
       - name: Download YARP [Linux&macOS]
         if: runner.os == 'Linux'
