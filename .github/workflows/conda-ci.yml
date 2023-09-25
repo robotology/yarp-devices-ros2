@@ -13,7 +13,7 @@ jobs:
 
   select_environment:
     name: 'Prepare Environment'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     outputs:
       timestamp: ${{ steps.select.outputs.timestamp }}
       repository_owner: ${{ steps.select.outputs.repository_owner }}
@@ -320,12 +320,12 @@ jobs:
     # environment: code-analysis
     name: "SonarCloud"
     needs: [select_environment]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         build_type: [Release]
         ros_distro: [humble]
-        os: [ubuntu-latest]
+        os: [ubuntu-22.04]
     steps:
       # - uses: conda-incubator/setup-miniconda@v2
       #   with:
@@ -418,17 +418,21 @@ jobs:
         shell: bash
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential cmake
+          # dpkg --get-selections | grep hold
+          DEBIAN_FRONTEND=noninteractive
+          sudo apt install -y cmake
           # sudo apt-get install -qq -y cmake
           # which cmake
           # cmake --version
           # /usr/bin/cmake --version
           
           # Install ycm
+          sudo apt-get update
           wget -nv https://github.com/robotology/ycm/releases/download/v0.15.1/ycm-cmake-modules-0.15.1-all.deb
           sudo dpkg -i ycm-cmake-modules-0.15.1-all.deb
           
           # Install build tools
+          sudo apt-get update
           sudo apt-get install -qq -y ccache \
                                       ninja-build \
                                       valgrind
