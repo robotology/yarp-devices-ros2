@@ -327,10 +327,10 @@ jobs:
         ros_distro: [humble]
         os: [ubuntu-22.04]
     steps:
-      # - uses: conda-incubator/setup-miniconda@v2
-      #   with:
-      #     miniforge-variant: Mambaforge
-      #     miniforge-version: latest
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          miniforge-variant: Mambaforge
+          miniforge-version: latest
       - name: Clone repository
         uses: actions/checkout@v3
         with:
@@ -418,20 +418,36 @@ jobs:
         shell: bash
         run: |
           sudo apt-get update
+          sudo apt-get autoremove
           # dpkg --get-selections | grep hold
           DEBIAN_FRONTEND=noninteractive
-          sudo apt install -y cmake
+          
+          # Install cmake
+
+          sudo rm /usr/local/bin/cmake
+          wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | sudo tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null
+          echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ focal main' | sudo tee /etc/apt/sources.list.d/kitware.list >/dev/null
+          sudo apt-get update
+          sudo rm /usr/share/keyrings/kitware-archive-keyring.gpg
+          sudo apt-get -y install kitware-archive-keyring
+          sudo apt-cache policy cmake-data
+          sudo apt-cache policy cmake
+          sudo apt-get -y install cmake-data
+          sudo apt-get -y -f install cmake
           # sudo apt-get install -qq -y cmake
           # which cmake
           # cmake --version
           # /usr/bin/cmake --version
           
           # Install build tools
-          sudo apt-get update
-          sudo apt-get install -qq -y ccache \
-                                      valgrind
+          sudo apt install -y ccache \
+                              valgrind \
+                              libunwind-dev
           
-          sudo apt-get install -qq -y libace-dev \
+          sudo apt update
+          sudo apt upgrade
+          sudo apt autoremove
+          sudo apt install -y libace-dev \
                                       libsqlite3-dev \
                                       libtinyxml-dev \
                                       libedit-dev \
@@ -460,7 +476,7 @@ jobs:
                                       libpcl-dev
           
           # Install SWIG and bindings dependencies
-          sudo apt-get install -qq -y swig \
+          sudo apt install -qq -y swig \
                                       mono-mcs \
                                       liblua5.3-dev \
                                       lua5.3 \
@@ -474,7 +490,7 @@ jobs:
                                       perl
           
           # Other tools useful in github actions
-          sudo apt-get install -qq -y jq \
+          sudo apt install -qq -y jq \
                                       wget \
                                       curl \
                                       lcov \
@@ -488,7 +504,7 @@ jobs:
                                       source-highlight
           
           # Remove old packages from apt cache
-          sudo apt-get autoclean -qq
+          sudo apt autoclean -qq
 
           # Install Ros2
           sudo apt install software-properties-common
@@ -506,8 +522,9 @@ jobs:
         run: |
             cd ${GITHUB_WORKSPACE}
             git clone https://github.com/robotology/ycm.git
-            && cd ycm && mkdir build \
-            && cd build 
+            cd ycm 
+            mkdir -p build
+            cd build 
             cmake -DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX} .. 
             cmake --build . --config Release
             cmake --install . --config Release
