@@ -525,9 +525,9 @@ jobs:
             cd ycm 
             mkdir -p build
             cd build 
-            cmake -DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX} .. 
+            cmake .. 
             cmake --build . --config Release
-            cmake --install . --config Release
+            sudo cmake --install . --config Release
 
       - name: Download YARP [Linux&macOS]
         if: runner.os == 'Linux'
@@ -543,12 +543,11 @@ jobs:
           cd yarp
           mkdir build
           cd build
-          cmake -DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX} \
-                        -DCMAKE_BUILD_TYPE=Release .. \
+          cmake         -DCMAKE_BUILD_TYPE=Release .. \
                         -DYARP_COMPILE_TESTS:BOOL=ON \
                         -DYARP_COMPILE_ALL_FAKE_DEVICES:BOOL=ON
           cmake --build . --config Release
-          cmake --install . --config Release
+          sudo cmake --install . --config Release
           echo "YARP_DATA_DIRS=${CONDA_PREFIX}/share/yarp::${YARP_DATA_DIRS}" >> $GITHUB_ENV
 
       - name: Prepare ccache environment variables
@@ -613,9 +612,7 @@ jobs:
                         -DCMAKE_SHARED_LINKER_FLAGS_PROFILE=-lgcov \
                         -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=ON \
                         -DYARP_ROS2_USE_SYSTEM_map2d_nws_ros2_msgs:BOOL=OFF \
-                        -DPython3_EXECUTABLE:PATH=$CONDA_PREFIX/bin/python3 \
-                        -DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX} .. \
-                        -DYARP_COMPILE_TESTS:BOOL=ON
+                        -DYARP_COMPILE_TESTS:BOOL=ON ..
 
       - name: Link compile_commands.json in the source directory
         run: |
