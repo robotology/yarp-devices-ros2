@@ -548,7 +548,7 @@ jobs:
                         -DYARP_COMPILE_ALL_FAKE_DEVICES:BOOL=ON
           cmake --build . --config Release
           sudo cmake --install . --config Release
-          echo "YARP_DATA_DIRS=${CONDA_PREFIX}/share/yarp::${YARP_DATA_DIRS}" >> $GITHUB_ENV
+          echo "YARP_DATA_DIRS=/usr/local/share/yarp::${YARP_DATA_DIRS}" >> $GITHUB_ENV
 
       - name: Prepare ccache environment variables
         id: init_ccache
