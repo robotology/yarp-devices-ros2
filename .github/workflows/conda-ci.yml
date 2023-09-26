@@ -599,6 +599,7 @@ jobs:
         if: runner.os == 'Linux'
         shell: bash -l {0}   
         run: |
+          source /opt/ros/humble/setup.bash
           mkdir -p build
           cd build
           cmake -DBUILD_TESTING:BOOL=ON \
@@ -620,14 +621,16 @@ jobs:
   
       - name: Build inside the build-wrapper
         run: |
+          source /opt/ros/humble/setup.bash
           build-wrapper-linux-x86-64 --out-dir build_wrapper_output_directory cmake --build build --config Profile
 
       - name: Run tests
         run: |
+          source /opt/ros/humble/setup.bash
           # Download CTest2JUnit.xsl
           wget https://raw.githubusercontent.com/zanata/zanata-tests/master/scripts/CTest2JUnit.xsl -O CTest2JUnit.xsl
   
-          -T Test produces the xml output with the results
+          # -T Test produces the xml output with the results
           cd build && ctest -T test --rerun-failed --output-on-failure --verbose -C ${{ matrix.build_type }}
           xsltproc CTest2JUnit.xsl build/Testing/$(head -n 1 < build/Testing/TAG)/Test.xml > build/JUnitTestResults.xml
   
@@ -644,6 +647,7 @@ jobs:
   
       - name: Capture coverage info
         run: |
+          source /opt/ros/humble/setup.bash
           (cd build && gcovr --sonarqube --branches --output coverage.xml --root .. .)
   
       - name: Print coverage info file
