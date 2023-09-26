@@ -323,7 +323,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        build_type: [Release]
+        build_type: [Profile]
         ros_distro: [humble]
         os: [ubuntu-22.04]
     steps:
