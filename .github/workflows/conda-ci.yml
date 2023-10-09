@@ -59,7 +59,7 @@ jobs:
     strategy:
       matrix:
         build_type: [Release]
-        ros_distro: [humble]
+        ros_distro: [humble, iron]
         os: [ubuntu-latest, macos-latest, windows-2019]
       fail-fast: false
 
@@ -214,6 +214,7 @@ jobs:
         # Compilation related dependencies
         mamba install cmake compilers make ninja pkg-config
         # Actual dependencies
+        sudo apt-get update
         sudo apt-get install -qq -y libc6-dbg
         mamba install -c conda-forge -c robostack-staging ycm-cmake-modules eigen valgrind ace ros-${{ matrix.ros_distro }}-ros-base ros-${{ matrix.ros_distro }}-test-msgs
 
