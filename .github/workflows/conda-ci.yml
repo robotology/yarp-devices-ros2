@@ -38,7 +38,7 @@ jobs:
     - name: Check License
       run: |
         perl tests/misc/check_license.pl
-        
+
   check-tests:
     name: 'Check Devices Tests'
     runs-on: ubuntu-20.04
@@ -52,7 +52,7 @@ jobs:
     - name: Check Devices Tests
       run: |
         python3 tests/misc/check_tests.py
-        
+
   build:
     name: '[${{ matrix.os }}@${{ matrix.build_type }}@${{ matrix.ros_distro }}@conda]'
     runs-on: ${{ matrix.os }}
@@ -77,8 +77,15 @@ jobs:
         # Compilation related dependencies
         mamba install cmake compilers make ninja pkg-config
         # Actual dependencies
-        mamba install -c conda-forge -c robostack-staging ycm-cmake-modules eigen ace ros-${{ matrix.ros_distro }}-ros-base ros-${{ matrix.ros_distro }}-test-msgs
+        mamba install -c conda-forge -c robostack-staging ycm-cmake-modules eigen ace
 
+        # ros2 not yet available with robotstack/mamba...
+        # mamba install -c conda-forge -c robostack-staging ros-${{ matrix.ros_distro }}-ros-base ros-${{ matrix.ros_distro }}-test-msgs
+        # ...hence we'll do via apt
+        sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
+        sudo apt update
+        sudo apt install -y ros-${{ matrix.ros_distro }}-ros-base ros-${{ matrix.ros_distro }}-test-msgs
 
     - name: Download YARP [Linux&macOS]
       if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
@@ -216,7 +223,15 @@ jobs:
         # Actual dependencies
         sudo apt-get update
         sudo apt-get install -qq -y libc6-dbg
-        mamba install -c conda-forge -c robostack-staging ycm-cmake-modules eigen valgrind ace ros-${{ matrix.ros_distro }}-ros-base ros-${{ matrix.ros_distro }}-test-msgs
+        mamba install -c conda-forge -c robostack-staging ycm-cmake-modules eigen valgrind ace
+
+        # ros2 not yet available with robotstack/mamba...
+        # mamba install -c conda-forge -c robostack-staging ros-${{ matrix.ros_distro }}-ros-base ros-${{ matrix.ros_distro }}-test-msgs
+        # ...hence we'll do via apt
+        sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
+        sudo apt update
+        sudo apt install -y ros-${{ matrix.ros_distro }}-ros-base ros-${{ matrix.ros_distro }}-test-msgs
 
     - name: Download YARP [Linux&macOS]
       if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
