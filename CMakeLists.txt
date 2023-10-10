@@ -49,6 +49,13 @@ endif()
 option(YARP_ROS2_USE_SYSTEM_map2d_nws_ros2_msgs "If ON, use map2d_nws_ros2_msgs found in the system, otherwise build it with this project." OFF)
 option(YARP_ROS2_USE_SYSTEM_yarp_control_msgs "If ON, use yarp_control_msgs found in the system, otherwise build it with this project." OFF)
 
+# Workaround for https://github.com/robotology/yarp-devices-ros2/issues/61,
+# this can be removed if https://github.com/ament/ament_cmake/pull/484 is accepted
+# and released
+if(YARP_ROS2_USE_SYSTEM_map2d_nws_ros2_msgs OR YARP_ROS2_USE_SYSTEM_yarp_control_msgs)
+  option(AMENT_CMAKE_ENVIRONMENT_PACKAGE_GENERATION "Generate environment files in the package share folder" OFF)
+endif()
+
 include(YarpValgrindOptions)
 
 include(AddInstallRPATHSupport)
