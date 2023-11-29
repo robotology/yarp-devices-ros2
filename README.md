@@ -17,20 +17,6 @@ Documentation of the individual devices is provided in the official Yarp documen
 Installation
 -------------
 
-### Build with ROS msgs compiled in separate colcon workspace
-
-~~~bash
-# Compile the colcon workspace containing the required messages and services
-(cd ros2_interfaces_ws && colcon build --packages-select map2d_nws_ros2_msgs)
-
-# Make the workspace available
-. ros2_interfaces_ws/install/setup.bash
-
-# Configure and compile
-cmake -S. -Bbuild
-cmake --build build
-~~~
-
 ### Build with pure CMake commands
 
 ~~~
@@ -41,6 +27,22 @@ cmake --build build --target install
 
 # Make ROS msgs available in [ament index](https://github.com/ament/ament_index)
 export AMENT_PREFIX_PATH=$AMENT_PREFIX_PATH:<install_prefix>
+~~~
+
+
+### Build with ROS msgs compiled in separate colcon workspace
+
+~~~bash
+# Compile the colcon workspace containing the required messages and services
+(cd ros2_interfaces_ws && colcon build)
+
+# Make the workspace available
+. ros2_interfaces_ws/install/setup.bash
+
+# Configure and compile
+cmake -S. -Bbuild -DYARP_ROS2_USE_SYSTEM_map2d_nws_ros2_msgs:BOOL=ON -DYARP_ROS2_USE_SYSTEM_yarp_control_msgs:BOOL=ON -DCMAKE_INSTALL_PREFIX=<install_prefix>
+cmake --build build
+cmake --build build --target install
 ~~~
 
 CI Status
