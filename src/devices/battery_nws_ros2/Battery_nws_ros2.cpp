@@ -23,7 +23,7 @@ Battery_nws_ros2::~Battery_nws_ros2()
 
 bool Battery_nws_ros2::attach(yarp::dev::PolyDriver* driver)
 {
-    int a;
+    const int& a = 42;
     if (driver->isValid())
     {
         driver->view(m_battery_interface);
