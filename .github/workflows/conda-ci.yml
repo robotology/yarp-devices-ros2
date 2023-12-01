@@ -344,13 +344,12 @@ jobs:
           SONAR_ORGANIZATION: ${{ needs.select_environment.outputs.repository_owner }}
           SONAR_PROJECT_KEY: ${{ needs.select_environment.outputs.repository_owner }}_${{ needs.select_environment.outputs.repository_name }}
           SONAR_PROJECT_NAME: ${{ needs.select_environment.outputs.repository_name }}
-          SONAR_PROJECT_DESCRIPTION: 'Yet Another Robot Platform'
-          SONAR_LINKS_HOMEPAGE: 'https://www.yarp.it/'
+          SONAR_PROJECT_DESCRIPTION: 'YARP devices ROS2'
           SONAR_SOURCES: 'src'
           SONAR_TESTS: 'tests'
           SONAR_CFAMILY_GCOV_REPORTSPATH: 'build/coverage.info'
           SONAR_CFAMILY_CACHE_ENABLED: true
-          SONAR_SCANNER_VERSION: '4.6.0.2311'
+          SONAR_SCANNER_VERSION: '5.0.1.3006'
           SONAR_THREADS: 2
         run: |
           # Internal variables
