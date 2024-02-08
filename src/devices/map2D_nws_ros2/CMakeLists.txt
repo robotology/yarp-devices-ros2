@@ -33,6 +33,7 @@ if(NOT SKIP_map2D_nws_ros2)
     PRIVATE
       YARP::YARP_os
       YARP::YARP_sig
+      YARP::YARP_math
       YARP::YARP_dev
       rclcpp::rclcpp
       std_msgs::std_msgs__rosidl_typesupport_cpp
