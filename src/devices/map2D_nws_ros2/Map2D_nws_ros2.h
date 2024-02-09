@@ -12,6 +12,8 @@
 #include <sstream>
 #include <mutex>
 
+#include <Ros2Utils.h>
+
 #include <yarp/os/Network.h>
 #include <yarp/os/Port.h>
 #include <yarp/os/Bottle.h>
@@ -22,6 +24,7 @@
 #include <yarp/os/Thread.h>
 #include <yarp/os/BufferedPort.h>
 #include <yarp/os/RpcServer.h>
+#include <yarp/math/Math.h>
 #include <yarp/sig/Vector.h>
 #include <yarp/dev/IMap2D.h>
 #include <yarp/dev/MapGrid2D.h>
@@ -45,6 +48,7 @@
 
 //Custom ros2 interfaces
 #include <map2d_nws_ros2_msgs/srv/get_map_by_name.hpp>
+#include <map2d_nws_ros2_msgs/srv/get_location_by_name.hpp>
 
 
 /**
@@ -60,6 +64,7 @@
  * | name           |      -        | string  | -       | map2D_nws_ros         | No          | Device name prefix                                            |                                                                                                 |
  * | getmap         |      -        | string  | -       | getMap                | No          | The "GetMap" ROS service name                                 |               For the moment being the service always responds with an empty map                |
  * | getmapbyname   |      -        | string  | -       | getMapByName          | No          | The "GetMapByName" ROS2  custom service name                  | The map returned by this service is also available via publisher named "getmapbyname value"/pub |
+ * | getlocbyname   |      -        | string  | -       | getLocationByName     | No          | The "GetLocationByName" ROS2  custom service name             |                                                                                                 |
  * | roscmdparser   |      -        | string  | -       | rosCmdParser          | No          | The "BasicTypes" ROS service name                             |             This is used to send commands to the nws via ros2 BasicTypes service                |
  * | markers_pub    |      -        | string  | -       | locationServerMarkers | No          | The visual markers array publisher name                       |                                                                                                 |
  * | node_name      |      -        | string  | -       |         -             | No          | The ROS2 node name. If absent, the device name will be used   |                                                                                                 |
@@ -95,6 +100,9 @@ public:
     void getMapByNameCallback(const std::shared_ptr<rmw_request_id_t> request_header,
                               const std::shared_ptr<map2d_nws_ros2_msgs::srv::GetMapByName::Request> request,
                               std::shared_ptr<map2d_nws_ros2_msgs::srv::GetMapByName::Response> response);
+    void getLocByNameCallback(const std::shared_ptr<rmw_request_id_t> request_header,
+                              const std::shared_ptr<map2d_nws_ros2_msgs::srv::GetLocationByName::Request> request,
+                              std::shared_ptr<map2d_nws_ros2_msgs::srv::GetLocationByName::Response> response);
     void rosCmdParserCallback(const std::shared_ptr<rmw_request_id_t> request_header,
                          const std::shared_ptr<test_msgs::srv::BasicTypes::Request> request,
                          std::shared_ptr<test_msgs::srv::BasicTypes::Response> response);
@@ -113,18 +121,20 @@ private:
     std::string                  m_rosCmdParserName{"rosCmdParser"};
     std::string                  m_getMapName{"getMap"};
     std::string                  m_getMapByNameName{"getMapByName"};
+    std::string                  m_getLocByNameName{"getLocationByName"};
     std::string                  m_markersName{"locationServerMarkers"};
     std::string                  m_currentMapName{"none"};
     std::string                  m_nodeName;
     bool                         m_spinned{false};
 
-    yarp::os::RpcServer                                                    m_rpcPort;
-    rclcpp::Node::SharedPtr                                                m_node;
-    rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr     m_ros2Publisher_markers{nullptr};
-    rclcpp::Publisher<nav_msgs::msg::OccupancyGrid>::SharedPtr             m_ros2Publisher_map{nullptr};
-    rclcpp::Service<nav_msgs::srv::GetMap>::SharedPtr                      m_ros2Service_getMap{nullptr};
-    rclcpp::Service<map2d_nws_ros2_msgs::srv::GetMapByName>::SharedPtr     m_ros2Service_getMapByName{nullptr};
-    rclcpp::Service<test_msgs::srv::BasicTypes>::SharedPtr                 m_ros2Service_rosCmdParser{nullptr};
+    yarp::os::RpcServer                                                       m_rpcPort;
+    rclcpp::Node::SharedPtr                                                   m_node;
+    rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr        m_ros2Publisher_markers{nullptr};
+    rclcpp::Publisher<nav_msgs::msg::OccupancyGrid>::SharedPtr                m_ros2Publisher_map{nullptr};
+    rclcpp::Service<nav_msgs::srv::GetMap>::SharedPtr                         m_ros2Service_getMap{nullptr};
+    rclcpp::Service<map2d_nws_ros2_msgs::srv::GetMapByName>::SharedPtr        m_ros2Service_getMapByName{nullptr};
+    rclcpp::Service<map2d_nws_ros2_msgs::srv::GetLocationByName>::SharedPtr   m_ros2Service_getLocByName{nullptr};
+    rclcpp::Service<test_msgs::srv::BasicTypes>::SharedPtr                    m_ros2Service_rosCmdParser{nullptr};
 };
 
 

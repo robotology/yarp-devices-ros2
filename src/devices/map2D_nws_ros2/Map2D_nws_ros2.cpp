@@ -15,7 +15,6 @@
 #include <yarp/dev/IMap2D.h>
 #include <yarp/dev/INavigation2D.h>
 #include <yarp/dev/GenericVocabs.h>
-#include <yarp/math/Math.h>
 #include <yarp/os/Log.h>
 #include <yarp/os/LogComponent.h>
 #include <yarp/os/LogStream.h>
@@ -31,6 +30,10 @@ using namespace yarp::dev::Nav2D;
 using namespace yarp::os;
 using namespace std;
 using namespace std::placeholders;
+
+#ifndef DEG2RAD
+#define DEG2RAD M_PI / 180.0
+#endif
 
 namespace {
 YARP_LOG_COMPONENT(MAP2D_NWS_ROS2, "yarp.device.map2D_nws_ros2")
@@ -96,6 +99,7 @@ bool Map2D_nws_ros2::open(yarp::os::Searchable &config)
     //ROS2 configuration
     if(config.check("getmap")) m_getMapName = config.find("getmap").asString();
     if(config.check("getmapbyname")) m_getMapByNameName = config.find("getmapbyname").asString();
+    if(config.check("getlocbyname")) m_getLocByNameName = config.find("getlocbyname").asString();
     if(config.check("roscmdparser")) m_rosCmdParserName = config.find("roscmdparser").asString();
     if(config.check("markers_pub")) m_markersName = config.find("markers_pub").asString();
     if (!config.check("node_name")) {
@@ -128,6 +132,8 @@ bool Map2D_nws_ros2::open(yarp::os::Searchable &config)
                                                                                        std::bind(&Map2D_nws_ros2::getMapCallback,this,_1,_2,_3),qos );
     m_ros2Service_getMapByName = m_node->create_service<map2d_nws_ros2_msgs::srv::GetMapByName>(m_getMapByNameName,
                                                                                                               std::bind(&Map2D_nws_ros2::getMapByNameCallback,this,_1,_2,_3));
+    m_ros2Service_getLocByName = m_node->create_service<map2d_nws_ros2_msgs::srv::GetLocationByName>(m_getLocByNameName,
+                                                                                                              std::bind(&Map2D_nws_ros2::getLocByNameCallback,this,_1,_2,_3));
     m_ros2Service_rosCmdParser = m_node->create_service<test_msgs::srv::BasicTypes>(m_rosCmdParserName,
                                                                                                   std::bind(&Map2D_nws_ros2::rosCmdParserCallback,this,_1,_2,_3));
 
@@ -141,11 +147,11 @@ bool Map2D_nws_ros2::open(yarp::os::Searchable &config)
 void Map2D_nws_ros2::run()
 {
 
-//    if(!m_spinned)  //This is just a temporary solution.
-//    {
-//        rclcpp::spin(m_node);
-//        m_spinned = true;
-//    }
+   if(!m_spinned)  //This is just a temporary solution.
+   {
+       rclcpp::spin(m_node);
+       m_spinned = true;
+   }
 }
 
 bool Map2D_nws_ros2::close()
@@ -315,7 +321,6 @@ void Map2D_nws_ros2::getMapByNameCallback(const std::shared_ptr<rmw_request_id_t
     mapToGo.info.height = theMap.height();
     mapToGo.info.width = theMap.width();
 
-    double DEG2RAD = M_PI/180.0;
     double tmp=0;
     theMap.getResolution(tmp);
     mapToGo.info.resolution=tmp;
@@ -356,4 +361,41 @@ void Map2D_nws_ros2::getMapByNameCallback(const std::shared_ptr<rmw_request_id_t
     {
         m_ros2Publisher_map->publish(mapToGo);
     }
+}
+
+void Map2D_nws_ros2::getLocByNameCallback(const std::shared_ptr<rmw_request_id_t> request_header,
+                              const std::shared_ptr<map2d_nws_ros2_msgs::srv::GetLocationByName::Request> request,
+                              std::shared_ptr<map2d_nws_ros2_msgs::srv::GetLocationByName::Response> response)
+{
+    YARP_UNUSED(request_header);
+    YARP_UNUSED(response);
+
+    yarp::dev::Nav2D::Map2DLocation loc;
+    geometry_msgs::msg::Pose locPose;
+    if(!m_iMap2D->getLocation(request->name, loc))
+    {
+        yCError(MAP2D_NWS_ROS2) << "Unable to retrieve the requested location";
+        response->pose = locPose;
+        response->ok = false;
+
+        return;
+    }
+    geometry_msgs::msg::Pose goal_pose;
+    goal_pose.position.x = loc.x;
+    goal_pose.position.y = loc.y;
+    goal_pose.position.z = 0;
+    yarp::math::Quaternion q;
+    yarp::sig::Vector v(4);
+    v[0] = 0;
+    v[1] = 0;
+    v[2] = 1;
+    v[3] = loc.theta * DEG2RAD;
+    q.fromAxisAngle(v);
+    goal_pose.orientation.x = q.x();
+    goal_pose.orientation.y = q.y();
+    goal_pose.orientation.z = q.z();
+    goal_pose.orientation.w = q.w();
+
+    response->pose = goal_pose;
+    response->ok = true;
 }
