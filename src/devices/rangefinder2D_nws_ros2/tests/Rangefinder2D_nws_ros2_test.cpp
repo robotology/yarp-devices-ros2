@@ -56,6 +56,7 @@ TEST_CASE("dev::Rangefinder2D_nws_ros2_test", "[yarp::dev]")
         {
             Property pcfg_fake;
             pcfg_fake.put("device", "fakeLaser");
+            pcfg_fake.put("test", "use_pattern");
             REQUIRE(ddfake.open(pcfg_fake));
         }
 
