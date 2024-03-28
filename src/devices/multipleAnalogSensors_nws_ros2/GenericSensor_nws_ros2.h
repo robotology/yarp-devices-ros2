@@ -49,9 +49,9 @@ protected:
     double            m_periodInS{0.01};
     std::string       m_publisherName;
     std::string       m_rosNodeName;
-    rclcpp::Node::SharedPtr m_node;
-    typename rclcpp::Publisher<ROS_MSG>::SharedPtr m_publisher;
-    yarp::dev::PolyDriver* m_poly;
+    rclcpp::Node::SharedPtr m_node=nullptr;
+    typename rclcpp::Publisher<ROS_MSG>::SharedPtr m_publisher=nullptr;
+    yarp::dev::PolyDriver* m_poly=nullptr;
     double                 m_timestamp;
     std::string            m_framename;
     const size_t           m_sens_index = 0;
@@ -81,9 +81,6 @@ template <class ROS_MSG>
 GenericSensor_nws_ros2<ROS_MSG>::GenericSensor_nws_ros2() :
     PeriodicThread(0.02)
 {
-    m_node = nullptr;
-    m_publisher=nullptr;
-    m_poly = nullptr;
     m_timestamp=0;
 }
 
@@ -188,10 +185,20 @@ bool GenericSensor_nws_ros2<ROS_MSG>::attachAll(const yarp::dev::PolyDriverList 
 
     // View all the interfaces
     bool ok = viewInterfaces();
+    if (!ok)
+    {
+        yCError(GENERICSENSOR_NWS_ROS2, "viewInterfaces failed.");
+        return false;
+    }
 
     // Set rate period
     ok &= this->setPeriod(m_periodInS);
     ok &= this->start();
+    if (!ok)
+    {
+        yCError(GENERICSENSOR_NWS_ROS2, "thread->start() failed.");
+        return false;
+    }
 
     return ok;
 }

@@ -8,6 +8,7 @@
 
 #include "GenericSensor_nws_ros2.h"
 #include <sensor_msgs/msg/imu.hpp>
+#include <sensor_msgs/msg/magnetic_field.hpp>
 
 /**
  * @ingroup dev_impl_wrapper
@@ -46,6 +47,9 @@ public:
 
 protected:
     bool viewInterfaces() override;
+
+private:
+    rclcpp::Publisher<sensor_msgs::msg::MagneticField>::SharedPtr m_publisher_mag=nullptr;
 };
 
 #endif // YARP_DEV_IMU_NWS_ROS2_H
