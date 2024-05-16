@@ -57,7 +57,7 @@
  *  Parameters required by this device are:
  * | Parameter name | SubParameter  | Type    | Units   |     Default Value     | Required    | Description                                                   |                                           Notes                                                 |
  * |:--------------:|:-------------:|:-------:|:-------:|:---------------------:|:----------: |:-------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------:|
- * | name           |      -        | string  | -       | map2D_nws_ros         | No          | Device name prefix                                            |                                                                                                 |
+ * | name           |      -        | string  | -       | map2D_nws_ros2        | No          | Device name prefix                                            |                                                                                                 |
  * | getmap         |      -        | string  | -       | getMap                | No          | The "GetMap" ROS service name                                 |               For the moment being the service always responds with an empty map                |
  * | getmapbyname   |      -        | string  | -       | getMapByName          | No          | The "GetMapByName" ROS2  custom service name                  | The map returned by this service is also available via publisher named "getmapbyname value"/pub |
  * | roscmdparser   |      -        | string  | -       | rosCmdParser          | No          | The "BasicTypes" ROS service name                             |             This is used to send commands to the nws via ros2 BasicTypes service                |
@@ -108,7 +108,7 @@ private:
     yarp::dev::PolyDriver        m_drv;
 
     std::mutex                   m_mutex;
-    std::string                  m_name{"map2D_nws_ros"};
+    std::string                  m_name{"map2D_nws_ros2"};
     std::string                  m_rpcPortName;
     std::string                  m_rosCmdParserName{"rosCmdParser"};
     std::string                  m_getMapName{"getMap"};
