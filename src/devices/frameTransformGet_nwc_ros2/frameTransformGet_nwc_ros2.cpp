@@ -25,39 +25,17 @@ bool FrameTransformGet_nwc_ros2::open(yarp::os::Searchable& config)
         yCError(FRAMETRANSFORGETNWCROS2,"Error! YARP Network is not initialized");
         return false;
     }
+    parseParams(config);
 
-    bool okGeneral = config.check("GENERAL");
-    if(okGeneral)
-    {
-        yarp::os::Searchable& general_config = config.findGroup("GENERAL");
-        if (general_config.check("refresh_interval"))  {m_refreshInterval = general_config.find("refresh_interval").asFloat64();}
-    }
-
-    m_ftContainer.m_timeout = m_refreshInterval;
-
-    //ROS2 configuration
-    if (config.check("ROS2"))
-    {
-        yCInfo(FRAMETRANSFORGETNWCROS2, "Configuring ROS2 params");
-        Bottle ROS2_config = config.findGroup("ROS2");
-        if(ROS2_config.check("ft_node")) m_ftNodeName = ROS2_config.find("ft_node").asString();
-        if(ROS2_config.check("ft_topic")) m_ftTopic = ROS2_config.find("ft_topic").asString();
-        if(ROS2_config.check("ft_topic_static")) m_ftTopicStatic = ROS2_config.find("ft_topic_static").asString();
-    }
-    else
-    {
-        //no ROS2 options
-        yCWarning(FRAMETRANSFORGETNWCROS2) << "ROS2 Group not configured";
-    }
-
-    m_node = NodeCreator::createNode(m_ftNodeName);
-    m_subscriptionFtTimed = m_node->create_subscription<tf2_msgs::msg::TFMessage>(m_ftTopic, 10,
+    m_ftContainer.m_timeout = m_GENERAL_refresh_interval;
+    m_node = NodeCreator::createNode(m_ROS2_ft_node);
+    m_subscriptionFtTimed = m_node->create_subscription<tf2_msgs::msg::TFMessage>(m_ROS2_ft_topic, 10,
                                                                                   std::bind(&FrameTransformGet_nwc_ros2::frameTransformTimedGet_callback,
                                                                                   this, _1));
 
     rclcpp::QoS qos(10);
     qos = qos.transient_local(); // This line and the previous are needed to reestablish the "latched" behaviour for the subscriptio
-    m_subscriptionFtStatic = m_node->create_subscription<tf2_msgs::msg::TFMessage>(m_ftTopicStatic, qos,
+    m_subscriptionFtStatic = m_node->create_subscription<tf2_msgs::msg::TFMessage>(m_ROS2_ft_topic_static, qos,
                                                                                    std::bind(&FrameTransformGet_nwc_ros2::frameTransformStaticGet_callback,
                                                                                    this, _1));
 

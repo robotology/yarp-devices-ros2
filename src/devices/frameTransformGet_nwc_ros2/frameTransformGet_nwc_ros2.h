@@ -24,6 +24,7 @@
 #include <Ros2Utils.h>
 #include <mutex>
 #include <map>
+#include "FrameTransformGet_nwc_ros2_ParamsParser.h"
 
 #define ROS2NODENAME "tfNodeGet"
 #define ROS2TOPICNAME_TF "/tf"
@@ -38,16 +39,8 @@
  *
  * \section FrameTransformGet_nwc_ros2_device_parameters Parameters
  *
- *   Parameters required by this device are:
- * | Parameter name | SubParameter         | Type    | Units          | Default Value         | Required     | Description                                    -------            |
- * |:--------------:|:--------------------:|:-------:|:--------------:|:---------------------:|:-----------: |:-----------------------------------------------------------------:|
- * | GENERAL        |      -               | group   | -              | -                     | No           |                                                                   |
- * | -              | refresh_interval     | double  | seconds        | 0.1                   | No           | The time interval outside which timed ft will be deleted          |
- * | ROS2           |      -               | group   | -              | -                     | No           |                                                                   |
- * | -              | ft_node              | string  | -              | /tfNodeGet            | No           | The name of the ROS2 node                                              |
- * | -              | ft_topic             | string  | -              | /tf                   | No           | The name of the ROS2 topic from which fts will be received        |
- * | -              | ft_topic_static      | string  | -              | /tf_static            | No           | The name of the ROS2 topic from which static fts will be received |
-
+ *   Parameters required by this device are shown in class: FrameTransformGet_nwc_ros2_ParamsParser
+ *
  * **N.B.** pay attention to the difference between **tf** and **ft**
  *
  * \section FrameTransformGet_nwc_ros2_device_example Example of configuration file using .ini format.
@@ -67,7 +60,8 @@
 
 class FrameTransformGet_nwc_ros2 :
     public yarp::dev::DeviceDriver,
-    public yarp::dev::IFrameTransformStorageGet
+    public yarp::dev::IFrameTransformStorageGet,
+    FrameTransformGet_nwc_ros2_ParamsParser
 {
 public:
     ~FrameTransformGet_nwc_ros2()=default;
@@ -93,10 +87,6 @@ public:
 
 private:
     mutable std::mutex                                                    m_trf_mutex;
-    std::string                                                           m_ftNodeName{ROS2NODENAME};
-    std::string                                                           m_ftTopic{ROS2TOPICNAME_TF};
-    std::string                                                           m_ftTopicStatic{ROS2TOPICNAME_TF_STATIC};
-    double                                                                m_refreshInterval{0.1};
     rclcpp::Subscription<tf2_msgs::msg::TFMessage>::SharedPtr             m_subscriptionFtTimed;
     rclcpp::Subscription<tf2_msgs::msg::TFMessage>::SharedPtr             m_subscriptionFtStatic;
     rclcpp::Node::SharedPtr                                               m_node;
