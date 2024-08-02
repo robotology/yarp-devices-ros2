@@ -11,6 +11,7 @@
 #include <yarp/dev/DeviceDriver.h>
 #include <yarp/os/PeriodicThread.h>
 #include <yarp/os/Stamp.h>
+#include "Localization2D_nws_ros2_ParamsParser.h"
 
 #include <rclcpp/rclcpp.hpp>
 #include <tf2_msgs/msg/tf_message.hpp>
@@ -24,13 +25,16 @@
  *
  * \brief `Localization2D_nws_ros2`:  A localization server which can be wrap multiple algorithms and devices to provide robot localization in a 2D World.
  *
+ * Parameters required by this device are shown in class: Localization2D_nws_ros2_ParamsParser
+ *
  *  Documentation to be added
  *
  */
 class Localization2D_nws_ros2 :
         public yarp::dev::DeviceDriver,
         public yarp::os::PeriodicThread,
-        public yarp::dev::WrapperSingle
+        public yarp::dev::WrapperSingle,
+        Localization2D_nws_ros2_ParamsParser
 {
 public:
     Localization2D_nws_ros2();
@@ -62,15 +66,11 @@ private:
     rclcpp::Publisher<tf2_msgs::msg::TFMessage>::SharedPtr  m_publisher_tf;
     bool m_isDeviceOwned = false;
 
-    std::string m_nodeName;
-    std::string m_child_frame_id;
-    std::string m_parent_frame_id;
     std::string m_robot_frame;
     std::string m_fixed_frame;
 
 
     double                                  m_stats_time_last;
-    double                                  m_period;
     yarp::os::Stamp                         m_loc_stamp;
     yarp::os::Stamp                         m_odom_stamp;
 
