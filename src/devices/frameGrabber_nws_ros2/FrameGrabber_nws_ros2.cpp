@@ -87,60 +87,15 @@ bool FrameGrabber_nws_ros2::open(yarp::os::Searchable& config)
         yCError(FRAMEGRABBER_NWS_ROS2, "Device is already opened");
         return false;
     }
+    parseParams(config);
 
-
-    // Check "period" option
-    if (config.check("period", "refresh period(in s) of the broadcasted values through yarp ports") && config.find("period").isFloat64()) {
-        m_period = config.find("period").asFloat64();
-    } else {
-        yCInfo(FRAMEGRABBER_NWS_ROS2)
-            << "Period parameter not found, using default of"
-            << s_default_period
-            << "seconds";
-    }
-    PeriodicThread::setPeriod(m_period);
-
-
-    // Check "node_name" option and open node
-    if (!config.check("node_name"))
-    {
-        yCError(FRAMEGRABBER_NWS_ROS2) << "Missing node_name parameter";
-        return false;
-    }
-    m_nodeName = config.find("node_name").asString();
-    if (m_nodeName.c_str()[0] == '/') {
-        yCError(FRAMEGRABBER_NWS_ROS2) << "node name cannot begin with /";
-        return false;
-    }
-
-
-    // Check "topic_name" option and open publisher
-    if (!config.check("topic_name"))
-    {
-        yCError(FRAMEGRABBER_NWS_ROS2) << "Missing topic_name parameter";
-        return false;
-    }
-    std::string topicName = config.find("topic_name").asString();
-    if (topicName.c_str()[0] != '/') {
-        yCError(FRAMEGRABBER_NWS_ROS2) << "Missing '/' in topic_name parameter";
-        return false;
-    }
-    m_node = NodeCreator::createNode(m_nodeName);
-    publisher_image = m_node->create_publisher<sensor_msgs::msg::Image>(topicName, 10);
+    m_node = NodeCreator::createNode(m_node_name);
+    publisher_image = m_node->create_publisher<sensor_msgs::msg::Image>(m_topic_name, 10);
 
 
     // set "cameraInfoTopicName" and open publisher
-    std::string cameraInfoTopicName = topicName.substr(0,topicName.rfind('/')) + "/camera_info";
+    std::string cameraInfoTopicName = m_topic_name.substr(0,m_topic_name.rfind('/')) + "/camera_info";
     publisher_cameraInfo = m_node->create_publisher<sensor_msgs::msg::CameraInfo>(cameraInfoTopicName, 10);
-
-
-    // Check "frame_id" option
-    if (!config.check("frame_id"))
-    {
-        yCError(FRAMEGRABBER_NWS_ROS2) << "Missing frame_id parameter";
-        return false;
-    }
-    m_frameId = config.find("frame_id").asString();
 
     yCInfo(FRAMEGRABBER_NWS_ROS2) << "Running, waiting for attach...";
 
@@ -155,6 +110,8 @@ bool FrameGrabber_nws_ros2::attach(yarp::dev::PolyDriver* poly)
         yCError(FRAMEGRABBER_NWS_ROS2) << "Device " << poly << " to attach to is not valid ... cannot proceed";
         return false;
     }
+
+    PeriodicThread::setPeriod(m_period);
 
     poly->view(iRgbVisualParams);
     poly->view(iFrameGrabberImage);
@@ -223,7 +180,7 @@ void FrameGrabber_nws_ros2::run()
             rosimg.height = yarpimg->height();
             rosimg.encoding = yarp2RosPixelCode(yarpimg->getPixelCode());
             rosimg.step = yarpimg->getRowSize();
-            rosimg.header.frame_id = m_frameId;
+            rosimg.header.frame_id = m_frame_id;
     //         rosimg.header.stamp.sec = static_cast<int>(m_stamp.getTime()); // FIXME
     //         rosimg.header.stamp.nanosec = static_cast<int>(1000000000UL * (m_stamp.getTime() - int(m_stamp.getTime()))); // FIXME
             rosimg.is_bigendian = 0;
@@ -317,7 +274,7 @@ bool FrameGrabber_nws_ros2::setCamInfo(sensor_msgs::msg::CameraInfo& cameraInfo)
         *(par.var) = camData.find(par.parname).asFloat64();
     }
 
-    cameraInfo.header.frame_id      = m_frameId;
+    cameraInfo.header.frame_id      = m_frame_id;
 //     cameraInfo.header.stamp.sec     = static_cast<int>(m_stamp.getTime()); // FIXME
 //     cameraInfo.header.stamp.nanosec = static_cast<int>(1000000000UL * (m_stamp.getTime() - int(m_stamp.getTime()))); // FIXME
     cameraInfo.width                = iRgbVisualParams->getRgbWidth();
