@@ -71,53 +71,9 @@ bool ControlBoard_nws_ros2::close()
 
 bool ControlBoard_nws_ros2::open(Searchable& config)
 {
-    Property prop;
-    prop.fromString(config.toString());
-
-    // Check parameter, so if both are present we use the correct one
-    if (prop.check("period")) {
-        if (!prop.find("period").isFloat64()) {
-            yCError(CONTROLBOARD_ROS2) << "'period' parameter is not a double value";
-            return false;
-        }
-        m_period = prop.find("period").asFloat64();
-        if (m_period <= 0) {
-            yCError(CONTROLBOARD_ROS2) << "'period' parameter is not valid, read value is" << m_period;
-            return false;
-        }
-    } else {
-        yCDebug(CONTROLBOARD_ROS2) << "'period' parameter missing, using default thread period = 0.02s";
-        m_period = m_default_period;
-    }
-
-    // check for node_name parameter
-    if (!config.check("node_name")) {
-        yCError(CONTROLBOARD_ROS2) << " cannot find node_name parameter";
-        return false;
-    }
-    m_nodeName = config.find("node_name").asString();
-    if(m_nodeName[0] == '/'){
-        yCError(CONTROLBOARD_ROS2) << "node_name cannot have an initial /";
-        return false;
-    }
-    // check for topic_name parameter
-    if (!config.check("topic_name")) {
-        yCError(CONTROLBOARD_ROS2) << " cannot find topic_name parameter";
-        return false;
-    }
-    m_jointStateTopicName = config.find("topic_name").asString();
-    if(m_jointStateTopicName[0] != '/'){
-        yCError(CONTROLBOARD_ROS2) << "topic_name must begin with an initial /";
-        return false;
-    }
-    yCInfo(CONTROLBOARD_ROS2) << "topic_name is " << m_jointStateTopicName;
-
-    m_node = NodeCreator::createNode(m_nodeName);
-    m_publisher = m_node->create_publisher<sensor_msgs::msg::JointState>(m_jointStateTopicName, 10);
-
-    if (config.check("msgs_name")) {
-        m_msgs_name = config.find("msgs_name").asString();
-    }
+    parseParams(config);
+    m_node = NodeCreator::createNode(m_node_name);
+    m_publisher = m_node->create_publisher<sensor_msgs::msg::JointState>(m_topic_name, 10);
 
     return true;
 }
@@ -282,49 +238,49 @@ bool ControlBoard_nws_ros2::setDevice(yarp::dev::DeviceDriver* driver)
 
     m_subdevice_ptr->view(m_iPositionControl);
     if (!m_iPositionControl) {
-        yCError(CONTROLBOARD_ROS2, "<%s - %s>: IPositionControl interface was not found in attached device.",  m_nodeName.c_str(), m_jointStateTopicName.c_str());
+        yCError(CONTROLBOARD_ROS2, "<%s - %s>: IPositionControl interface was not found in attached device.",  m_node_name.c_str(), m_topic_name.c_str());
     }
 
     m_subdevice_ptr->view(m_iPositionDirect);
     if (!m_iPositionDirect) {
-        yCError(CONTROLBOARD_ROS2, "<%s - %s>: IPositionDirect interface was not found in attached device.",  m_nodeName.c_str(), m_posTopicName.c_str());
+        yCError(CONTROLBOARD_ROS2, "<%s - %s>: IPositionDirect interface was not found in attached device.",  m_node_name.c_str(), m_posTopicName.c_str());
     }
 
     m_subdevice_ptr->view(m_iVelocityControl);
     if (!m_iVelocityControl) {
-        yCError(CONTROLBOARD_ROS2, "<%s - %s>: IVelocityControl interface was not found in attached device.",  m_nodeName.c_str(), m_posTopicName.c_str());
+        yCError(CONTROLBOARD_ROS2, "<%s - %s>: IVelocityControl interface was not found in attached device.",  m_node_name.c_str(), m_posTopicName.c_str());
     }
 
     m_subdevice_ptr->view(m_iControlMode);
     if (!m_iControlMode) {
-        yCError(CONTROLBOARD_ROS2, "<%s - %s>: IControlMode interface was not found in attached device.",  m_nodeName.c_str(), m_posTopicName.c_str());
+        yCError(CONTROLBOARD_ROS2, "<%s - %s>: IControlMode interface was not found in attached device.",  m_node_name.c_str(), m_posTopicName.c_str());
     }
 
     m_subdevice_ptr->view(m_iEncodersTimed);
     if (!m_iEncodersTimed) {
-        yCError(CONTROLBOARD_ROS2, "<%s - %s>: IEncodersTimed interface was not found in attached device. Quitting",  m_nodeName.c_str(), m_jointStateTopicName.c_str());
+        yCError(CONTROLBOARD_ROS2, "<%s - %s>: IEncodersTimed interface was not found in attached device. Quitting",  m_node_name.c_str(), m_topic_name.c_str());
         return false;
     }
 
     m_subdevice_ptr->view(m_iTorqueControl);
     if (!m_iTorqueControl) {
-        yCWarning(CONTROLBOARD_ROS2, "<%s - %s>: ITorqueControl interface was not found in attached device.",  m_nodeName.c_str(), m_jointStateTopicName.c_str());
+        yCWarning(CONTROLBOARD_ROS2, "<%s - %s>: ITorqueControl interface was not found in attached device.",  m_node_name.c_str(), m_topic_name.c_str());
     }
 
     m_subdevice_ptr->view(m_iAxisInfo);
     if (!m_iAxisInfo) {
-        yCError(CONTROLBOARD_ROS2, "<%s - %s>: IAxisInfo interface was not found in attached device. Quitting",  m_nodeName.c_str(), m_jointStateTopicName.c_str());
+        yCError(CONTROLBOARD_ROS2, "<%s - %s>: IAxisInfo interface was not found in attached device. Quitting",  m_node_name.c_str(), m_topic_name.c_str());
         return false;
     }
 
     // Get the number of controlled joints
     int tmp_axes;
     if (!m_iEncodersTimed->getAxes(&tmp_axes)) {
-        yCError(CONTROLBOARD_ROS2, "<%s - %s>: Failed to get axes number for attached device ",  m_nodeName.c_str(), m_jointStateTopicName.c_str());
+        yCError(CONTROLBOARD_ROS2, "<%s - %s>: Failed to get axes number for attached device ",  m_node_name.c_str(), m_topic_name.c_str());
         return false;
     }
     if (tmp_axes <= 0) {
-        yCError(CONTROLBOARD_ROS2, "<%s - %s>: attached device has an invalid number of joints (%d)",  m_nodeName.c_str(), m_jointStateTopicName.c_str(), tmp_axes);
+        yCError(CONTROLBOARD_ROS2, "<%s - %s>: attached device has an invalid number of joints (%d)",  m_node_name.c_str(), m_topic_name.c_str(), tmp_axes);
         return false;
     }
     m_subdevice_joints = static_cast<size_t>(tmp_axes);

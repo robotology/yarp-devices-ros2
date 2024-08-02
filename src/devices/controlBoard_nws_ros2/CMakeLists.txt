@@ -13,6 +13,7 @@ yarp_prepare_plugin(
 
 if(NOT SKIP_controlBoard_nws_ros2)
   yarp_add_plugin(yarp_controlBoard_nws_ros2)
+  generateDeviceParamsParser(ControlBoard_nws_ros2 controlBoard_nws_ros2)
 
   target_compile_definitions(yarp_controlBoard_nws_ros2
     PRIVATE
@@ -25,6 +26,8 @@ if(NOT SKIP_controlBoard_nws_ros2)
       ControlBoard_nws_ros2.cpp
       ControlBoard_nws_ros2_callbacks.cpp
       ControlBoard_nws_ros2.h
+      ControlBoard_nws_ros2_ParamsParser.h
+      ControlBoard_nws_ros2_ParamsParser.cpp
   )
   target_sources(yarp_controlBoard_nws_ros2 PRIVATE $<TARGET_OBJECTS:Ros2Utils>)
 
