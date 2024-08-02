@@ -10,11 +10,14 @@ yarp_prepare_plugin(frameTransformSet_nwc_ros2
 
 if(NOT SKIP_frameTransformGet_nwc_ros2)
   yarp_add_plugin(yarp_frameTransformSet_nwc_ros2)
+  generateDeviceParamsParser(FrameTransformSet_nwc_ros2 frameTransformSet_nwc_ros2)
 
   target_sources(yarp_frameTransformSet_nwc_ros2
     PRIVATE
       frameTransformSet_nwc_ros2.cpp
       frameTransformSet_nwc_ros2.h
+      FrameTransformSet_nwc_ros2_ParamsParser.h
+      FrameTransformSet_nwc_ros2_ParamsParser.cpp
   )
 
   target_include_directories(yarp_frameTransformSet_nwc_ros2
