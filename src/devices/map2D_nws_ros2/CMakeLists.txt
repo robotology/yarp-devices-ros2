@@ -18,11 +18,14 @@ yarp_prepare_plugin(map2D_nws_ros2
 
 if(NOT SKIP_map2D_nws_ros2)
   yarp_add_plugin(yarp_map2D_nws_ros2)
+  generateDeviceParamsParser(Map2D_nws_ros2 map2D_nws_ros2)
 
   target_sources(yarp_map2D_nws_ros2
     PRIVATE
       Map2D_nws_ros2.cpp
       Map2D_nws_ros2.h
+      Map2D_nws_ros2_ParamsParser.h
+      Map2D_nws_ros2_ParamsParser.cpp
   )
 
   target_sources(yarp_localization2D_nws_ros2 PRIVATE $<TARGET_OBJECTS:Ros2Utils>)
