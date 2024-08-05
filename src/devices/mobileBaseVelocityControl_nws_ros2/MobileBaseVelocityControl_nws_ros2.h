@@ -17,6 +17,7 @@
 #include <yarp/dev/WrapperSingle.h>
 #include <geometry_msgs/msg/twist.hpp>
 #include <rclcpp/rclcpp.hpp>
+#include "MobileBaseVelocityControl_nws_ros2_ParamsParser.h"
 
 #include <mutex>
 #include <string>
@@ -39,16 +40,14 @@ public:
   * \brief `MobileBaseVelocityControl_nws_ros2`: A device which allows a client application to control the velocity of a mobile base from ros2.
   * The device opens a topic of type `::geometry_msgs::msg::Twist` to receive user commands
   *
-  *  Parameters required by this device are:
-  * | Parameter name | SubParameter   | Type    | Units          | Default Value                  | Required     | Description                                                       | Notes |
-  * |:--------------:|:--------------:|:-------:|:--------------:|:------------------------------:|:------------:|:-----------------------------------------------------------------:|:-----:|
-  * | node_name      |      -         | string  | -              | -                              | Yes           | Full name of the opened ros2 node                                |       |
-  * | topic_name     |     -          | string  | -              | -                              | Yes           | Full name of the opened ros2 topic                               |       |
+  *  Parameters required by this device are shown in class: MobileBaseVelocityControl_nws_ros2_ParamsParser
+  * The device is a wrapper for the INavigation2DVelocityActions interface.
   */
 
 class MobileBaseVelocityControl_nws_ros2 :
     public yarp::dev::DeviceDriver,
-    public yarp::dev::WrapperSingle
+    public yarp::dev::WrapperSingle,
+    MobileBaseVelocityControl_nws_ros2_ParamsParser
 {
 
 public:
@@ -65,8 +64,6 @@ private:
     // Spinner
     Ros2Spinner*                  m_spinner{nullptr};
 
-    std::string                   m_node_name = "/mobileBase_VelControl_nws_ros2";
-    std::string                   m_topic_name = "/velocity_input";
     rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr m_ros2_subscriber;
     rclcpp::Node::SharedPtr m_node;
     yarp::dev::Nav2D::INavigation2DVelocityActions* m_iNavVel = nullptr;
