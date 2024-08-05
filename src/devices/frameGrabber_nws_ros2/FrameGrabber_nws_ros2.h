@@ -19,6 +19,7 @@
 #include <yarp/dev/IPreciselyTimed.h>
 #include <yarp/dev/IRgbVisualParams.h>
 #include <yarp/dev/WrapperSingle.h>
+#include "FrameGrabber_nws_ros2_ParamsParser.h"
 
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/image.hpp>
@@ -35,7 +36,8 @@
 class FrameGrabber_nws_ros2 :
         public yarp::dev::DeviceDriver,
         public yarp::dev::WrapperSingle,
-        public yarp::os::PeriodicThread
+        public yarp::os::PeriodicThread,
+        FrameGrabber_nws_ros2_ParamsParser
 {
 private:
     // Publishers
@@ -57,8 +59,6 @@ private:
     // Internal state
     bool m_active {false};
     yarp::os::Stamp m_stamp;
-    std::string m_frameId;
-    std::string m_nodeName;
 
     // Options
     static constexpr double s_default_period = 0.03; // seconds

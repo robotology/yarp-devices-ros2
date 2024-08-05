@@ -41,6 +41,7 @@
 #include <yarp_control_msgs/msg/position.hpp>
 #include <yarp_control_msgs/msg/velocity.hpp>
 #include <yarp_control_msgs/msg/position_direct.hpp>
+#include "ControlBoard_nws_ros2_ParamsParser.h"
 
 #include <mutex>
 
@@ -53,13 +54,7 @@
  *
  * \section controlBoard_nws_ros_device_parameters Description of input parameters
  *
- *  Parameters required by this device are:
- * | Parameter name | SubParameter   | Type    | Units          | Default Value | Required                    | Description                                                       | Notes |
- * |:--------------:|:--------------:|:-------:|:--------------:|:-------------:|:--------------------------: |:-----------------------------------------------------------------:|:-----:|
- * | node_name      |      -         | string  | -              |   -           | Yes                         | set the name for ROS node                                         | must not start with a leading '/' |
- * | topic_name     |      -         | string  | -              |   -           | Yes                         | set the name for ROS topic                                        | must start with a leading '/' |
- * | msgs_name      |      -         | string  | -              |   -           | No                          | set the base name for the topics and interfaces                   | If it is not specified, the control related topics and services will not be initialized |
- * | period         |      -         | double  | s              |   0.02        | No                          | refresh period of the broadcasted values in s                     | optional, default 20ms |
+ *  Parameters required by this device are shown in class: ControlBoard_nws_ros2_ParamsParser
  *
  * ROS message type used is sensor_msgs/JointState.msg (http://docs.ros.org/api/sensor_msgs/html/msg/JointState.html)
  */
@@ -67,7 +62,8 @@
 class ControlBoard_nws_ros2 :
         public yarp::dev::DeviceDriver,
         public yarp::os::PeriodicThread,
-        public yarp::dev::WrapperSingle
+        public yarp::dev::WrapperSingle,
+        ControlBoard_nws_ros2_ParamsParser
 {
 private:
     sensor_msgs::msg::JointState m_ros_struct;
@@ -100,7 +96,6 @@ private:
     rclcpp::Node::SharedPtr m_node;
 
     static constexpr double m_default_period = 0.02; // s
-    double m_period {m_default_period};
 
     yarp::os::Stamp m_time; // envelope to attach to the state port
 

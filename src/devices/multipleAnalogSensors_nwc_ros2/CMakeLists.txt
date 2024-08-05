@@ -11,12 +11,15 @@ yarp_prepare_plugin(imu_nwc_ros2
 
 if(ENABLE_imu_nwc_ros2)
   yarp_add_plugin(yarp_imu_nwc_ros2)
+  generateDeviceParamsParser(GenericSensor_nwc_ros2 genericSensor_nwc_ros2)
 
   target_sources(yarp_imu_nwc_ros2
     PRIVATE
       Imu_nwc_ros2.cpp
       Imu_nwc_ros2.h
       GenericSensor_nwc_ros2.h
+      GenericSensor_nwc_ros2_ParamsParser.h
+      GenericSensor_nwc_ros2_ParamsParser.cpp
   )
 
   target_link_libraries(yarp_imu_nwc_ros2

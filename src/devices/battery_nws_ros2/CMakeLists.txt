@@ -10,11 +10,14 @@ yarp_prepare_plugin(battery_nws_ros2
 
 if(NOT SKIP_battery_nws_ros2)
   yarp_add_plugin(yarp_battery_nws_ros2)
+  generateDeviceParamsParser(Battery_nws_ros2 battery_nws_ros2)
 
   target_sources(yarp_battery_nws_ros2
     PRIVATE
       Battery_nws_ros2.cpp
       Battery_nws_ros2.h
+      Battery_nws_ros2_ParamsParser.h
+      Battery_nws_ros2_ParamsParser.cpp
   )
   target_sources(yarp_battery_nws_ros2 PRIVATE $<TARGET_OBJECTS:Ros2Utils>)
 
