@@ -25,6 +25,9 @@ cmake -S. -Bbuild -DCMAKE_INSTALL_PREFIX=<install_prefix>
 cmake --build build
 cmake --build build --target install
 
+# Make YARP devices available
+export YARP_DATA_DIRS=$YARP_DATA_DIRS:<install_prefix>/share/yarp
+
 # Make ROS msgs available in [ament index](https://github.com/ament/ament_index)
 export AMENT_PREFIX_PATH=$AMENT_PREFIX_PATH:<install_prefix>
 ~~~
@@ -43,6 +46,9 @@ export AMENT_PREFIX_PATH=$AMENT_PREFIX_PATH:<install_prefix>
 cmake -S. -Bbuild -DYARP_ROS2_USE_SYSTEM_map2d_nws_ros2_msgs:BOOL=ON -DYARP_ROS2_USE_SYSTEM_yarp_control_msgs:BOOL=ON -DCMAKE_INSTALL_PREFIX=<install_prefix>
 cmake --build build
 cmake --build build --target install
+
+# Make YARP devices available
+export YARP_DATA_DIRS=$YARP_DATA_DIRS:<install_prefix>/share/yarp
 ~~~
 
 CI Status
