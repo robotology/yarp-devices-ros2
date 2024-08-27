@@ -67,20 +67,11 @@ bool Map2D_nws_ros2::detach()
 
 bool Map2D_nws_ros2::open(yarp::os::Searchable &config)
 {
-    Property params;
-    params.fromString(config.toString());
+    parseParams(config);
 
-    if (!config.check("name"))
-    {
-        yCWarning(MAP2D_NWS_ROS2) << "Missing name parameter. Using:" << m_name;
-    }
-    else
-    {
-        m_name = config.find("name").asString();
-        if(m_name[0] == '/'){
-            yCError(MAP2D_NWS_ROS2) << "Nws name parameter cannot begin with an initial /";
-            return false;
-        }
+    if(m_name[0] == '/'){
+        yCError(MAP2D_NWS_ROS2) << "Nws name parameter cannot begin with an initial /";
+        return false;
     }
 
     m_rpcPortName = "/"+m_name+"/rpc";
@@ -94,23 +85,11 @@ bool Map2D_nws_ros2::open(yarp::os::Searchable &config)
     m_rpcPort.setReader(*this);
 
     //ROS2 configuration
-    if(config.check("getmap")) m_getMapName = config.find("getmap").asString();
-    if(config.check("getmapbyname")) m_getMapByNameName = config.find("getmapbyname").asString();
-    if(config.check("roscmdparser")) m_rosCmdParserName = config.find("roscmdparser").asString();
-    if(config.check("markers_pub")) m_markersName = config.find("markers_pub").asString();
-    if (!config.check("node_name")) {
-        yCWarning(MAP2D_NWS_ROS2) << "Missing node_name parameter. Using:" << m_name;
-        m_nodeName = m_name;
-    }
-    else
-    {
-        m_nodeName = config.find("node_name").asString();
-    }
-    if(m_nodeName[0] == '/'){
+    if(m_node_name[0] == '/'){
         yCError(MAP2D_NWS_ROS2) << "node_name cannot begin with an initial /";
         return false;
     }
-    m_node = NodeCreator::createNode(m_nodeName);
+    m_node = NodeCreator::createNode(m_node_name);
     rmw_qos_profile_t qos;
     qos.history = RMW_QOS_POLICY_HISTORY_SYSTEM_DEFAULT;
     qos.depth=10;
@@ -124,11 +103,11 @@ bool Map2D_nws_ros2::open(yarp::os::Searchable &config)
     qos.durability = RMW_QOS_POLICY_DURABILITY_SYSTEM_DEFAULT;
     qos.liveliness = RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT;
     qos.avoid_ros_namespace_conventions = true;
-    m_ros2Service_getMap = m_node->create_service<nav_msgs::srv::GetMap>(m_getMapName,
+    m_ros2Service_getMap = m_node->create_service<nav_msgs::srv::GetMap>(m_getmap,
                                                                                        std::bind(&Map2D_nws_ros2::getMapCallback,this,_1,_2,_3),qos );
-    m_ros2Service_getMapByName = m_node->create_service<map2d_nws_ros2_msgs::srv::GetMapByName>(m_getMapByNameName,
+    m_ros2Service_getMapByName = m_node->create_service<map2d_nws_ros2_msgs::srv::GetMapByName>(m_getmapbyname,
                                                                                                               std::bind(&Map2D_nws_ros2::getMapByNameCallback,this,_1,_2,_3));
-    m_ros2Service_rosCmdParser = m_node->create_service<test_msgs::srv::BasicTypes>(m_rosCmdParserName,
+    m_ros2Service_rosCmdParser = m_node->create_service<test_msgs::srv::BasicTypes>(m_roscmdparser,
                                                                                                   std::bind(&Map2D_nws_ros2::rosCmdParserCallback,this,_1,_2,_3));
 
     yCInfo(MAP2D_NWS_ROS2) << "Waiting for device to attach";
@@ -193,7 +172,7 @@ bool Map2D_nws_ros2::updateVizMarkers()
 {
     if (!m_ros2Publisher_markers)
     {
-        m_ros2Publisher_markers = m_node->create_publisher<visualization_msgs::msg::MarkerArray>(m_markersName, 10);
+        m_ros2Publisher_markers = m_node->create_publisher<visualization_msgs::msg::MarkerArray>(m_markers_pub, 10);
     }
     builtin_interfaces::msg::Duration dur;
     dur.sec = 0xFFFFFFFF;
@@ -236,7 +215,7 @@ bool Map2D_nws_ros2::updateVizMarkers()
         marker.header.frame_id    = "map";
         tt.sec                    = (yarp::os::NetUint32) sec_part;;
         marker.header.stamp       = tt;
-        marker.ns                 = m_markersName+"_ns";
+        marker.ns                 = m_markers_pub+"_ns";
         marker.id                 = count;
         marker.type               = visualization_msgs::msg::Marker::ARROW;//yarp::rosmsg::visualization_msgs::Marker::ARROW;
         marker.action             = visualization_msgs::msg::Marker::ADD;//yarp::rosmsg::visualization_msgs::Marker::ADD;
@@ -298,7 +277,7 @@ void Map2D_nws_ros2::getMapByNameCallback(const std::shared_ptr<rmw_request_id_t
 {
     if (!m_ros2Publisher_map)
     {
-        m_ros2Publisher_map = m_node->create_publisher<nav_msgs::msg::OccupancyGrid>(m_getMapByNameName+"/pub", 10);
+        m_ros2Publisher_map = m_node->create_publisher<nav_msgs::msg::OccupancyGrid>(m_getmapbyname+"/pub", 10);
     }
     nav_msgs::msg::OccupancyGrid mapToGo;
     nav_msgs::msg::MapMetaData metaToGo;

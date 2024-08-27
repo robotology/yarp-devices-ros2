@@ -29,20 +29,7 @@ namespace {
 
 bool MobileBaseVelocityControl_nws_ros2::open(yarp::os::Searchable& config)
 {
-    // node_name check
-    if (!config.check("node_name")) {
-        yCError(MOBVEL_NWS_ROS2) << "missing node_name parameter";
-        return false;
-    }
-    m_node_name = config.find("node_name").asString();
-
-    // topic_name name check
-    if (!config.check("topic_name")) {
-        yCError(MOBVEL_NWS_ROS2) << "missing topic_name parameter";
-        return false;
-    }
-    m_topic_name = config.find("topic_name").asString();
-
+    parseParams(config);
     m_node = NodeCreator::createNode(m_node_name);
     m_ros2_subscriber = m_node->create_subscription<geometry_msgs::msg::Twist>(m_topic_name,
                                                                                 10,

@@ -50,7 +50,7 @@ bool Imu_nwc_ros2::getThreeAxisLinearAccelerometerMeasure(size_t sens_index, yar
 bool Imu_nwc_ros2::getThreeAxisLinearAccelerometerName(size_t sens_index, std::string &name) const
 {
     YARP_UNUSED(sens_index);
-    name = m_sensorName;
+    name = m_sensor_name;
 
     return true;
 }
@@ -107,7 +107,7 @@ bool Imu_nwc_ros2::getThreeAxisGyroscopeMeasure(size_t sens_index, yarp::sig::Ve
 bool Imu_nwc_ros2::getThreeAxisGyroscopeName(size_t sens_index, std::string &name) const
 {
     YARP_UNUSED(sens_index);
-    name = m_sensorName;
+    name = m_sensor_name;
 
     return true;
 }
@@ -173,7 +173,7 @@ bool Imu_nwc_ros2::getOrientationSensorMeasureAsRollPitchYaw(size_t sens_index, 
 bool Imu_nwc_ros2::getOrientationSensorName(size_t sens_index, std::string &name) const
 {
     YARP_UNUSED(sens_index);
-    name = m_sensorName;
+    name = m_sensor_name;
 
     return true;
 }

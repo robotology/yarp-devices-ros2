@@ -13,6 +13,7 @@ yarp_prepare_plugin(
 
 if(NOT SKIP_frameGrabber_nws_ros2)
   yarp_add_plugin(yarp_frameGrabber_nws_ros2)
+  generateDeviceParamsParser(FrameGrabber_nws_ros2 frameGrabber_nws_ros2)
 
   target_compile_definitions(yarp_frameGrabber_nws_ros2
     PRIVATE
@@ -24,6 +25,8 @@ if(NOT SKIP_frameGrabber_nws_ros2)
     PRIVATE
       FrameGrabber_nws_ros2.cpp
       FrameGrabber_nws_ros2.h
+      FrameGrabber_nws_ros2_ParamsParser.h
+      FrameGrabber_nws_ros2_ParamsParser.cpp
   )
   target_sources(yarp_frameGrabber_nws_ros2 PRIVATE $<TARGET_OBJECTS:Ros2Utils>)
 
