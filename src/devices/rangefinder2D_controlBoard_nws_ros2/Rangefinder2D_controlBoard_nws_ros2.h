@@ -22,6 +22,8 @@
 #include <sensor_msgs/msg/laser_scan.hpp>
 #include <sensor_msgs/msg/joint_state.hpp>
 
+#include "Rangefinder2D_controlBoard_nws_ros2_ParamsParser.h"
+
 #include <mutex>
 
 /**
@@ -36,7 +38,8 @@
 class Rangefinder2D_controlBoard_nws_ros2 :
         public yarp::dev::DeviceDriver,
         public yarp::os::PeriodicThread,
-        public yarp::dev::WrapperSingle
+        public yarp::dev::WrapperSingle,
+        Rangefinder2D_controlBoard_nws_ros2_ParamsParser
 {
 public:
     Rangefinder2D_controlBoard_nws_ros2();
@@ -81,13 +84,7 @@ private:
     double m_minAngle, m_maxAngle;
     double m_minDistance, m_maxDistance;
     double m_resolution;
-    double m_period;
     sensor_msgs::msg::JointState m_ros_struct;
-
-    std::string m_topic;
-    std::string m_topic_cb;
-    std::string m_node_name;
-    std::string m_frame_id;
 };
 
 #endif // YARP_ROS2_RANGEFINDER2D_CONTROLBOARD_NWS_ROS2_H

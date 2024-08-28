@@ -185,35 +185,35 @@ bool Rangefinder2D_controlBoard_nws_ros2::setDevice(yarp::dev::DeviceDriver* dri
 
     m_driver_cb->view(iPositionControl);
     if (!iPositionControl) {
-        yCError(RANGEFINDER2D_NWS_ROS2, "<%s - %s>: IPositionControl interface was not found in attached device. Quitting",  m_node_name.c_str(), m_topic_cb.c_str());
+        yCError(RANGEFINDER2D_NWS_ROS2, "<%s - %s>: IPositionControl interface was not found in attached device. Quitting",  m_node_name.c_str(), m_topic_joint.c_str());
         return false;
     }
 
     m_driver_cb->view(iEncodersTimed);
     if (!iEncodersTimed) {
-        yCError(RANGEFINDER2D_NWS_ROS2, "<%s - %s>: IEncodersTimed interface was not found in attached device.. Quitting",  m_node_name.c_str(), m_topic_cb.c_str());
+        yCError(RANGEFINDER2D_NWS_ROS2, "<%s - %s>: IEncodersTimed interface was not found in attached device.. Quitting",  m_node_name.c_str(), m_topic_joint.c_str());
         return false;
     }
 
     m_driver_cb->view(iTorqueControl);
     if (!iTorqueControl) {
-        yCWarning(RANGEFINDER2D_NWS_ROS2, "<%s - %s>: ITorqueControl interface was not found in attached device..",  m_node_name.c_str(), m_topic_cb.c_str());
+        yCWarning(RANGEFINDER2D_NWS_ROS2, "<%s - %s>: ITorqueControl interface was not found in attached device..",  m_node_name.c_str(), m_topic_joint.c_str());
     }
 
     m_driver_cb->view(iAxisInfo);
     if (!iAxisInfo) {
-        yCError(RANGEFINDER2D_NWS_ROS2, "<%s - %s>: IAxisInfo interface was not found in attached device.. Quitting",  m_node_name.c_str(), m_topic_cb.c_str());
+        yCError(RANGEFINDER2D_NWS_ROS2, "<%s - %s>: IAxisInfo interface was not found in attached device.. Quitting",  m_node_name.c_str(), m_topic_joint.c_str());
         return false;
     }
 
     // Get the number of controlled joints
     int tmp_axes;
     if (!iPositionControl->getAxes(&tmp_axes)) {
-        yCError(RANGEFINDER2D_NWS_ROS2, "<%s - %s>: Failed to get axes number for attached device. ",  m_node_name.c_str(), m_topic_cb.c_str());
+        yCError(RANGEFINDER2D_NWS_ROS2, "<%s - %s>: Failed to get axes number for attached device. ",  m_node_name.c_str(), m_topic_joint.c_str());
         return false;
     }
     if (tmp_axes <= 0) {
-        yCError(RANGEFINDER2D_NWS_ROS2, "<%s - %s>: attached device has an invalid number of joints (%d)",  m_node_name.c_str(), m_topic_cb.c_str(), tmp_axes);
+        yCError(RANGEFINDER2D_NWS_ROS2, "<%s - %s>: attached device has an invalid number of joints (%d)",  m_node_name.c_str(), m_topic_joint.c_str(), tmp_axes);
         return false;
     }
 
@@ -235,18 +235,12 @@ bool Rangefinder2D_controlBoard_nws_ros2::setDevice(yarp::dev::DeviceDriver* dri
 
 bool Rangefinder2D_controlBoard_nws_ros2::open(yarp::os::Searchable &config)
 {
-    //wrapper params
-    m_topic    = config.check("topic_name_lidar",  yarp::os::Value("topic_name_lidar"), "Name of the ROS2 topic").asString();
-    m_topic_cb   = config.check("topic_name_joint",  yarp::os::Value("topic_name_joint"), "Name of the ROS2 topic").asString();
-    m_frame_id = config.check("frame_id",  yarp::os::Value("laser_frame"), "Name of the frameId").asString();
-    m_node_name = config.check("node_name",  yarp::os::Value("laser_node"), "Name of the node").asString();
-    m_period   = config.check("period", yarp::os::Value(0.010), "Period of the thread").asFloat64();
-
+    parseParams(config);
     //create the topic
     m_node = NodeCreator::createNode(m_node_name);
-    m_publisher_laser = m_node->create_publisher<sensor_msgs::msg::LaserScan>(m_topic, 10);
-    m_publisher_joint = m_node->create_publisher<sensor_msgs::msg::JointState>(m_topic_cb, 10);
-    yCInfo(RANGEFINDER2D_NWS_ROS2, "Opened topic: %s", m_topic.c_str());
+    m_publisher_laser = m_node->create_publisher<sensor_msgs::msg::LaserScan>(m_topic_lidar, 10);
+    m_publisher_joint = m_node->create_publisher<sensor_msgs::msg::JointState>(m_topic_joint, 10);
+    yCInfo(RANGEFINDER2D_NWS_ROS2, "Opened topic: %s", m_topic_lidar.c_str());
 
     yCWarning(RANGEFINDER2D_NWS_ROS2) << "Waiting for device to attach";
 
