@@ -11,11 +11,14 @@ yarp_prepare_plugin(rangefinder2D_nwc_ros2
 
 if(NOT SKIP_rangefinder2D_nwc_ros2)
   yarp_add_plugin(yarp_rangefinder2D_nwc_ros2)
+  generateDeviceParamsParser(Rangefinder2D_nwc_ros2 rangefinder2D_nwc_ros2)
 
   target_sources(yarp_rangefinder2D_nwc_ros2
     PRIVATE
       Rangefinder2D_nwc_ros2.cpp
       Rangefinder2D_nwc_ros2.h
+      Rangefinder2D_nwc_ros2_ParamsParser.h
+      Rangefinder2D_nwc_ros2_ParamsParser.cpp
   )
   target_sources(yarp_rangefinder2D_nwc_ros2 PRIVATE $<TARGET_OBJECTS:Ros2Utils>)
 
