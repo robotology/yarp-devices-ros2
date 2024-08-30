@@ -54,12 +54,13 @@ void Imu_nws_ros2::run()
         yarp::sig::Vector vecacc(3);
         yarp::sig::Vector vecrpy(3);
         tf2::Quaternion quat;
-        quat.setRPY(vecrpy[0] * M_PI / 180.0, vecrpy[1] * M_PI / 180.0, vecrpy[2] * M_PI / 180.0);
-        quat.normalize();
         sensor_msgs::msg::Imu imu_ros_data;
+
         m_iThreeAxisGyroscopes->getThreeAxisGyroscopeMeasure(m_sens_index, vecgyr, m_timestamp);
         m_iThreeAxisLinearAccelerometers->getThreeAxisLinearAccelerometerMeasure(m_sens_index, vecacc, m_timestamp);
         m_iOrientationSensors->getOrientationSensorMeasureAsRollPitchYaw(m_sens_index, vecrpy, m_timestamp);
+        quat.setRPY(vecrpy[0] * M_PI / 180.0, vecrpy[1] * M_PI / 180.0, vecrpy[2] * M_PI / 180.0);
+        quat.normalize();
         imu_ros_data.header.frame_id = m_framename;
         imu_ros_data.header.stamp = ros2TimeFromYarp(m_timestamp);
         imu_ros_data.angular_velocity.x = vecgyr[0] * M_PI / 180.0;
@@ -71,7 +72,7 @@ void Imu_nws_ros2::run()
         imu_ros_data.orientation.x = quat.x();
         imu_ros_data.orientation.y = quat.y();
         imu_ros_data.orientation.z = quat.z();
-        imu_ros_data.orientation.z = quat.w();
+        imu_ros_data.orientation.w = quat.w();
         m_publisher->publish(imu_ros_data);
     }
 }
