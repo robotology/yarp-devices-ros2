@@ -103,68 +103,25 @@ bool RgbdSensor_nws_ros2::open(yarp::os::Searchable &config)
 
 bool RgbdSensor_nws_ros2::fromConfig(yarp::os::Searchable &config)
 {
-    if (!config.check("period", "refresh period of the broadcasted values in ms")) {
-        yCDebug(RGBDSENSOR_NWS_ROS2) << "Using default 'period' parameter of " << DEFAULT_THREAD_PERIOD << "s";
-    } else {
-        setPeriod(config.find("period").asFloat64());
-    }
-
-    // node_name check
-    if (!config.check("node_name")) {
-        yCError(RGBDSENSOR_NWS_ROS2) << "missing node_name parameter";
-        return false;
-    }
-    m_node_name = config.find("node_name").asString();
+    parseParams(config);
     if(m_node_name[0] == '/'){
         yCError(RGBDSENSOR_NWS_ROS2) << "node_name cannot begin with an initial /";
         return false;
     }
-    // FIXME node_name is not currently used.
-    yCWarning(RGBDSENSOR_NWS_ROS2, "FIXME: node_name is not currently used!");
 
-    // depth topic base name check
-    if (!config.check("depth_topic_name")) {
-        yCError(RGBDSENSOR_NWS_ROS2) << "missing depth_topic_name parameter";
-        return false;
-    }
-    m_depth_topic_name = config.find("depth_topic_name").asString();
     if(m_depth_topic_name[0] != '/'){
         yCError(RGBDSENSOR_NWS_ROS2) << "depth_topic_name must begin with an initial /";
         return false;
     }
     m_depth_info_topic_name = m_depth_topic_name.substr(0, m_depth_topic_name.rfind('/')) + "/camera_info";
 
-    // color topic base name check
-    if (!config.check("color_topic_name")) {
-        yCError(RGBDSENSOR_NWS_ROS2) << "missing color_topic_name parameter";
-        return false;
-    }
-    m_color_topic_name = config.find("color_topic_name").asString();
     if(m_color_topic_name[0] != '/'){
         yCError(RGBDSENSOR_NWS_ROS2) << "color_topic_name must begin with an initial /";
         return false;
     }
     m_color_info_topic_name = m_color_topic_name.substr(0, m_color_topic_name.rfind('/')) + "/camera_info";
 
-    // depth_frame_id check
-    if (!config.check("depth_frame_id")) {
-        yCError(RGBDSENSOR_NWS_ROS2) << "missing depth_frame_id parameter";
-        return false;
-    }
-    m_depth_frame_id = config.find("depth_frame_id").asString();
-
-    // color_frame_id check
-    if (!config.check("color_frame_id")) {
-        yCError(RGBDSENSOR_NWS_ROS2) << "missing color_frame_id parameter";
-        return false;
-    }
-    m_color_frame_id = config.find("color_frame_id").asString();
-
-
-    if (config.check("forceInfoSync"))
-    {
-        forceInfoSync = config.find("forceInfoSync").asBool();
-    }
+    m_forceInfoSync = m_force_info_synch == 1;
 
     return true;
 }
@@ -417,7 +374,7 @@ bool RgbdSensor_nws_ros2::writeData()
 
         sensor_msgs::msg::CameraInfo camInfoC;
         if (setCamInfo(camInfoC, m_color_frame_id, colorStamp, COLOR_SENSOR)) {
-            if(forceInfoSync) {
+            if(m_forceInfoSync) {
                 camInfoC.header.stamp = rColorImage.header.stamp;
             }
             rosPublisher_colorCaminfo->publish(camInfoC);
@@ -444,7 +401,7 @@ bool RgbdSensor_nws_ros2::writeData()
 
         sensor_msgs::msg::CameraInfo camInfoD;
         if (setCamInfo(camInfoD, m_depth_frame_id, depthStamp, DEPTH_SENSOR)) {
-            if(forceInfoSync) {
+            if(m_forceInfoSync) {
                 camInfoD.header.stamp = rDepthImage.header.stamp;
             }
             rosPublisher_depthCaminfo->publish(camInfoD);
