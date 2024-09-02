@@ -11,11 +11,14 @@ yarp_prepare_plugin(rgbdToPointCloudSensor_nws_ros2
 
 if(NOT SKIP_rgbdToPointCloudSensor_nws_ros2)
   yarp_add_plugin(yarp_rgbdToPointCloudSensor_nws_ros2)
+  generateDeviceParamsParser(RgbdToPointCloudSensor_nws_ros2 rgbdToPointCloudSensor_nws_ros2)
 
   target_sources(yarp_rgbdToPointCloudSensor_nws_ros2
     PRIVATE
       RgbdToPointCloudSensor_nws_ros2.cpp
       RgbdToPointCloudSensor_nws_ros2.h
+      RgbdToPointCloudSensor_nws_ros2_ParamsParser.cpp
+      RgbdToPointCloudSensor_nws_ros2_ParamsParser.h
   )
   target_sources(yarp_rgbdToPointCloudSensor_nws_ros2 PRIVATE $<TARGET_OBJECTS:Ros2Utils>)
 
