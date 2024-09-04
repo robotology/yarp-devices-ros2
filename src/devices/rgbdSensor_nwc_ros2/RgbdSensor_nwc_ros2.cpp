@@ -34,42 +34,19 @@ RgbdSensor_nwc_ros2::RgbdSensor_nwc_ros2()
 
 bool RgbdSensor_nwc_ros2::open(yarp::os::Searchable& config)
 {
+    parseParams(config);
+    m_topic_depth_camera_info = m_depth_topic_name.substr(0, m_depth_topic_name.rfind('/')) + "/camera_info";
+    m_topic_rgb_camera_info = m_color_topic_name.substr(0, m_color_topic_name.rfind('/')) + "/camera_info";
 
-    // node_name check
-    if (!config.check("node_name")) {
-        yCError(RGBDSENSOR_NWC_ROS2) << "missing node_name parameter";
-        return false;
-    }
-    m_ros2_node_name = config.find("node_name").asString();
+    m_verbose = m_verbose_on == 1;
 
-
-    // depth topic base name check
-    if (!config.check("depth_topic_name")) {
-        yCError(RGBDSENSOR_NWC_ROS2) << "missing depth_topic_name parameter";
-        return false;
-    }
-    m_topic_depth_image_raw = config.find("depth_topic_name").asString();
-
-    m_topic_depth_camera_info = m_topic_depth_image_raw.substr(0, m_topic_depth_image_raw.rfind('/')) + "/camera_info";
-
-    // color topic base name check
-    if (!config.check("color_topic_name")) {
-        yCError(RGBDSENSOR_NWC_ROS2) << "missing color_topic_name parameter";
-        return false;
-    }
-    m_topic_rgb_image_raw = config.find("color_topic_name").asString();
-
-    m_topic_rgb_camera_info = m_topic_rgb_image_raw.substr(0, m_topic_rgb_image_raw.rfind('/')) + "/camera_info";
-
-    m_verbose = config.check("verbose");
-
-    m_node = NodeCreator::createNode(m_ros2_node_name);
+    m_node = NodeCreator::createNode(m_node_name);
     m_sub1= new Ros2Subscriber<RgbdSensor_nwc_ros2, sensor_msgs::msg::CameraInfo>(m_node, this);
     m_sub1->subscribe_to_topic(m_topic_rgb_camera_info);
     m_sub1->subscribe_to_topic(m_topic_depth_camera_info);
     m_sub2= new Ros2Subscriber<RgbdSensor_nwc_ros2, sensor_msgs::msg::Image>(m_node, this);
-    m_sub2->subscribe_to_topic(m_topic_rgb_image_raw);
-    m_sub2->subscribe_to_topic(m_topic_depth_image_raw);
+    m_sub2->subscribe_to_topic(m_color_topic_name);
+    m_sub2->subscribe_to_topic(m_depth_topic_name);
 
     m_spinner = new Ros2Spinner(m_node);
     m_spinner->start();
@@ -91,9 +68,9 @@ bool RgbdSensor_nwc_ros2::close()
 
 void RgbdSensor_nwc_ros2::callback(sensor_msgs::msg::Image::SharedPtr msg, std::string topic)
 {
-    if (topic == m_topic_rgb_image_raw) {
+    if (topic == m_color_topic_name) {
         color_raw_callback(msg);
-    } else if (topic == m_topic_depth_image_raw) {
+    } else if (topic == m_depth_topic_name) {
         depth_raw_callback(msg);
     }
 }

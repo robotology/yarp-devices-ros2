@@ -51,31 +51,8 @@ bool RgbdToPointCloudSensor_nws_ros2::open(yarp::os::Searchable &config)
 
 bool RgbdToPointCloudSensor_nws_ros2::fromConfig(yarp::os::Searchable &config)
 {
-    if (!config.check("period", "refresh period of the broadcasted values in s")) {
-        yCDebug(RGBDTOPOINTCLOUDSENSOR_NWS_ROS2) << "Using default 'period' parameter of " << DEFAULT_THREAD_PERIOD << "s";
-    } else {
-        setPeriod(config.find("period").asFloat64());
-    }
-
-    //check if param exist and assign it to corresponding variable.. if it doesn't, initialize the variable with default value.
-    std::vector<param<std::string>> rosStringParam;
-
-    rosStringParam.emplace_back(m_nodeName,       nodeName_param          );
-    rosStringParam.emplace_back(m_rosFrameId,     frameId_param           );
-    rosStringParam.emplace_back(m_pointCloudTopicName, pointCloudTopicName_param    );
-
-    for (auto &prm : rosStringParam) {
-        if (!config.check(prm.parname)) {
-            yCError(RGBDTOPOINTCLOUDSENSOR_NWS_ROS2) << "Missing " << prm.parname << "check your configuration file";
-            return false;
-        }
-        *(prm.var) = config.find(prm.parname).asString();
-    }
-
-    if (config.check("m_forceInfoSync"))
-    {
-        m_forceInfoSync = config.find("m_forceInfoSync").asBool();
-    }
+    parseParams(config);
+    setPeriod(m_period);
 
     return true;
 }
@@ -84,8 +61,8 @@ bool RgbdToPointCloudSensor_nws_ros2::fromConfig(yarp::os::Searchable &config)
 bool RgbdToPointCloudSensor_nws_ros2::initialize_ROS2(yarp::os::Searchable &params)
 {
 
-    m_node = NodeCreator::createNode(m_nodeName);
-    m_rosPublisher_pointCloud2 = m_node->create_publisher<sensor_msgs::msg::PointCloud2>(m_pointCloudTopicName, 10);
+    m_node = NodeCreator::createNode(m_node_name);
+    m_rosPublisher_pointCloud2 = m_node->create_publisher<sensor_msgs::msg::PointCloud2>(m_topic_name, 10);
     return true;
 }
 
@@ -214,7 +191,7 @@ bool RgbdToPointCloudSensor_nws_ros2::writeData()
                 sensor_msgs::msg::PointCloud2 pc2Ros;
 
                 // filling ros header
-                pc2Ros.header.frame_id = m_rosFrameId;
+                pc2Ros.header.frame_id = m_frame_id;
 
                 //pc2Ros.header.stamp.sec = depthStamp.;
                 pc2Ros.header.stamp.sec = int(depthStamp.getTime());

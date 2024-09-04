@@ -64,51 +64,22 @@ bool Odometry2D_nws_ros2::threadInit()
 
 bool Odometry2D_nws_ros2::open(yarp::os::Searchable &config)
 {
-    if (!config.check("period")) {
-        yCWarning(ODOMETRY2D_NWS_ROS2) << "missing 'period' parameter, using default value of" << DEFAULT_THREAD_PERIOD;
-    } else {
-        m_period = config.find("period").asFloat64();
-    }
-
-    if (!config.check("node_name")) {
-        yCError(ODOMETRY2D_NWS_ROS2) << "missing node_name parameter";
-        return false;
-    }
-    m_nodeName = config.find("node_name").asString();
-    if (m_nodeName[0] == '/') {
+    parseParams(config);
+   if (m_node_name[0] == '/') {
         yCError(ODOMETRY2D_NWS_ROS2) << "node_name parameter cannot begin with '/'";
         return false;
     }
-
-    if (!config.check("topic_name")) {
-        yCError(ODOMETRY2D_NWS_ROS2) << "missing topic_name parameter";
-        return false;
-    }
-    m_topicName = config.find("topic_name").asString();
-    if (m_topicName[0] != '/') {
+    if (m_topic_name[0] != '/') {
         yCError(ODOMETRY2D_NWS_ROS2) << "missing initial / in topic_name parameter";
         return false;
     }
 
-    if (!config.check("odom_frame")) {
-        yCError(ODOMETRY2D_NWS_ROS2) << "missing odom_frame parameter";
-        return false;
-    }
-    m_odomFrame = config.find("odom_frame").asString();
-
-
-    if (!config.check("base_frame")) {
-        yCError(ODOMETRY2D_NWS_ROS2) << "missing base_frame parameter";
-        return false;
-    }
-    m_baseFrame = config.find("base_frame").asString();
-
     rclcpp::NodeOptions node_options;
     node_options.allow_undeclared_parameters(true);
     node_options.automatically_declare_parameters_from_overrides(true);
-    m_node = NodeCreator::createNode(m_nodeName, node_options);
+    m_node = NodeCreator::createNode(m_node_name, node_options);
     if (m_node == nullptr) {
-        yCError(ODOMETRY2D_NWS_ROS2) << " opening " << m_nodeName << " Node, check your yarp-ROS2 network configuration\n";
+        yCError(ODOMETRY2D_NWS_ROS2) << " opening " << m_node_name << " Node, check your yarp-ROS2 network configuration\n";
         return false;
     }
 
@@ -117,7 +88,7 @@ bool Odometry2D_nws_ros2::open(yarp::os::Searchable &config)
     const std::string m_tf_topic ="/tf";
     m_publisher_tf   = m_node->create_publisher<tf2_msgs::msg::TFMessage>(m_tf_topic, 10);
 
-    m_ros2Publisher_odometry = m_node->create_publisher<nav_msgs::msg::Odometry>(m_topicName, 10);
+    m_ros2Publisher_odometry = m_node->create_publisher<nav_msgs::msg::Odometry>(m_topic_name, 10);
 
     yCInfo(ODOMETRY2D_NWS_ROS2) << "Waiting for device to attach";
     return true;
@@ -145,8 +116,8 @@ void Odometry2D_nws_ros2::run()
         }
 
         nav_msgs::msg::Odometry odometryMsg;
-        odometryMsg.header.frame_id = m_odomFrame;
-        odometryMsg.child_frame_id = m_baseFrame;
+        odometryMsg.header.frame_id = m_odom_frame;
+        odometryMsg.child_frame_id = m_base_frame;
 
         odometryMsg.pose.pose.position.x = odometryData.odom_x;
         odometryMsg.pose.pose.position.y = odometryData.odom_y;
@@ -171,8 +142,8 @@ void Odometry2D_nws_ros2::run()
         tf2_msgs::msg::TFMessage rosData;
 
         geometry_msgs::msg::TransformStamped tsData;
-        tsData.child_frame_id = m_baseFrame;
-        tsData.header.frame_id = m_odomFrame;
+        tsData.child_frame_id = m_base_frame;
+        tsData.header.frame_id = m_odom_frame;
 
         tsData.transform.rotation.x = 0;
         tsData.transform.rotation.y = 0;

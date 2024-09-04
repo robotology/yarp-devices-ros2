@@ -11,11 +11,14 @@ yarp_prepare_plugin(odometry2D_nws_ros2
 
 if(NOT SKIP_odometry2D_nws_ros2)
   yarp_add_plugin(yarp_odometry2D_nws_ros2)
+  generateDeviceParamsParser(Odometry2D_nws_ros2 odometry2D_nws_ros2)
 
   target_sources(yarp_odometry2D_nws_ros2
     PRIVATE
       Odometry2D_nws_ros2.cpp
       Odometry2D_nws_ros2.h
+      Odometry2D_nws_ros2_ParamsParser.h
+      Odometry2D_nws_ros2_ParamsParser.cpp
   )
   target_sources(yarp_odometry2D_nws_ros2 PRIVATE $<TARGET_OBJECTS:Ros2Utils>)
 

@@ -145,16 +145,11 @@ void Rangefinder2D_nws_ros2::run()
 
 bool Rangefinder2D_nws_ros2::open(yarp::os::Searchable &config)
 {
-    //wrapper params
-    m_topic    = config.check("topic_name",  yarp::os::Value("laser_topic"), "Name of the ROS2 topic").asString();
-    m_frame_id = config.check("frame_id",  yarp::os::Value("laser_frame"), "Name of the frameId").asString();
-    m_node_name = config.check("node_name",  yarp::os::Value("laser_node"), "Name of the node").asString();
-    m_period   = config.check("period", yarp::os::Value(0.010), "Period of the thread").asFloat64();
-
+    parseParams(config);
     //create the topic
     m_node = NodeCreator::createNode(m_node_name);
-    m_publisher = m_node->create_publisher<sensor_msgs::msg::LaserScan>(m_topic, 10);
-    yCInfo(RANGEFINDER2D_NWS_ROS2, "Opened topic: %s", m_topic.c_str());
+    m_publisher = m_node->create_publisher<sensor_msgs::msg::LaserScan>(m_topic_name, 10);
+    yCInfo(RANGEFINDER2D_NWS_ROS2, "Opened topic: %s", m_topic_name.c_str());
 
     yCInfo(RANGEFINDER2D_NWS_ROS2, "Waiting for device to attach");
 

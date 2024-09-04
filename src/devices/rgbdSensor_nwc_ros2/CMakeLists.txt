@@ -11,11 +11,14 @@ yarp_prepare_plugin(rgbdSensor_nwc_ros2
 
 if(NOT SKIP_rgbdSensor_nwc_ros2)
   yarp_add_plugin(yarp_rgbdSensor_nwc_ros2)
+  generateDeviceParamsParser(RgbdSensor_nwc_ros2 rgbdSensor_nwc_ros2)
 
   target_sources(yarp_rgbdSensor_nwc_ros2
     PRIVATE
     RgbdSensor_nwc_ros2.cpp
     RgbdSensor_nwc_ros2.h
+    RgbdSensor_nwc_ros2_ParamsParser.h
+    RgbdSensor_nwc_ros2_ParamsParser.cpp
   )
 
   target_sources(yarp_rgbdSensor_nwc_ros2 PRIVATE $<TARGET_OBJECTS:Ros2RGBDConversionUtils> $<TARGET_OBJECTS:Ros2Utils>)
