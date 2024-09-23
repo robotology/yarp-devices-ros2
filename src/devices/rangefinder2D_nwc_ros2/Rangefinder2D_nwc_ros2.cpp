@@ -85,7 +85,7 @@ void Rangefinder2D_nwc_ros2::callback(sensor_msgs::msg::LaserScan::SharedPtr msg
     m_timestamp = (msg->header.stamp.sec + (msg->header.stamp.nanosec / 1000000000));
 }
 
-bool Rangefinder2D_nwc_ros2::getLaserMeasurement(std::vector<yarp::dev::LaserMeasurementData> &data, double* timestamp)
+bool Rangefinder2D_nwc_ros2::getLaserMeasurement(std::vector<yarp::sig::LaserMeasurementData> &data, double* timestamp)
 {
     if (!m_data_valid) {return false;}
     std::lock_guard<std::mutex> data_guard(m_mutex);

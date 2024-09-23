@@ -54,7 +54,7 @@ public:
 
 public:
     // IRangeFinder2D
-    bool getLaserMeasurement(std::vector<yarp::dev::LaserMeasurementData> &data, double* timestamp = nullptr) override;
+    bool getLaserMeasurement(std::vector<yarp::sig::LaserMeasurementData> &data, double* timestamp = nullptr) override;
     bool getRawData(yarp::sig::Vector &data, double* timestamp = nullptr) override;
     bool getDeviceStatus(Device_status& status) override;
     bool getDistanceRange(double& min, double& max) override;
