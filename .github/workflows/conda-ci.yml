@@ -11,267 +11,703 @@ on:
 
 jobs:
 
-  check-style:
-    name: 'Check Style'
-    runs-on: ubuntu-20.04
-    steps:
-    - name: Clone repository
-      uses: actions/checkout@v3
-    - name: Install Dependencies
-      run: |
-        sudo apt-get update -qq
-        sudo apt-get install -qq -y perl
-    - name: Check Style
-      run: |
-        perl tests/misc/check_style.pl
+  select_environment:
+    name: 'Prepare Environment'
+    runs-on: ubuntu-22.04
+    outputs:
+      timestamp: ${{ steps.select.outputs.timestamp }}
+      repository_owner: ${{ steps.select.outputs.repository_owner }}
+      repository_name: ${{ steps.select.outputs.repository_name }}
+      repository: ${{ steps.select.outputs.repository }}
+      ref: ${{ steps.select.outputs.ref }}
+      environment: ${{ steps.select.outputs.environment }}
+      sha: ${{ steps.select.outputs.sha }}
+      head_ref: ${{ steps.select.outputs.head_ref }}
+      base_ref: ${{ steps.select.outputs.base_ref }}
+      pr_number: ${{ steps.select.outputs.pr_number }}
 
-  check-license:
-    name: 'Check License'
-    runs-on: ubuntu-20.04
     steps:
-    - name: Clone repository
-      uses: actions/checkout@v3
-    - name: Install Dependencies
+    - name: "Set output variables"
+      id: select
       run: |
-        sudo apt-get update -qq
-        sudo apt-get install -qq -y perl
-    - name: Check License
-      run: |
-        perl tests/misc/check_license.pl
+        echo "timestamp=$(/bin/date -u +%Y%m%d-%H%M%S)" >> $GITHUB_OUTPUT
+
+        echo "repository_owner=${{ github.repository_owner }}" >> $GITHUB_OUTPUT
+        echo "repository_name=$(cat $GITHUB_EVENT_PATH | jq -r .repository.name)" >> $GITHUB_OUTPUT
+        echo "repository=${{ github.repository }}" >> $GITHUB_OUTPUT
+
+        if [[ "$GITHUB_EVENT_NAME" = "pull_request_target" ]]; then
+          echo "environment=code-analysis_unsafe" >> $GITHUB_OUTPUT
+          echo "ref=refs/pull/$(cat $GITHUB_EVENT_PATH | jq -r .number)/merge" >> $GITHUB_OUTPUT
+        else
+          echo "environment=code-analysis" >> $GITHUB_OUTPUT
+          echo "ref=${{ github.ref }}" >> $GITHUB_OUTPUT
+        fi
+        if [[ "$GITHUB_EVENT_NAME" = "pull_request" || "$GITHUB_EVENT_NAME" == "pull_request_target" ]]; then
+          echo "sha=${{ github.event.pull_request.head.sha }}" >> $GITHUB_OUTPUT
+          echo "head_ref=${GITHUB_HEAD_REF}" >> $GITHUB_OUTPUT
+          echo "base_ref=${GITHUB_BASE_REF}" >> $GITHUB_OUTPUT
+          echo "pr_number=$(cat $GITHUB_EVENT_PATH | jq -r .number)" >> $GITHUB_OUTPUT
+        else
+          echo "sha=${{ github.sha }}" >> $GITHUB_OUTPUT
+        fi  
+
+  # check-style:
+  #   name: 'Check Style'
+  #   runs-on: ubuntu-20.04
+  #   steps:
+  #   - name: Clone repository
+  #     uses: actions/checkout@v3
+  #   - name: Install Dependencies
+  #     run: |
+  #       sudo apt-get update -qq
+  #       sudo apt-get install -qq -y perl
+  #   - name: Check Style
+  #     run: |
+  #       perl tests/misc/check_style.pl
+
+  # check-license:
+  #   name: 'Check License'
+  #   runs-on: ubuntu-20.04
+  #   steps:
+  #   - name: Clone repository
+  #     uses: actions/checkout@v3
+  #   - name: Install Dependencies
+  #     run: |
+  #       sudo apt-get update -qq
+  #       sudo apt-get install -qq -y perl
+  #   - name: Check License
+  #     run: |
+  #       perl tests/misc/check_license.pl
         
-  check-tests:
-    name: 'Check Devices Tests'
-    runs-on: ubuntu-20.04
-    steps:
-    - name: Clone repository
-      uses: actions/checkout@v3
-    - name: Install Dependencies
-      run: |
-        sudo apt-get update -qq
-        sudo apt-get install -qq -y python3
-    - name: Check Devices Tests
-      run: |
-        python3 tests/misc/check_tests.py
+  # check-tests:
+  #   name: 'Check Devices Tests'
+  #   runs-on: ubuntu-20.04
+  #   steps:
+  #   - name: Clone repository
+  #     uses: actions/checkout@v3
+  #   - name: Install Dependencies
+  #     run: |
+  #       sudo apt-get update -qq
+  #       sudo apt-get install -qq -y python3
+  #   - name: Check Devices Tests
+  #     run: |
+  #       python3 tests/misc/check_tests.py
         
-  build:
-    name: '[${{ matrix.os }}@${{ matrix.build_type }}@${{ matrix.ros_distro }}@conda]'
-    runs-on: ${{ matrix.os }}
+  # build:
+  #   name: '[${{ matrix.os }}@${{ matrix.build_type }}@${{ matrix.ros_distro }}@conda]'
+  #   runs-on: ${{ matrix.os }}
+  #   strategy:
+  #     matrix:
+  #       build_type: [Release]
+  #       ros_distro: [humble]
+  #       os: [ubuntu-latest, macos-latest, windows-2019]
+  #     fail-fast: false
+
+  #   steps:
+  #   - uses: actions/checkout@v3
+
+  #   - uses: conda-incubator/setup-miniconda@v2
+  #     with:
+  #       miniforge-variant: Mambaforge
+  #       miniforge-version: latest
+
+  #   - name: Dependencies
+  #     shell: bash -l {0}
+  #     run: |
+  #       # Compilation related dependencies
+  #       mamba install cmake compilers make ninja pkg-config
+  #       # Actual dependencies
+  #       mamba install -c conda-forge -c robostack-staging ycm-cmake-modules eigen ace ros-${{ matrix.ros_distro }}-ros-base ros-${{ matrix.ros_distro }}-test-msgs
+
+  #   - name: Download YARP [Linux&macOS]
+  #     if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
+  #     run: |
+  #       cd ${GITHUB_WORKSPACE}
+  #       git clone https://github.com/robotology/yarp
+
+  #   - name: Dependencies from source [Linux&macOS]
+  #     if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
+  #     shell: bash -l {0}
+  #     run: |
+  #       cd ${GITHUB_WORKSPACE}
+  #       cd yarp
+  #       mkdir build
+  #       cd build
+  #       cmake -GNinja -DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX} \
+  #                     -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} .. \
+  #                     -DYARP_COMPILE_TESTS:BOOL=ON \
+  #                     -DYARP_COMPILE_ALL_FAKE_DEVICES:BOOL=ON
+  #       cmake --build . --config ${{ matrix.build_type }}
+  #       cmake --install . --config ${{ matrix.build_type }}
+  #       echo "YARP_DATA_DIRS=${CONDA_PREFIX}/share/yarp::${YARP_DATA_DIRS}" >> $GITHUB_ENV
+
+  #   - name: Dependencies from source [Windows]
+  #     if: contains(matrix.os, 'windows')
+  #     shell: bash -l {0}
+  #     run: |
+  #       cd ${GITHUB_WORKSPACE}
+  #       git clone https://github.com/robotology/yarp
+  #       cd yarp
+  #       mkdir build
+  #       cd build
+  #       cmake -G"Visual Studio 16 2019" -DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX}/Library \
+  #                                       -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} .. \
+  #                                       -DYARP_COMPILE_TESTS:BOOL=ON \
+  #                                       -DYARP_COMPILE_ALL_FAKE_DEVICES:BOOL=ON
+  #       cmake --build . --config ${{ matrix.build_type }}
+  #       cmake --install . --config ${{ matrix.build_type }}
+  #       echo "YARP_DATA_DIRS=${CONDA_PREFIX}/Library/share/yarp;${YARP_DATA_DIRS}" >> $GITHUB_ENV
+
+  #   - name: Configure [Linux&macOS]
+  #     if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
+  #     shell: bash -l {0}
+  #     run: |
+  #       mkdir -p build
+  #       cd build
+  #       # Python3_EXECUTABLE is set as a workaround for https://github.com/ros2/python_cmake_module/issues/6
+  #       cmake -GNinja -DBUILD_TESTING:BOOL=ON \
+  #                     -DYARP_ROS2_USE_SYSTEM_map2d_nws_ros2_msgs:BOOL=OFF \
+  #                     -DPython3_EXECUTABLE:PATH=$CONDA_PREFIX/bin/python3 \
+  #                     -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+  #                     -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+  #                     -DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX} .. \
+  #                     -DYARP_COMPILE_TESTS:BOOL=ON
+
+  #   - name: Configure [Windows]
+  #     if: contains(matrix.os, 'windows')
+  #     # Command prompt is used as a workaround for https://github.com/RoboStack/ros-noetic/issues/21
+  #     shell: cmd /C CALL {0}
+  #     run: |
+  #       mkdir -p build
+  #       cd build
+  #       cmake -G"Visual Studio 16 2019" -DBUILD_TESTING:BOOL=ON ^
+  #                                       -DYARP_ROS2_USE_SYSTEM_map2d_nws_ros2_msgs:BOOL=OFF ^
+  #                                       -DPython3_EXECUTABLE:PATH=%CONDA_PREFIX%\python.exe ^
+  #                                       -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ^
+  #                                       -DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX}\Library .. ^
+  #                                       -DYARP_COMPILE_TESTS:BOOL=ON
+
+  #   - name: Build [Linux&macOS]
+  #     if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
+  #     shell: bash -l {0}
+  #     run: |
+  #       cd build
+  #       cmake --build . --config ${{ matrix.build_type }}
+
+  #   - name: Install [Linux&macOS]
+  #     if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
+  #     shell: bash -l {0}
+  #     run: |
+  #       cd build
+  #       cmake --install . --config ${{ matrix.build_type }}
+
+  #   - name: Test [Linux&macOS]
+  #     if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
+  #     shell: bash -l {0}
+  #     run: |
+  #       cd build
+  #       ctest --output-on-failure -C ${{ matrix.build_type }}
+
+  #   - name: Build [Windows]
+  #     if: contains(matrix.os, 'windows')
+  #     shell: cmd /C CALL {0}
+  #     run: |
+  #       cd build
+  #       cmake --build . --config ${{ matrix.build_type }}
+
+  #   - name: Install [Windows]
+  #     if: contains(matrix.os, 'windows')
+  #     shell: cmd /C CALL {0}
+  #     run: |
+  #       cd build
+  #       cmake --install . --config ${{ matrix.build_type }}
+
+  #   - name: Test [Windows]
+  #     if: contains(matrix.os, 'windows')
+  #     shell: cmd /C CALL {0}
+  #     run: |
+  #       cd build
+  #       ctest --output-on-failure -C ${{ matrix.build_type }}
+
+  # build-valgrind:
+  #   name: 'valgrind [ubuntu-latest@Debug@humble@conda]'
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #       build_type: [Debug]
+  #       ros_distro: [humble]
+  #       os: [ubuntu-latest]
+  #     fail-fast: false
+
+  #   steps:
+  #   - uses: actions/checkout@v3
+
+  #   - uses: conda-incubator/setup-miniconda@v2
+  #     with:
+  #       miniforge-variant: Mambaforge
+  #       miniforge-version: latest
+
+  #   - name: Dependencies
+  #     shell: bash -l {0}
+  #     run: |
+  #       # Compilation related dependencies
+  #       mamba install cmake compilers make ninja pkg-config
+  #       # Actual dependencies
+  #       sudo apt-get install -qq -y libc6-dbg
+  #       mamba install -c conda-forge -c robostack-staging ycm-cmake-modules eigen valgrind ace ros-${{ matrix.ros_distro }}-ros-base ros-${{ matrix.ros_distro }}-test-msgs
+
+  #   - name: Download YARP [Linux&macOS]
+  #     if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
+  #     run: |
+  #       cd ${GITHUB_WORKSPACE}
+  #       git clone https://github.com/robotology/yarp
+
+  #   - name: Dependencies from source [Linux&macOS]
+  #     if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
+  #     shell: bash -l {0}
+  #     run: |
+  #       cd ${GITHUB_WORKSPACE}
+  #       cd yarp
+  #       mkdir build
+  #       cd build
+  #       cmake -GNinja -DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX} \
+  #                     -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} .. \
+  #                     -DYARP_COMPILE_TESTS:BOOL=ON \
+  #                     -DYARP_COMPILE_ALL_FAKE_DEVICES:BOOL=ON \
+  #                     -DYARP_VALGRIND_TESTS:BOOL=ON
+  #       cmake --build . --config ${{ matrix.build_type }}
+  #       cmake --install . --config ${{ matrix.build_type }}
+  #       echo "YARP_DATA_DIRS=${CONDA_PREFIX}/share/yarp::${YARP_DATA_DIRS}" >> $GITHUB_ENV
+
+  #   - name: Configure [Linux&macOS]
+  #     if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
+  #     shell: bash -l {0}
+  #     run: |
+  #       mkdir -p build
+  #       cd build
+  #       # Python3_EXECUTABLE is set as a workaround for https://github.com/ros2/python_cmake_module/issues/6
+  #       cmake -GNinja -DBUILD_TESTING:BOOL=ON \
+  #                     -DYARP_ROS2_USE_SYSTEM_map2d_nws_ros2_msgs:BOOL=OFF \
+  #                     -DPython3_EXECUTABLE:PATH=$CONDA_PREFIX/bin/python3 \
+  #                     -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+  #                     -DYARP_VALGRIND_TESTS:BOOL=ON \
+  #                     -DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX} .. \
+  #                     -DYARP_COMPILE_TESTS:BOOL=ON
+
+  #   - name: Build [Linux&macOS]
+  #     if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
+  #     shell: bash -l {0}
+  #     run: |
+  #       cd build
+  #       cmake --build . --config ${{ matrix.build_type }}
+
+  #   - name: Install [Linux&macOS]
+  #     if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
+  #     shell: bash -l {0}
+  #     run: |
+  #       cd build
+  #       cmake --install . --config ${{ matrix.build_type }}
+
+  #   - name: Test [Linux&macOS]
+  #     if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
+  #     shell: bash -l {0}
+  #     run: |
+  #       cd build
+  #       ctest --output-on-failure -C ${{ matrix.build_type }}
+
+  sonar:
+    # environment: code-analysis
+    name: "SonarCloud"
+    needs: [select_environment]
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
-        build_type: [Release]
+        build_type: [Profile]
         ros_distro: [humble]
-        os: [ubuntu-latest, macos-latest, windows-2019]
-      fail-fast: false
-
+        os: [ubuntu-22.04]
     steps:
-    - uses: actions/checkout@v3
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          miniforge-variant: Mambaforge
+          miniforge-version: latest
+      - name: Clone repository
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ needs.select_environment.outputs.repository }}
+          ref: ${{ needs.select_environment.outputs.ref }}
+          fetch-depth: 0
 
-    - uses: conda-incubator/setup-miniconda@v2
-      with:
-        miniforge-variant: Mambaforge
-        miniforge-version: latest
+      - name: Get Sonar and Prepare Environment
+        id: get_sonar
+        env:
+          SONAR_ORGANIZATION: ${{ needs.select_environment.outputs.repository_owner }}
+          SONAR_PROJECT_KEY: ${{ needs.select_environment.outputs.repository_owner }}_${{ needs.select_environment.outputs.repository_name }}
+          SONAR_PROJECT_NAME: ${{ needs.select_environment.outputs.repository_name }}
+          SONAR_PROJECT_DESCRIPTION: 'YARP devices ROS2'
+          SONAR_SOURCES: 'src'
+          SONAR_TESTS: 'tests'
+          SONAR_CFAMILY_GCOV_REPORTSPATH: 'build/coverage.info'
+          SONAR_CFAMILY_CACHE_ENABLED: true
+          SONAR_SCANNER_VERSION: '5.0.1.3006'
+          SONAR_THREADS: 2
+        run: |
+          # Internal variables
+          SONAR_HOME_PATH=.sonar
+          SONAR_CACHE_PATH=${SONAR_HOME_PATH}/cache
+          SONAR_HOME=${HOME}/${SONAR_HOME_PATH}
 
-    - name: Dependencies
-      shell: bash -l {0}
-      run: |
-        # Compilation related dependencies
-        mamba install cmake compilers make ninja pkg-config
-        # Actual dependencies
-        mamba install -c conda-forge -c robostack-staging ycm-cmake-modules eigen ace ros-${{ matrix.ros_distro }}-ros-base ros-${{ matrix.ros_distro }}-test-msgs
+          # project name from SonarCloud projet creation page -Dsonar.projectKey=XXXX
+          echo "SONAR_PROJECT_KEY=${SONAR_PROJECT_KEY}" >> $GITHUB_ENV
 
+          # project name from SonarCloud projet creation page -Dsonar.projectKey=XXXX
+          echo "SONAR_PROJECT_NAME=${SONAR_PROJECT_NAME}" >> $GITHUB_ENV
 
-    - name: Download YARP [Linux&macOS]
-      if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
-      run: |
-        cd ${GITHUB_WORKSPACE}
-        git clone https://github.com/robotology/yarp
+          # project name from SonarCloud projet creation page -Dsonar.projectName=XXXX
+          echo "SONAR_ORGANIZATION=${SONAR_ORGANIZATION}" >> $GITHUB_ENV
 
-    - name: Dependencies from source [Linux&macOS]
-      if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
-      shell: bash -l {0}
-      run: |
-        cd ${GITHUB_WORKSPACE}
-        cd yarp
-        mkdir build
-        cd build
-        cmake -GNinja -DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX} \
-                      -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} .. \
-                      -DYARP_COMPILE_TESTS:BOOL=ON \
-                      -DYARP_COMPILE_ALL_FAKE_DEVICES:BOOL=ON
-        cmake --build . --config ${{ matrix.build_type }}
-        cmake --install . --config ${{ matrix.build_type }}
-        echo "YARP_DATA_DIRS=${CONDA_PREFIX}/share/yarp::${YARP_DATA_DIRS}" >> $GITHUB_ENV
+          # project version
+          [[ ! -z "${SONAR_PROJECT_VERSION}" ]] && echo "SONAR_PROJECT_VERSION=${SONAR_PROJECT_VERSION}" >> $GITHUB_ENV
 
-    - name: Dependencies from source [Windows]
-      if: contains(matrix.os, 'windows')
-      shell: bash -l {0}
-      run: |
-        cd ${GITHUB_WORKSPACE}
-        git clone https://github.com/robotology/yarp
-        cd yarp
-        mkdir build
-        cd build
-        cmake -G"Visual Studio 16 2019" -DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX}/Library \
-                                        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} .. \
-                                        -DYARP_COMPILE_TESTS:BOOL=ON \
-                                        -DYARP_COMPILE_ALL_FAKE_DEVICES:BOOL=ON
-        cmake --build . --config ${{ matrix.build_type }}
-        cmake --install . --config ${{ matrix.build_type }}
-        echo "YARP_DATA_DIRS=${CONDA_PREFIX}/Library/share/yarp;${YARP_DATA_DIRS}" >> $GITHUB_ENV
+          # Links
+          echo "SONAR_LINKS_HOMEPAGE=${SONAR_LINKS_HOMEPAGE:-https://github.com/${GITHUB_REPOSITORY}/}" >> $GITHUB_ENV
+          echo "SONAR_LINKS_CI=${SONAR_LINKS_CI:-https://github.com/${GITHUB_REPOSITORY}/actions/}" >> $GITHUB_ENV
+          echo "SONAR_LINKS_ISSUE=${SONAR_LINKS_ISSUE:-https://github.com/${GITHUB_REPOSITORY}/issues/}" >> $GITHUB_ENV
+          echo "SONAR_LINKS_SCM=${SONAR_LINKS_SCM:-https://github.com/${GITHUB_REPOSITORY}/}" >> $GITHUB_ENV
 
-    - name: Configure [Linux&macOS]
-      if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
-      shell: bash -l {0}
-      run: |
-        mkdir -p build
-        cd build
-        # Python3_EXECUTABLE is set as a workaround for https://github.com/ros2/python_cmake_module/issues/6
-        cmake -GNinja -DBUILD_TESTING:BOOL=ON \
-                      -DYARP_ROS2_USE_SYSTEM_map2d_nws_ros2_msgs:BOOL=OFF \
-                      -DPython3_EXECUTABLE:PATH=$CONDA_PREFIX/bin/python3 \
-                      -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-                      -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-                      -DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX} .. \
-                      -DYARP_COMPILE_TESTS:BOOL=ON
+          # Set default to SONAR_HOST_URL in not provided
+          echo "SONAR_HOST_URL=${SONAR_HOST_URL:-https://sonarcloud.io}" >> $GITHUB_ENV
 
-    - name: Configure [Windows]
-      if: contains(matrix.os, 'windows')
-      # Command prompt is used as a workaround for https://github.com/RoboStack/ros-noetic/issues/21
-      shell: cmd /C CALL {0}
-      run: |
-        mkdir -p build
-        cd build
-        cmake -G"Visual Studio 16 2019" -DBUILD_TESTING:BOOL=ON ^
-                                        -DYARP_ROS2_USE_SYSTEM_map2d_nws_ros2_msgs:BOOL=OFF ^
-                                        -DPython3_EXECUTABLE:PATH=%CONDA_PREFIX%\python.exe ^
-                                        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ^
-                                        -DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX}\Library .. ^
-                                        -DYARP_COMPILE_TESTS:BOOL=ON
+          echo "SONAR_SCANNER_VERSION=${SONAR_SCANNER_VERSION}" >> $GITHUB_ENV
 
-    - name: Build [Linux&macOS]
-      if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
-      shell: bash -l {0}
-      run: |
-        cd build
-        cmake --build . --config ${{ matrix.build_type }}
+          SONAR_SCANNER_HOME=${SONAR_HOME}/sonar-scanner-${SONAR_SCANNER_VERSION}-linux
+          echo "SONAR_SCANNER_HOME=${SONAR_SCANNER_HOME}" >> $GITHUB_ENV
 
-    - name: Install [Linux&macOS]
-      if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
-      shell: bash -l {0}
-      run: |
-        cd build
-        cmake --install . --config ${{ matrix.build_type }}
+          echo "SONAR_SCANNER_OPTS=${SONAR_SCANNER_OPTS:--server}" >> $GITHUB_ENV
+          echo "SONAR_SOURCES=${SONAR_SOURCES:-src}" >> $GITHUB_ENV
+          [[ -v SONAR_TESTS ]] && echo "SONAR_TESTS=${SONAR_TESTS}" >> $GITHUB_ENV
 
-    - name: Test [Linux&macOS]
-      if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
-      shell: bash -l {0}
-      run: |
-        cd build
-        ctest --output-on-failure -C ${{ matrix.build_type }}
+          echo "SONAR_SOURCEENCODING=${SONAR_SOURCEENCODING:-UTF-8}" >> $GITHUB_ENV
+          echo "SONAR_THREADS=${SONAR_THREADS:-1}" >> $GITHUB_ENV
 
-    - name: Build [Windows]
-      if: contains(matrix.os, 'windows')
-      shell: cmd /C CALL {0}
-      run: |
-        cd build
-        cmake --build . --config ${{ matrix.build_type }}
+          echo "SONAR_CFAMILY_CACHE_ENABLED=$([[ $SONAR_CFAMILY_CACHE_ENABLED = true ]] && echo true || echo false)" >> $GITHUB_ENV
+          [[ $SONAR_CFAMILY_CACHE_ENABLED = true ]] && echo "SONAR_CFAMILY_CACHE_PATH=${SONAR_CACHE_PATH}" >> $GITHUB_ENV
 
-    - name: Install [Windows]
-      if: contains(matrix.os, 'windows')
-      shell: cmd /C CALL {0}
-      run: |
-        cd build
-        cmake --install . --config ${{ matrix.build_type }}
+          echo "PATH=${SONAR_HOME}/build-wrapper-linux-x86:${SONAR_SCANNER_HOME}/bin:${PATH}" >> $GITHUB_ENV
 
-    - name: Test [Windows]
-      if: contains(matrix.os, 'windows')
-      shell: cmd /C CALL {0}
-      run: |
-        cd build
-        ctest --output-on-failure -C ${{ matrix.build_type }}
+          
+          mkdir -p ${SONAR_HOME}
+          mkdir -p ${SONAR_CACHE_PATH}
 
-  build-valgrind:
-    name: 'valgrind [ubuntu-latest@Debug@humble@conda]'
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        build_type: [Debug]
-        ros_distro: [humble]
-        os: [ubuntu-latest]
-      fail-fast: false
+          cat $GITHUB_ENV
 
-    steps:
-    - uses: actions/checkout@v3
+          # Download sonar-scanner
+          curl -sSLo ${SONAR_HOME}/sonar-scanner.zip https://binaries${SONAR_HOME_PATH}source.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$SONAR_SCANNER_VERSION-linux.zip
+          unzip -o ${SONAR_HOME}/sonar-scanner.zip -d ${SONAR_HOME}/
+  
+          # Download build-wrapper
+          curl -sSLo ${SONAR_HOME}/build-wrapper-linux-x86.zip https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip
+          unzip -o ${SONAR_HOME}/build-wrapper-linux-x86.zip -d ${SONAR_HOME}/
+  
+          echo "sonar_path=${SONAR_HOME_PATH}" >> $GITHUB_OUTPUT
+          echo "sonar_cache_path=${SONAR_CACHE_PATH}" >> $GITHUB_OUTPUT
+  
+      - name: Dependencies
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get autoremove
+          # dpkg --get-selections | grep hold
+          DEBIAN_FRONTEND=noninteractive
+          
+          # Install cmake
 
-    - uses: conda-incubator/setup-miniconda@v2
-      with:
-        miniforge-variant: Mambaforge
-        miniforge-version: latest
+          sudo rm /usr/local/bin/cmake
+          wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | sudo tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null
+          echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ focal main' | sudo tee /etc/apt/sources.list.d/kitware.list >/dev/null
+          sudo apt-get update
+          sudo rm /usr/share/keyrings/kitware-archive-keyring.gpg
+          sudo apt-get -y install kitware-archive-keyring
+          sudo apt-cache policy cmake-data
+          sudo apt-cache policy cmake
+          sudo apt-get -y install cmake-data
+          sudo apt-get -y -f install cmake
+          # sudo apt-get install -qq -y cmake
+          # which cmake
+          # cmake --version
+          # /usr/bin/cmake --version
+          
+          # Install build tools
+          sudo apt install -y ccache \
+                              valgrind \
+                              libunwind-dev
+          
+          sudo apt update
+          sudo apt upgrade
+          sudo apt autoremove
+          sudo apt install -y libace-dev \
+                                      libsqlite3-dev \
+                                      libtinyxml-dev \
+                                      libedit-dev \
+                                      qtbase5-dev \
+                                      qtdeclarative5-dev \
+                                      qtmultimedia5-dev \
+                                      libqt5opengl5-dev \
+                                      libqcustomplot-dev \
+                                      libopencv-dev \
+                                      libeigen3-dev \
+                                      libgraphviz-dev \
+                                      libgstreamer1.0-dev \
+                                      libgstreamer-plugins-base1.0-dev \
+                                      libpng-dev \
+                                      libv4l-dev \
+                                      libavcodec-dev \
+                                      libavdevice-dev \
+                                      libavformat-dev \
+                                      libavutil-dev \
+                                      portaudio19-dev \
+                                      libsdl1.2-dev \
+                                      libopenni2-dev \
+                                      libftdi-dev \
+                                      libi2c-dev \
+                                      libjpeg-dev \
+                                      libpcl-dev
+          
+          # Install SWIG and bindings dependencies
+          sudo apt install -qq -y swig \
+                                      mono-mcs \
+                                      liblua5.3-dev \
+                                      lua5.3 \
+                                      tcl-dev \
+                                      tk-dev \
+                                      python3-dev \
+                                      liboctave-dev \
+                                      default-jdk \
+                                      ruby-dev \
+                                      ruby \
+                                      perl
+          
+          # Other tools useful in github actions
+          sudo apt install -qq -y jq \
+                                      wget \
+                                      curl \
+                                      lcov \
+                                      gcovr \
+                                      wget \
+                                      curl \
+                                      clang-11 \
+                                      clang-tidy-11 \
+                                      xsltproc \
+                                      libxml2-utils \
+                                      source-highlight
+          
+          # Remove old packages from apt cache
+          sudo apt autoclean -qq
 
-    - name: Dependencies
-      shell: bash -l {0}
-      run: |
-        # Compilation related dependencies
-        mamba install cmake compilers make ninja pkg-config
-        # Actual dependencies
-        sudo apt-get install -qq -y libc6-dbg
-        mamba install -c conda-forge -c robostack-staging ycm-cmake-modules eigen valgrind ace ros-${{ matrix.ros_distro }}-ros-base ros-${{ matrix.ros_distro }}-test-msgs
+          # Install Ros2
+          sudo apt install software-properties-common
+          sudo add-apt-repository universe
+          sudo apt update && sudo apt install curl -y
+          sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
+          sudo apt update && sudo apt install -qq -y ros-humble-desktop 
+          sudo apt install -qq -y ros-humble-test-msgs 
+          sudo apt install -qq -y ros-dev-tools
 
-    - name: Download YARP [Linux&macOS]
-      if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
-      run: |
-        cd ${GITHUB_WORKSPACE}
-        git clone https://github.com/robotology/yarp
+        # Install ycm
+      - name: Download YCM [Linux]
+        if: runner.os == 'Linux'
+        run: |
+            cd ${GITHUB_WORKSPACE}
+            git clone https://github.com/robotology/ycm.git
+            cd ycm 
+            mkdir -p build
+            cd build 
+            cmake .. 
+            cmake --build . --config Release
+            sudo cmake --install . --config Release
 
-    - name: Dependencies from source [Linux&macOS]
-      if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
-      shell: bash -l {0}
-      run: |
-        cd ${GITHUB_WORKSPACE}
-        cd yarp
-        mkdir build
-        cd build
-        cmake -GNinja -DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX} \
-                      -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} .. \
-                      -DYARP_COMPILE_TESTS:BOOL=ON \
-                      -DYARP_COMPILE_ALL_FAKE_DEVICES:BOOL=ON \
-                      -DYARP_VALGRIND_TESTS:BOOL=ON
-        cmake --build . --config ${{ matrix.build_type }}
-        cmake --install . --config ${{ matrix.build_type }}
-        echo "YARP_DATA_DIRS=${CONDA_PREFIX}/share/yarp::${YARP_DATA_DIRS}" >> $GITHUB_ENV
+      - name: Download YARP [Linux&macOS]
+        if: runner.os == 'Linux'
+        run: |
+          cd ${GITHUB_WORKSPACE}
+          git clone https://github.com/robotology/yarp
+  
+      - name: Dependencies from source [Linux&macOS]
+        if: runner.os == 'Linux'
+        shell: bash -l {0}
+        run: |
+          cd ${GITHUB_WORKSPACE}
+          cd yarp
+          mkdir build
+          cd build
+          cmake         -DCMAKE_BUILD_TYPE=Release .. \
+                        -DYARP_COMPILE_TESTS:BOOL=ON \
+                        -DYARP_COMPILE_ALL_FAKE_DEVICES:BOOL=ON
+          cmake --build . --config Release
+          sudo cmake --install . --config Release
+          echo "YARP_DATA_DIRS=/usr/local/share/yarp::${YARP_DATA_DIRS}" >> $GITHUB_ENV
 
-    - name: Configure [Linux&macOS]
-      if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
-      shell: bash -l {0}
-      run: |
-        mkdir -p build
-        cd build
-        # Python3_EXECUTABLE is set as a workaround for https://github.com/ros2/python_cmake_module/issues/6
-        cmake -GNinja -DBUILD_TESTING:BOOL=ON \
-                      -DYARP_ROS2_USE_SYSTEM_map2d_nws_ros2_msgs:BOOL=OFF \
-                      -DPython3_EXECUTABLE:PATH=$CONDA_PREFIX/bin/python3 \
-                      -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-                      -DYARP_VALGRIND_TESTS:BOOL=ON \
-                      -DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX} .. \
-                      -DYARP_COMPILE_TESTS:BOOL=ON
+      - name: Prepare ccache environment variables
+        id: init_ccache
+        run: |
+          CCACHE_HOME_PATH=.ccache
+          CCACHE_BASEDIR=$GITHUB_WORKSPACE
+  
+          echo "CCACHE_BASEDIR=${CCACHE_BASEDIR}" >> $GITHUB_ENV
+          echo "CCACHE_HOME_PATH=.ccache" >> $GITHUB_ENV
+          echo "CCACHE_DIR=${CCACHE_BASEDIR}/${CCACHE_HOME_PATH}" >> $GITHUB_ENV
+          echo "CCACHE_COMPRESS=true" >> $GITHUB_ENV
+          echo "CCACHE_COMPRESSLEVEL=6" >> $GITHUB_ENV
+          echo "CCACHE_MAXSIZE=400M" >> $GITHUB_ENV
+          echo "CCACHE_CPP2=yes" >> $GITHUB_ENV
+          echo "PATH=/usr/lib/ccache::${PATH}" >> $GITHUB_ENV
+  
+          cat $GITHUB_ENV
+  
+          echo "ccache_path=${CCACHE_HOME_PATH}" >> $GITHUB_OUTPUT
 
-    - name: Build [Linux&macOS]
-      if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
-      shell: bash -l {0}
-      run: |
-        cd build
-        cmake --build . --config ${{ matrix.build_type }}
+      - name: Print info and reset stats before build
+        run: |
+          set -x
+  
+          which ccache
+          ccache --version
+          ccache -p
+  
+          ls -la --color=always /usr/lib/ccache
+  
+          # Reset ccache stats before starting
+          ccache -z
+  
+          gcov --version
+          gcovr --version
 
-    - name: Install [Linux&macOS]
-      if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
-      shell: bash -l {0}
-      run: |
-        cd build
-        cmake --install . --config ${{ matrix.build_type }}
+      - name: Handle cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ${{ steps.init_ccache.outputs.ccache_path }}
+            ${{ steps.get_sonar.outputs.sonar_cache_path }}
+          key: sonar-cache-${{ needs.select_environment.outputs.timestamp }}
+          restore-keys: |
+            sonar-cache-
 
-    - name: Test [Linux&macOS]
-      if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
-      shell: bash -l {0}
-      run: |
-        cd build
-        ctest --output-on-failure -C ${{ matrix.build_type }}
+      - name: Run CMake
+        if: runner.os == 'Linux'
+        shell: bash -l {0}   
+        run: |
+          source /opt/ros/humble/setup.bash
+          mkdir -p build
+          cd build
+          cmake -DBUILD_TESTING:BOOL=ON \
+                        -DCMAKE_C_FLAGS=-fdiagnostics-color=always \
+                        -DCMAKE_CXX_FLAGS=-fdiagnostics-color=always \
+                        -DCMAKE_BUILD_TYPE=Profile \
+                        "-DCMAKE_C_FLAGS_PROFILE=-pg -g3 -ggdb -fno-inline -ftest-coverage -fprofile-arcs -DNDEBUG" \
+                        "-DCMAKE_CXX_FLAGS_PROFILE=-pg -g3 -ggdb -fno-inline -ftest-coverage -fprofile-arcs -DNDEBUG" \
+                        -DCMAKE_EXE_LINKER_FLAGS_PROFILE=-lgcov \
+                        -DCMAKE_MODULE_LINKER_FLAGS_PROFILE=-lgcov \
+                        -DCMAKE_SHARED_LINKER_FLAGS_PROFILE=-lgcov \
+                        -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=ON \
+                        -DYARP_ROS2_USE_SYSTEM_map2d_nws_ros2_msgs:BOOL=OFF \
+                        -DYARP_COMPILE_TESTS:BOOL=ON ..
+
+      - name: Link compile_commands.json in the source directory
+        run: |
+          ln -s build/compile_commands.json .
+  
+      - name: Build inside the build-wrapper
+        run: |
+          source /opt/ros/humble/setup.bash
+          build-wrapper-linux-x86-64 --out-dir build_wrapper_output_directory cmake --build build --config Profile
+
+      - name: Run tests
+        run: |
+          source /opt/ros/humble/setup.bash
+          # Download CTest2JUnit.xsl
+          wget https://raw.githubusercontent.com/zanata/zanata-tests/master/scripts/CTest2JUnit.xsl -O CTest2JUnit.xsl
+  
+          # -T Test produces the xml output with the results
+          cd build && ctest -T test --rerun-failed --output-on-failure --verbose -C ${{ matrix.build_type }}
+          xsltproc CTest2JUnit.xsl build/Testing/$(head -n 1 < build/Testing/TAG)/Test.xml > build/JUnitTestResults.xml
+  
+      - name: Print tests results file
+        run: |
+          xmllint --format build/JUnitTestResults.xml | source-highlight -s xml --out-format=esc -o STDOUT
+  
+      - name: Print ccache stats after build
+        run: |
+          set -x
+  
+          # Print ccache stats
+          ccache -s
+  
+      - name: Capture coverage info
+        run: |
+          source /opt/ros/humble/setup.bash
+          (cd build && gcovr --sonarqube --branches --output coverage.xml --root .. .)
+  
+      - name: Print coverage info file
+        run: |
+          xmllint --format build/coverage.xml | source-highlight -s xml --out-format=esc -o STDOUT
+  
+      - name: Run sonar scanner
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+  
+          # Run sonar scanner (here, arguments are passed through the command line but most of them can be written in the sonar-project.properties file)
+          [[ -v SONAR_TOKEN ]] && SONAR_TOKEN_CMD_ARG="-Dsonar.login=${SONAR_TOKEN}"
+          [[ -v SONAR_ORGANIZATION ]] && SONAR_ORGANIZATION_CMD_ARG="-Dsonar.organization=${SONAR_ORGANIZATION}"
+          [[ -v SONAR_PROJECT_NAME ]] && SONAR_PROJECT_NAME_CMD_ARG="-Dsonar.projectName=${SONAR_PROJECT_NAME}"
+          [[ -v SONAR_PROJECT_DESCRIPTION ]] && SONAR_PROJECT_DESCRIPTION_CMD_ARG="-Dsonar.projectDescription=${SONAR_PROJECT_DESCRIPTION}"
+          [[ -v SONAR_PROJECT_VERSION ]] && SONAR_PROJECT_VERSION_CMD_ARG="-Dsonar.projectVersion=${SONAR_PROJECT_VERSION}"
+  
+          if [[ "$GITHUB_EVENT_NAME" = "pull_request" || "$GITHUB_EVENT_NAME" == "pull_request_target" ]]; then
+            SONAR_PR_CMD_ARGS="\
+              -Dsonar.pullrequest.provider=github \
+              -Dsonar.pullrequest.github.repository=${SONAR_ORGANIZATION}/${SONAR_PROJECT_NAME} \
+              -Dsonar.pullrequest.branch=${{ needs.select_environment.outputs.head_ref }} \
+              -Dsonar.pullrequest.key=${{ needs.select_environment.outputs.pr_number }} \
+              -Dsonar.pullrequest.base=${{ needs.select_environment.outputs.base_ref }} \
+              -Dsonar.pullrequest.github.endpoint=https://api.github.com"
+          fi
+  
+          # Paths to test files
+          [[ -v SONAR_TESTS ]] && SONAR_TESTS_CMD_ARG="-Dsonar.tests=${SONAR_TESTS}"
+  
+          # Path to cache
+          [[ -v SONAR_CFAMILY_CACHE_PATH ]] && SONAR_CFAMILY_CACHE_PATH_CMD_ARG="-Dsonar.cfamily.cache.path=${SONAR_CFAMILY_CACHE_PATH}"
+  
+          set -x
+  
+          sonar-scanner \
+              -Dsonar.host.url="${SONAR_HOST_URL}" \
+              -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+              -Dsonar.language=c++ \
+              -Dsonar.sources=${SONAR_SOURCES} \
+              -Dsonar.links.homepage=${SONAR_LINKS_HOMEPAGE} \
+              -Dsonar.links.ci=${SONAR_LINKS_CI} \
+              -Dsonar.links.issue=${SONAR_LINKS_ISSUE} \
+              -Dsonar.links.scm=${SONAR_LINKS_SCM} \
+              -Dsonar.cfamily.build-wrapper-output=build_wrapper_output_directory \
+              -Dsonar.sourceEncoding=${SONAR_SOURCEENCODING} \
+              -Dsonar.cfamily.threads=${SONAR_THREADS} \
+              -Dsonar.cfamily.cache.enabled=${SONAR_CFAMILY_CACHE_ENABLED} \
+              -Dsonar.coverageReportPaths=build/coverage.xml \
+              -Dsonar.junit.reportPaths=build/JUnitTestResults.xml \
+              -Dsonar.exclusions="src/yarp*/**/* src/carriers/**/* src/devices/**/* src/idls/**/* src/libyarp*/**/* src/robottestingframework-plugins/**/* tests/**/*" \
+              -Dsonar.coverage.exclusions="src/yarp*/**/* src/carriers/**/* src/devices/**/* src/idls/**/* src/libyarp*/**/* src/robottestingframework-plugins/**/*" \
+              -Dsonar.branch.longLivedBranches.regex="^(master|yarp-.+)$" \
+              ${SONAR_TESTS_CMD_ARG} \
+              ${SONAR_PROJECT_NAME_CMD_ARG} \
+              ${SONAR_PROJECT_DESCRIPTION_CMD_ARG} \
+              ${SONAR_PROJECT_VERSION_CMD_ARG} \
+              ${SONAR_PR_CMD_ARGS} \
+              ${SONAR_TOKEN_CMD_ARG} \
+              ${SONAR_ORGANIZATION_CMD_ARG} \
+              ${SONAR_CFAMILY_CACHE_PATH_CMD_ARG}
+      
