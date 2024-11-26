@@ -59,8 +59,17 @@ jobs:
     strategy:
       matrix:
         build_type: [Release]
-        ros_distro: [humble]
-        os: [ubuntu-latest, macos-latest, windows-2019]
+        ros_distro: [humble, iron, jazzy]
+        os: [ubuntu-22.04, ubuntu-24.04, macos-latest, windows-2019]
+        exclude:
+          # iron, jazzy non yet supported by conda:
+          - ros_distro: iron
+          - ros_distro: jazzy
+          # incompatible combinations:
+          - os: ubuntu-22.04
+            ros_distro: jazzy
+          - os: ubuntu-24.04
+            ros_distro: iron
       fail-fast: false
 
     steps:
@@ -191,13 +200,13 @@ jobs:
         ctest --output-on-failure -C ${{ matrix.build_type }}
 
   build-valgrind:
-    name: 'valgrind [ubuntu-latest@Debug@humble@conda]'
-    runs-on: ubuntu-latest
+    name: 'valgrind [ubuntu-22.04@Debug@humble@conda]'
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         build_type: [Debug]
         ros_distro: [humble]
-        os: [ubuntu-latest]
+        os: [ubuntu-22.04]
       fail-fast: false
 
     steps:
