@@ -223,7 +223,6 @@ bool RgbdSensor_nws_ros2::detach()
 
 bool RgbdSensor_nws_ros2::setCamInfo(sensor_msgs::msg::CameraInfo& cameraInfo,
                                      const std::string& frame_id,
-                                     const yarp::os::Stamp& stamp,
                                      const SensorType& sensorType)
 {
     double phyF = 0.0;
@@ -259,22 +258,21 @@ bool RgbdSensor_nws_ros2::setCamInfo(sensor_msgs::msg::CameraInfo& cameraInfo,
     }
 
     distModel = camData.find("distortionModel").asString();
-    if (distModel != "plumb_bob")
-    {
-        yCError(RGBDSENSOR_NWS_ROS2) << "Distortion model not supported";
-        return false;
-    }
 
     parVector.emplace_back(phyF,"physFocalLength");
     parVector.emplace_back(fx,"focalLengthX");
     parVector.emplace_back(fy,"focalLengthY");
     parVector.emplace_back(cx,"principalPointX");
     parVector.emplace_back(cy,"principalPointY");
-    parVector.emplace_back(k1,"k1");
-    parVector.emplace_back(k2,"k2");
-    parVector.emplace_back(t1,"t1");
-    parVector.emplace_back(t2,"t2");
-    parVector.emplace_back(k3,"k3");
+
+    if (distModel != "none")
+    {
+        parVector.emplace_back(k1,"k1");
+        parVector.emplace_back(k2,"k2");
+        parVector.emplace_back(t1,"t1");
+        parVector.emplace_back(t2,"t2");
+        parVector.emplace_back(k3,"k3");
+    }
 
     for(auto& par : parVector) {
         if(!camData.check(par.parname)) {
@@ -285,18 +283,19 @@ bool RgbdSensor_nws_ros2::setCamInfo(sensor_msgs::msg::CameraInfo& cameraInfo,
     }
 
     cameraInfo.header.frame_id      = frame_id;
-    cameraInfo.header.stamp.sec     = static_cast<int>(stamp.getTime()); // FIXME
-    cameraInfo.header.stamp.nanosec = static_cast<int>(1000000000UL * (stamp.getTime() - int(stamp.getTime()))); // FIXME
     cameraInfo.width                = sensorType == COLOR_SENSOR ? sensor_p->getRgbWidth() : sensor_p->getDepthWidth();
     cameraInfo.height               = sensorType == COLOR_SENSOR ? sensor_p->getRgbHeight() : sensor_p->getDepthHeight();
     cameraInfo.distortion_model     = distModel;
 
-    cameraInfo.d.resize(5);
-    cameraInfo.d[0] = k1;
-    cameraInfo.d[1] = k2;
-    cameraInfo.d[2] = t1;
-    cameraInfo.d[3] = t2;
-    cameraInfo.d[4] = k3;
+    if (distModel != "none")
+    {
+        cameraInfo.d.resize(5);
+        cameraInfo.d[0] = k1;
+        cameraInfo.d[1] = k2;
+        cameraInfo.d[2] = t1;
+        cameraInfo.d[3] = t2;
+        cameraInfo.d[4] = k3;
+    }
 
     cameraInfo.k[0]  = fx;       cameraInfo.k[1] = 0;        cameraInfo.k[2] = cx;
     cameraInfo.k[3]  = 0;        cameraInfo.k[4] = fy;       cameraInfo.k[5] = cy;
@@ -356,7 +355,14 @@ bool RgbdSensor_nws_ros2::writeData()
         oldDepthStamp = depthStamp;
     }
 
-    // TBD: We should check here somehow if the timestamp was correctly updated and, if not, update it ourselves.
+    // Call setCamInfo only the first time
+    if (m_firstTime) {
+        setCamInfo(m_camInfoData.colorCamInfo, "color_frame", COLOR_SENSOR);
+        setCamInfo(m_camInfoData.depthCamInfo, "depth_frame", DEPTH_SENSOR);
+        m_firstTime = false;
+    }
+
+    // Use m_camInfoData for subsequent calls
     if (rgb_data_ok) {
         sensor_msgs::msg::Image rColorImage;
         rColorImage.data.resize(colorImage.getRawImageSize());
@@ -372,15 +378,10 @@ bool RgbdSensor_nws_ros2::writeData()
 
         rosPublisher_color->publish(rColorImage);
 
-        sensor_msgs::msg::CameraInfo camInfoC;
-        if (setCamInfo(camInfoC, m_color_frame_id, colorStamp, COLOR_SENSOR)) {
-            if(m_forceInfoSync) {
-                camInfoC.header.stamp = rColorImage.header.stamp;
-            }
-            rosPublisher_colorCaminfo->publish(camInfoC);
-        } else {
-            yCWarning(RGBDSENSOR_NWS_ROS2, "Missing color camera parameters... camera info messages will be not sent");
+        if (m_forceInfoSync) {
+            m_camInfoData.colorCamInfo.header.stamp = rColorImage.header.stamp;
         }
+        rosPublisher_colorCaminfo->publish(m_camInfoData.colorCamInfo);
     }
 
     if (depth_data_ok)
@@ -399,15 +400,10 @@ bool RgbdSensor_nws_ros2::writeData()
 
         rosPublisher_depth->publish(rDepthImage);
 
-        sensor_msgs::msg::CameraInfo camInfoD;
-        if (setCamInfo(camInfoD, m_depth_frame_id, depthStamp, DEPTH_SENSOR)) {
-            if(m_forceInfoSync) {
-                camInfoD.header.stamp = rDepthImage.header.stamp;
-            }
-            rosPublisher_depthCaminfo->publish(camInfoD);
-        } else {
-            yCWarning(RGBDSENSOR_NWS_ROS2, "Missing depth camera parameters... camera info messages will be not sent");
+        if (m_forceInfoSync) {
+            m_camInfoData.depthCamInfo.header.stamp = rDepthImage.header.stamp;
         }
+        rosPublisher_depthCaminfo->publish(m_camInfoData.depthCamInfo);
     }
 
     return true;

@@ -30,6 +30,11 @@
  *  Documentation to be added
  *
 */
+struct CameraInfoData {
+    sensor_msgs::msg::CameraInfo colorCamInfo;
+    sensor_msgs::msg::CameraInfo depthCamInfo;
+};
+
 class RgbdSensor_nws_ros2 :
         public yarp::dev::DeviceDriver,
         public yarp::dev::WrapperSingle,
@@ -86,16 +91,14 @@ private:
     yarp::dev::IRGBDSensor* sensor_p {nullptr};
     yarp::dev::IFrameGrabberControls* fgCtrl {nullptr};
     bool m_forceInfoSync {true};
+    bool m_firstTime {true};
+
+    CameraInfoData m_camInfoData;
 
     bool writeData();
     bool setCamInfo(sensor_msgs::msg::CameraInfo& cameraInfo,
                     const std::string& frame_id,
-                    const yarp::os::Stamp& stamp,
                     const SensorType& sensorType);
-
-//     static std::string yarp2RosPixelCode(int code);
-
-
     bool fromConfig(yarp::os::Searchable &config);
     bool initialize_ROS2(yarp::os::Searchable& config);
 
