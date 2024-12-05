@@ -75,18 +75,17 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - uses: conda-incubator/setup-miniconda@v2
+    - uses: conda-incubator/setup-miniconda@v3
       with:
-        miniforge-variant: Mambaforge
         miniforge-version: latest
 
     - name: Dependencies
       shell: bash -l {0}
       run: |
         # Compilation related dependencies
-        mamba install cmake compilers make ninja pkg-config
+        conda install cmake compilers make ninja pkg-config
         # Actual dependencies
-        mamba install -c conda-forge -c robostack-staging ycm-cmake-modules eigen ace ros-${{ matrix.ros_distro }}-ros-base ros-${{ matrix.ros_distro }}-test-msgs
+        conda install -c conda-forge -c robostack-staging ycm-cmake-modules eigen ace ros-${{ matrix.ros_distro }}-ros-base ros-${{ matrix.ros_distro }}-test-msgs
 
 
     - name: Download YARP [Linux&macOS]
@@ -212,19 +211,18 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - uses: conda-incubator/setup-miniconda@v2
+    - uses: conda-incubator/setup-miniconda@v3
       with:
-        miniforge-variant: Mambaforge
         miniforge-version: latest
 
     - name: Dependencies
       shell: bash -l {0}
       run: |
         # Compilation related dependencies
-        mamba install cmake compilers make ninja pkg-config
+        conda install cmake compilers make ninja pkg-config
         # Actual dependencies
         sudo apt-get install -qq -y libc6-dbg
-        mamba install -c conda-forge -c robostack-staging ycm-cmake-modules eigen valgrind ace ros-${{ matrix.ros_distro }}-ros-base ros-${{ matrix.ros_distro }}-test-msgs
+        conda install -c conda-forge -c robostack-staging ycm-cmake-modules eigen valgrind ace ros-${{ matrix.ros_distro }}-ros-base ros-${{ matrix.ros_distro }}-test-msgs
 
     - name: Download YARP [Linux&macOS]
       if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
