@@ -57,42 +57,17 @@ bool Battery_nws_ros2::threadInit()
 
 bool Battery_nws_ros2::open(yarp::os::Searchable &config)
 {
-    if (!config.check("period")) {
-        yCWarning(BATTERY_NWS_ROS2) << "missing 'period' parameter, using default value of" << DEFAULT_THREAD_PERIOD;
-    } else {
-        m_period = config.find("period").asFloat64();
-    }
-
-    if (!config.check("node_name")) {
-        yCError(BATTERY_NWS_ROS2) << "missing node_name parameter";
-        return false;
-    }
-    m_nodeName = config.find("node_name").asString();
-    if (m_nodeName[0] == '/') {
-        yCError(BATTERY_NWS_ROS2) << "node_name parameter cannot begin with '/'";
-        return false;
-    }
-
-    if (!config.check("topic_name")) {
-        yCError(BATTERY_NWS_ROS2) << "missing topic_name parameter";
-        return false;
-    }
-    m_topicName = config.find("topic_name").asString();
-    if (m_topicName[0] != '/') {
-        yCError(BATTERY_NWS_ROS2) << "missing initial / in topic_name parameter";
-        return false;
-    }
-
+    parseParams(config);
     rclcpp::NodeOptions node_options;
     node_options.allow_undeclared_parameters(true);
     node_options.automatically_declare_parameters_from_overrides(true);
-    m_node = NodeCreator::createNode(m_nodeName, node_options);
+    m_node = NodeCreator::createNode(m_node_name, node_options);
     if (m_node == nullptr) {
-        yCError(BATTERY_NWS_ROS2) << " opening " << m_nodeName << " Node, check your yarp-ROS2 network configuration\n";
+        yCError(BATTERY_NWS_ROS2) << " opening " << m_node_name << " Node, check your yarp-ROS2 network configuration\n";
         return false;
     }
 
-    m_ros2Publisher = m_node->create_publisher<sensor_msgs::msg::BatteryState>(m_topicName, 10);
+    m_ros2Publisher = m_node->create_publisher<sensor_msgs::msg::BatteryState>(m_topic_name, 10);
     return true;
 }
 

@@ -18,6 +18,7 @@
 #include <sensor_msgs/msg/point_cloud2.hpp>
 
 #include <mutex>
+#include "RgbdToPointCloudSensor_nws_ros2_ParamsParser.h"
 
 namespace RGBDToPointCloudRos2Impl {
 
@@ -37,13 +38,7 @@ const std::string pointCloudTopicName_param = "topic_name";
  * derived fron the combination of the data derived from Framegrabber and IDepthSensor interfaces.
  * See they documentation for more details about each interface.
  *
- *   Parameters required by this device are:
- * | Parameter name         | SubParameter            | Type    | Units          | Default Value | Required                        | Description                                                                                         | Notes |
- * |:----------------------:|:-----------------------:|:-------:|:--------------:|:-------------:|:------------------------------: |:---------------------------------------------------------------------------------------------------:|:-----:|
- * | period                 |      -                  | double  |  s             |   0.03        |  No                             | refresh period of the broadcasted values in ms                                                      | default 20ms |
- * | topic_name             |      -                  | string  |  -             |   -           |  Yes                            | set the name for ROS point cloud topic                                                              | must start with a leading '/' |
- * | frame_id               |      -                  | string  |  -             |               |  Yes                            | set the name of the reference frame                                                                 |                               |
- * | node_name              |      -                  | string  |  -             |   -           |  Yes                            | set the name for ROS node                                                                           | must start with a leading '/' |
+ *   Parameters required by this device are described in class: RgbdToPointClpidSensor_nws_ros2_ParamsParser
  *
  * ROS2 message type used is sensor_msgs/PointCloud2.msg ( https://github.com/ros2/common_interfaces/blob/master/sensor_msgs/msg/PointCloud2.msg)
  * Some example of configuration files:
@@ -63,7 +58,8 @@ const std::string pointCloudTopicName_param = "topic_name";
 class RgbdToPointCloudSensor_nws_ros2 :
         public yarp::dev::DeviceDriver,
         public yarp::dev::WrapperSingle,
-        public yarp::os::PeriodicThread
+        public yarp::os::PeriodicThread,
+        RgbdToPointCloudSensor_nws_ros2_ParamsParser
 {
 
 private:
@@ -90,12 +86,6 @@ private:
         T* var;
         std::string parname;
     };
-
-
-
-    std::string m_nodeName;
-    std::string m_pointCloudTopicName;
-    std::string m_rosFrameId;
 
     UInt                  nodeSeq {0};
 

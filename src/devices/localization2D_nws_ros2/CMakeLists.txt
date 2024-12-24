@@ -10,11 +10,14 @@ yarp_prepare_plugin(localization2D_nws_ros2
 
 if(NOT SKIP_localization2D_nws_ros2)
   yarp_add_plugin(yarp_localization2D_nws_ros2)
+  generateDeviceParamsParser(Localization2D_nws_ros2 localization2D_nws_ros2)
 
   target_sources(yarp_localization2D_nws_ros2
     PRIVATE
       Localization2D_nws_ros2.cpp
       Localization2D_nws_ros2.h
+      Localization2D_nws_ros2_ParamsParser.h
+      Localization2D_nws_ros2_ParamsParser.cpp
   )
   target_sources(yarp_localization2D_nws_ros2 PRIVATE $<TARGET_OBJECTS:Ros2Utils>)
 

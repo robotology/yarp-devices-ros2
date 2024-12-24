@@ -30,6 +30,8 @@
 #include <sensor_msgs/msg/camera_info.hpp>
 #include <Ros2Subscriber.h>
 
+#include "RgbdSensor_nwc_ros2_ParamsParser.h"
+
 /**
  *  @ingroup dev_impl_nwc_ros2
  *
@@ -37,13 +39,7 @@
  * This device is an nwc take a stream of data from ros2 and exposes to the user IRGBDSensor interface.
  * See its documentation for more details about the interface.
  *
- *   Parameters required by this device are:
- * | Parameter name         | SubParameter            | Type    | Units          | Default Value | Required                        | Description                                                                                         | Notes |
- * |:----------------------:|:-----------------------:|:-------:|:--------------:|:-------------:|:------------------------------: |:---------------------------------------------------------------------------------------------------:|:-----:|
- * | rgb_data_topic         |      -                  | string  |  -             |   -           |  no                             | ros rgb topic                                                                                       | must start with a leading '/' |
- * | rgb_info_topic         |      -                  | string  |  -             |               |  no                             | ros rgb camera info topic                                                                           | must start with a leading '/' |
- * | depth_data_topic       |      -                  | string  |  -             |   -           |  no                             | ros depth topic                                                                                     | must start with a leading '/' |
- * | depth_info_topic       |      -                  | string  |  -             |   -           |  no                             | ros depth camera info topic                                                                         | must start with a leading '/' |
+ *   Parameters required by this device are:shown in class: RgbdSensor_nwc_ros2_ParamsParser
  *
  * example of configuration file:
  *
@@ -73,7 +69,8 @@ typedef yarp::sig::FlexImage flexImage;
  */
 class RgbdSensor_nwc_ros2:
         public yarp::dev::DeviceDriver,
-        public yarp::dev::IRGBDSensor
+        public yarp::dev::IRGBDSensor,
+        RgbdSensor_nwc_ros2_ParamsParser
         {
         private:
             // mutex for writing or retrieving images
@@ -105,10 +102,7 @@ class RgbdSensor_nwc_ros2:
 
             // ros2 variables for topics and subscriptions
             std::string m_topic_rgb_camera_info;
-            std::string m_topic_rgb_image_raw;
             std::string m_topic_depth_camera_info;
-            std::string m_topic_depth_image_raw;
-            std::string m_ros2_node_name;
 
             // yarp variables
             int      m_verbose{2};

@@ -108,48 +108,17 @@ void Localization2D_nws_ros2::run()
 
 bool Localization2D_nws_ros2::open(yarp::os::Searchable &config)
 {
-    //wrapper params
-    if (config.check("ROS"))
-    {
-        Bottle& ros_group = config.findGroup("ROS");
-        if (!ros_group.check("parent_frame_id"))
-        {
-            yCError(LOCALIZATION2D_NWS_ROS2) << "Missing 'parent_frame_id' parameter";
-            //return false;
-        }
-        else
-        {
-            m_parent_frame_id = ros_group.find("parent_frame_id").asString();
-        }
-        if (!ros_group.check("child_frame_id"))
-        {
-            yCError(LOCALIZATION2D_NWS_ROS2) << "Missing 'child_frame_id' parameter";
-            //return false;
-        }
-        else
-        {
-            m_child_frame_id = ros_group.find("child_frame_id").asString();
-        }
-
-    }
-    else
-    {
-    }
-    if (!config.check("node_name")) {
-        yCError(LOCALIZATION2D_NWS_ROS2) << "missing node_name parameter";
-        return false;
-    }
-    m_nodeName = config.find("node_name").asString();
-    if(m_nodeName[0] == '/'){
+    if(m_node_name[0] == '/'){
         yCError(LOCALIZATION2D_NWS_ROS2) << "node_name cannot begin with an initial /";
         return false;
     }
-    m_period   = config.check("period", yarp::os::Value(0.010), "Period of the thread").asFloat64();
+
+    parseParams(config);
 
     //create the topics
     const std::string m_odom_topic ="/odom";
     const std::string m_tf_topic ="/tf";
-    m_node = NodeCreator::createNode(m_nodeName);
+    m_node = NodeCreator::createNode(m_node_name);
 
     m_publisher_odom = m_node->create_publisher<nav_msgs::msg::Odometry>(m_odom_topic, 10);
     m_publisher_tf   = m_node->create_publisher<tf2_msgs::msg::TFMessage>(m_tf_topic, 10);
@@ -180,8 +149,8 @@ void Localization2D_nws_ros2::publish_odometry_on_TF_topic()
     tf2_msgs::msg::TFMessage rosData;
 
     geometry_msgs::msg::TransformStamped tsData;
-    tsData.child_frame_id = m_child_frame_id;
-    tsData.header.frame_id = m_parent_frame_id;
+    tsData.child_frame_id = m_ROS_child_frame_id;
+    tsData.header.frame_id = m_ROS_parent_frame_id;
     tsData.header.stamp = m_node->get_clock()->now();   //@@@@@@@@@@@ CHECK HERE: simulation time?
     double halfYaw = m_current_odometry.odom_theta / 180.0 * M_PI * 0.5;
     double cosYaw = cos(halfYaw);

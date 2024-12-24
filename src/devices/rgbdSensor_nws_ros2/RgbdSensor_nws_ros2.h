@@ -18,6 +18,8 @@
 #include <sensor_msgs/msg/image.hpp>
 #include <sensor_msgs/msg/camera_info.hpp>
 
+#include "RgbdSensor_nws_ros2_ParamsParser.h"
+
 #include <mutex>
 
 /**
@@ -31,7 +33,8 @@
 class RgbdSensor_nws_ros2 :
         public yarp::dev::DeviceDriver,
         public yarp::dev::WrapperSingle,
-        public yarp::os::PeriodicThread
+        public yarp::os::PeriodicThread,
+        RgbdSensor_nws_ros2_ParamsParser
 {
 public:
     RgbdSensor_nws_ros2();
@@ -77,19 +80,12 @@ private:
     rclcpp::Publisher<sensor_msgs::msg::CameraInfo>::SharedPtr rosPublisher_colorCaminfo;
     rclcpp::Publisher<sensor_msgs::msg::CameraInfo>::SharedPtr rosPublisher_depthCaminfo;
 
-    std::string m_node_name;
-
-    std::string m_depth_topic_name;
     std::string m_depth_info_topic_name;
-    std::string m_depth_frame_id;
-
-    std::string m_color_topic_name;
     std::string m_color_info_topic_name;
-    std::string m_color_frame_id;
 
     yarp::dev::IRGBDSensor* sensor_p {nullptr};
     yarp::dev::IFrameGrabberControls* fgCtrl {nullptr};
-    bool forceInfoSync {true};
+    bool m_forceInfoSync {true};
 
     bool writeData();
     bool setCamInfo(sensor_msgs::msg::CameraInfo& cameraInfo,

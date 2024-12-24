@@ -32,22 +32,8 @@ Rangefinder2D_nwc_ros2::Rangefinder2D_nwc_ros2()
 
 bool Rangefinder2D_nwc_ros2::open(yarp::os::Searchable &config)
 {
-    // node_name check
-    if (!config.check("node_name")) {
-        yCError(RANGEFINDER2D_NWC_ROS2) << "missing node_name parameter";
-        return false;
-    }
-    m_node_name = config.find("node_name").asString();
-
-
-    // depth topic base name check
-    if (!config.check("topic_name")) {
-        yCError(RANGEFINDER2D_NWC_ROS2) << "missing topic_name parameter";
-        return false;
-    }
-    m_topic_name = config.find("topic_name").asString();
-
-    m_verbose = config.check("verbose");
+    parseParams(config);
+    m_verbose = m_verbose_on == 1;
 
     m_node = NodeCreator::createNode(m_node_name);
     m_subscriber= new Ros2Subscriber<Rangefinder2D_nwc_ros2, sensor_msgs::msg::LaserScan>(m_node, this);
@@ -99,7 +85,7 @@ void Rangefinder2D_nwc_ros2::callback(sensor_msgs::msg::LaserScan::SharedPtr msg
     m_timestamp = (msg->header.stamp.sec + (msg->header.stamp.nanosec / 1000000000));
 }
 
-bool Rangefinder2D_nwc_ros2::getLaserMeasurement(std::vector<yarp::dev::LaserMeasurementData> &data, double* timestamp)
+bool Rangefinder2D_nwc_ros2::getLaserMeasurement(std::vector<yarp::sig::LaserMeasurementData> &data, double* timestamp)
 {
     if (!m_data_valid) {return false;}
     std::lock_guard<std::mutex> data_guard(m_mutex);

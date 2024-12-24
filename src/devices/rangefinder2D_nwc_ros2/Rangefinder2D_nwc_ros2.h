@@ -17,6 +17,8 @@
 #include <sensor_msgs/msg/laser_scan.hpp>
 #include <Ros2Subscriber.h>
 
+#include "Rangefinder2D_nwc_ros2_ParamsParser.h"
+
 #include <mutex>
 
 /**
@@ -29,7 +31,8 @@
  */
 class Rangefinder2D_nwc_ros2 :
         public yarp::dev::DeviceDriver,
-        public yarp::dev::IRangefinder2D
+        public yarp::dev::IRangefinder2D,
+        Rangefinder2D_nwc_ros2_ParamsParser
 {
 public:
     Rangefinder2D_nwc_ros2();
@@ -51,7 +54,7 @@ public:
 
 public:
     // IRangeFinder2D
-    bool getLaserMeasurement(std::vector<yarp::dev::LaserMeasurementData> &data, double* timestamp = nullptr) override;
+    bool getLaserMeasurement(std::vector<yarp::sig::LaserMeasurementData> &data, double* timestamp = nullptr) override;
     bool getRawData(yarp::sig::Vector &data, double* timestamp = nullptr) override;
     bool getDeviceStatus(Device_status& status) override;
     bool getDistanceRange(double& min, double& max) override;
@@ -65,8 +68,6 @@ public:
     bool getDeviceInfo(std::string &device_info) override;
 
 private:
-    std::string m_topic_name;
-    std::string m_node_name;
     rclcpp::Node::SharedPtr m_node;
     Ros2Subscriber<Rangefinder2D_nwc_ros2,sensor_msgs::msg::LaserScan>* m_subscriber;
 

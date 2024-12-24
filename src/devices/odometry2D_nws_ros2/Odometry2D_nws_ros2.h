@@ -15,6 +15,8 @@
 #include <yarp/dev/WrapperSingle.h>
 #include <tf2_msgs/msg/tf_message.hpp>
 
+#include "Odometry2D_nws_ros2_ParamsParser.h"
+
 #ifndef _USE_MATH_DEFINES
 #define _USE_MATH_DEFINES
 #endif
@@ -29,14 +31,7 @@
  * \brief `Odometry2D_nws_ros2`: A ros2 nws to get odometry and publish it on a ros2 topic.
  * The attached device must implement a `yarp::dev::Nav2D::IOdometry2D` interface.
  *
- * Parameters required by this device are:
- * | Parameter name      | SubParameter            | Type    | Units          | Default Value | Required                       | Description                                             | Notes |
- * |:-------------------:|:-----------------------:|:-------:|:--------------:|:-------------:|:-----------------------------: |:-------------------------------------------------------:|:-----:|
- * | period              |      -                  | double  | s              |   0.02        | No                             | refresh period of the broadcasted values in s           | default 0.02s |
- * | node_name           |      -                  | string  | -              |   -           | Yes                            | name of the ros2 node                                   |      |
- * | topic_name          |      -                  | string  | -              |   -           | Yes                            | name of the topic where the device must publish the data| must begin with an initial '/'     |
- * | odom_frame          |      -                  | string  | -              |   -           | Yes                            | name of the reference frame for odometry                |      |
- * | base_frame          |      -                  | string  | -              |   -           | Yes                            | name of the base frame for odometry                     |      |
+ * Parameters required by this device are shown in class: `Odometry2D_nws_ros2_ParamsParser`.
  *
  * Example of configuration file using .ini format.
  *
@@ -87,7 +82,8 @@
 class Odometry2D_nws_ros2 :
         public yarp::os::PeriodicThread,
         public yarp::dev::DeviceDriver,
-        public yarp::dev::WrapperSingle
+        public yarp::dev::WrapperSingle,
+        Odometry2D_nws_ros2_ParamsParser
 {
 public:
     Odometry2D_nws_ros2();
@@ -108,17 +104,8 @@ public:
 
 
 private:
-    // parameters from configuration
-    std::string m_topicName;
-    std::string m_nodeName;
-    std::string m_odomFrame;
-    std::string m_baseFrame;
-
     // stamp count for timestamp
     yarp::os::Stamp m_timeStamp;
-
-    // period for thread
-    double m_period{DEFAULT_THREAD_PERIOD};
 
     //ros2 node
     rclcpp::Node::SharedPtr m_node;

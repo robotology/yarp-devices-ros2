@@ -21,8 +21,7 @@ YARP_LOG_COMPONENT(FRAMETRANSFORMSETNWCROS2, "yarp.device.frameTransformSet_nwc_
 //------------------------------------------------------------------------------------------------------------------------------
 
 FrameTransformSet_nwc_ros2::FrameTransformSet_nwc_ros2(double tperiod) :
-PeriodicThread(tperiod),
-m_period(tperiod)
+PeriodicThread(tperiod)
 {
 }
 
@@ -33,39 +32,13 @@ bool FrameTransformSet_nwc_ros2::open(yarp::os::Searchable& config)
         return false;
     }
 
-    bool okGeneral = config.check("GENERAL");
-    if(okGeneral)
-    {
-        yarp::os::Searchable& general_config = config.findGroup("GENERAL");
-        if (general_config.check("period"))
-        {
-            m_period = general_config.find("period").asFloat64();
-            setPeriod(m_period);
-        }
-        if (general_config.check("refresh_interval"))  {m_refreshInterval = general_config.find("refresh_interval").asFloat64();}
-        if (general_config.check("asynch_pub"))        {m_asynchPub = general_config.find("asynch_pub").asInt16();}
-    }
+    parseParams(config);
 
-    m_ftContainer.m_timeout = m_refreshInterval;
-
-    //ROS2 configuration
-    if (config.check("ROS2"))
-    {
-        yCInfo(FRAMETRANSFORMSETNWCROS2, "Configuring ROS2 params");
-        Bottle ROS2_config = config.findGroup("ROS2");
-        if(ROS2_config.check("ft_node")) m_ftNodeName = ROS2_config.find("ft_node").asString();
-        if(ROS2_config.check("ft_topic")) m_ftTopic = ROS2_config.find("ft_topic").asString();
-        if(ROS2_config.check("ft_topic_static")) m_ftTopicStatic = ROS2_config.find("ft_topic_static").asString();
-    }
-    else
-    {
-        //no ROS2 options
-        yCWarning(FRAMETRANSFORMSETNWCROS2) << "ROS2 Group not configured";
-    }
-
-    m_node = NodeCreator::createNode(m_ftNodeName);
-    m_publisherFtTimed = m_node->create_publisher<tf2_msgs::msg::TFMessage>(m_ftTopic, 10);
-    m_publisherFtStatic = m_node->create_publisher<tf2_msgs::msg::TFMessage>(m_ftTopicStatic, rclcpp::QoS(10).reliable().durability(RMW_QOS_POLICY_DURABILITY_TRANSIENT_LOCAL));
+    m_ftContainer.m_timeout = m_GENERAL_refresh_interval;
+    setPeriod(m_GENERAL_period);
+    m_node = NodeCreator::createNode(m_ROS2_ft_node);
+    m_publisherFtTimed = m_node->create_publisher<tf2_msgs::msg::TFMessage>(m_ROS2_ft_topic, 10);
+    m_publisherFtStatic = m_node->create_publisher<tf2_msgs::msg::TFMessage>(m_ROS2_ft_topic_static, rclcpp::QoS(10).reliable().durability(RMW_QOS_POLICY_DURABILITY_TRANSIENT_LOCAL));
 
     start();
 
@@ -100,7 +73,7 @@ bool FrameTransformSet_nwc_ros2::setTransforms(const std::vector<yarp::math::Fra
         yCError(FRAMETRANSFORMSETNWCROS2,"Unable to set transforms");
         return false;
     }
-    if(m_asynchPub)
+    if(m_GENERAL_asynch_pub)
     {
         if (!publishFrameTransforms())
         {
@@ -119,7 +92,7 @@ bool FrameTransformSet_nwc_ros2::setTransform(const yarp::math::FrameTransform& 
         yCError(FRAMETRANSFORMSETNWCROS2,"Unable to set transform");
         return false;
     }
-    if(m_asynchPub)
+    if(m_GENERAL_asynch_pub)
     {
         if (!publishFrameTransforms())
         {

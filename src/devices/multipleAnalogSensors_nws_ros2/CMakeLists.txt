@@ -13,12 +13,15 @@ yarp_prepare_plugin(wrenchStamped_nws_ros2
 
 if(ENABLE_wrenchStamped_nws_ros2)
   yarp_add_plugin(yarp_wrenchStamped_nws_ros2)
+  generateDeviceParamsParser(GenericSensor_nws_ros2 genericSensor_nws_ros2)
 
   target_sources(yarp_wrenchStamped_nws_ros2
     PRIVATE
       WrenchStamped_nws_ros2.cpp
       WrenchStamped_nws_ros2.h
       GenericSensor_nws_ros2.h
+      GenericSensor_nws_ros2_ParamsParser.h
+      GenericSensor_nws_ros2_ParamsParser.cpp
   )
 
   target_link_libraries(yarp_wrenchStamped_nws_ros2
@@ -69,6 +72,8 @@ if(ENABLE_imu_nws_ros2)
       Imu_nws_ros2.cpp
       Imu_nws_ros2.h
       GenericSensor_nws_ros2.h
+      GenericSensor_nws_ros2_ParamsParser.h
+      GenericSensor_nws_ros2_ParamsParser.cpp
   )
 
   target_link_libraries(yarp_imu_nws_ros2

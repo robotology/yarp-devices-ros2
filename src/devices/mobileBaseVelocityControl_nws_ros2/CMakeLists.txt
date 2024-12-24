@@ -11,11 +11,14 @@ yarp_prepare_plugin(mobileBaseVelocityControl_nws_ros2
 
 if(NOT SKIP_mobileBaseVelocityControl_nws_ros2)
   yarp_add_plugin(yarp_mobileBaseVelocityControl_nws_ros2)
+  generateDeviceParamsParser(MobileBaseVelocityControl_nws_ros2 mobileBaseVelocityControl_nws_ros2)
 
   target_sources(yarp_mobileBaseVelocityControl_nws_ros2
     PRIVATE
       MobileBaseVelocityControl_nws_ros2.cpp
       MobileBaseVelocityControl_nws_ros2.h
+      MobileBaseVelocityControl_nws_ros2_ParamsParser.h
+      MobileBaseVelocityControl_nws_ros2_ParamsParser.cpp
   )
   target_sources(yarp_mobileBaseVelocityControl_nws_ros2 PRIVATE $<TARGET_OBJECTS:Ros2Utils>)
 

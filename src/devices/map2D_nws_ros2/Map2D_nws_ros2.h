@@ -34,6 +34,7 @@
 #include <yarp/dev/PolyDriver.h>
 #include <yarp/dev/DeviceDriver.h>
 #include <yarp/dev/api.h>
+#include "Map2D_nws_ros2_ParamsParser.h"
 
 #include <rclcpp/rclcpp.hpp>
 
@@ -54,16 +55,8 @@
  *
  * \brief `Map2D_nws_ros2`: A device capable of read/save collections of maps from disk, and make them accessible to any Map2DClient device.
  *
- *  Parameters required by this device are:
- * | Parameter name | SubParameter  | Type    | Units   |     Default Value     | Required    | Description                                                   |                                           Notes                                                 |
- * |:--------------:|:-------------:|:-------:|:-------:|:---------------------:|:----------: |:-------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------:|
- * | name           |      -        | string  | -       | map2D_nws_ros         | No          | Device name prefix                                            |                                                                                                 |
- * | getmap         |      -        | string  | -       | getMap                | No          | The "GetMap" ROS service name                                 |               For the moment being the service always responds with an empty map                |
- * | getmapbyname   |      -        | string  | -       | getMapByName          | No          | The "GetMapByName" ROS2  custom service name                  | The map returned by this service is also available via publisher named "getmapbyname value"/pub |
- * | roscmdparser   |      -        | string  | -       | rosCmdParser          | No          | The "BasicTypes" ROS service name                             |             This is used to send commands to the nws via ros2 BasicTypes service                |
- * | markers_pub    |      -        | string  | -       | locationServerMarkers | No          | The visual markers array publisher name                       |                                                                                                 |
- * | node_name      |      -        | string  | -       |         -             | No          | The ROS2 node name. If absent, the device name will be used   |                                                                                                 |
-
+ *  Parameters required by this device are shown in class: Map2D_nws_ros2_ParamsParser
+ *
  * \section Notes:
  * Integration with ROS2 map server is currently under development.
  */
@@ -72,7 +65,8 @@ class Map2D_nws_ros2 :
         public yarp::os::Thread,
         public yarp::dev::DeviceDriver,
         public yarp::os::PortReader,
-        public yarp::dev::WrapperSingle
+        public yarp::dev::WrapperSingle,
+        Map2D_nws_ros2_ParamsParser
 {
 public:
     Map2D_nws_ros2();
@@ -108,14 +102,8 @@ private:
     yarp::dev::PolyDriver        m_drv;
 
     std::mutex                   m_mutex;
-    std::string                  m_name{"map2D_nws_ros"};
     std::string                  m_rpcPortName;
-    std::string                  m_rosCmdParserName{"rosCmdParser"};
-    std::string                  m_getMapName{"getMap"};
-    std::string                  m_getMapByNameName{"getMapByName"};
-    std::string                  m_markersName{"locationServerMarkers"};
     std::string                  m_currentMapName{"none"};
-    std::string                  m_nodeName;
     bool                         m_spinned{false};
 
     yarp::os::RpcServer                                                    m_rpcPort;

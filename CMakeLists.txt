@@ -1,10 +1,10 @@
 # SPDX-FileCopyrightText: 2023 Istituto Italiano di Tecnologia (IIT)
 # SPDX-License-Identifier: BSD-3-Clause
 
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.17)
 project(yarp-devices-ros2
         LANGUAGES CXX
-        VERSION 3.8.0)
+        VERSION 3.10.0)
 
 include(FeatureSummary)
 
@@ -32,7 +32,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 set(YARP_FORCE_DYNAMIC_PLUGINS TRUE CACHE INTERNAL "yarp-devices-ros2 is always built with dynamic plugins")
 option(BUILD_SHARED_LIBS "Build libraries as shared as opposed to static" ON)
 
-find_package(YARP 3.8.0 COMPONENTS os sig dev rosmsg serversql OPTIONAL_COMPONENTS math REQUIRED)
+find_package(YARP 3.8.0 COMPONENTS os sig dev serversql OPTIONAL_COMPONENTS math REQUIRED)
 find_package(YARP 3.8.0 COMPONENTS catch2 dev_tests QUIET)
 
 if(YARP_catch2_FOUND AND YARP_dev_tests_FOUND)
