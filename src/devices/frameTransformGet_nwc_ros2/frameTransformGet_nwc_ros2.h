@@ -74,7 +74,7 @@ public:
     Ros2Spinner*            m_spinner{nullptr};
 
     //IFrameTransformStorageGet interface
-    bool getTransforms(std::vector<yarp::math::FrameTransform>& transforms) const override;
+    yarp::dev::ReturnValue getTransforms(std::vector<yarp::math::FrameTransform>& transforms) const override;
 
     //Subscription callback
     void frameTransformTimedGet_callback(const tf2_msgs::msg::TFMessage::SharedPtr msg);
