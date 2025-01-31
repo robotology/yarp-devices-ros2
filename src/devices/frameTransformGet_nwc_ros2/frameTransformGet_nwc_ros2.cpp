@@ -60,11 +60,15 @@ yarp::dev::ReturnValue FrameTransformGet_nwc_ros2::getTransforms(std::vector<yar
     std::lock_guard<std::mutex> lock(m_trf_mutex);
     if(!m_ftContainer.checkAndRemoveExpired())
     {
-        yCError(FRAMETRANSFORGETNWCROS2,"Unable to remove expired transforms");
+        yCError(FRAMETRANSFORGETNWCROS2,"Unable to remove expired transforms.");
         return yarp::dev::ReturnValue::return_code::return_value_error_generic;
     }
-    m_ftContainer.getTransforms(transforms);
-    yarp::dev::ReturnValue::return_code::return_value_ok;
+    auto ret = m_ftContainer.getTransforms(transforms);
+    if(!ret)
+    {
+        yCError(FRAMETRANSFORGETNWCROS2,"Unable to get transforms. Error: %s",ret.toString().c_str());
+    }
+    return ret;
 }
 
 void FrameTransformGet_nwc_ros2::frameTransformTimedGet_callback(const tf2_msgs::msg::TFMessage::SharedPtr msg)
