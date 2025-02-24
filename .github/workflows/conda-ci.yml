@@ -38,7 +38,7 @@ jobs:
     - name: Check License
       run: |
         perl tests/misc/check_license.pl
-        
+
   check-tests:
     name: 'Check Devices Tests'
     runs-on: ubuntu-20.04
@@ -52,7 +52,7 @@ jobs:
     - name: Check Devices Tests
       run: |
         python3 tests/misc/check_tests.py
-        
+
   build:
     name: '[${{ matrix.os }}@${{ matrix.build_type }}@${{ matrix.ros_distro }}@conda]'
     runs-on: ${{ matrix.os }}
@@ -83,7 +83,7 @@ jobs:
       if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
       run: |
         cd ${GITHUB_WORKSPACE}
-        git clone -b yarp-3.11 https://github.com/robotology/yarp
+        git clone -b master https://github.com/robotology/yarp
 
     - name: Dependencies from source [Linux&macOS]
       if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
@@ -106,7 +106,7 @@ jobs:
       shell: bash -l {0}
       run: |
         cd ${GITHUB_WORKSPACE}
-        git clone -b yarp-3.11 https://github.com/robotology/yarp
+        git clone -b master https://github.com/robotology/yarp
         cd yarp
         mkdir build
         cd build
@@ -219,7 +219,7 @@ jobs:
       if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
       run: |
         cd ${GITHUB_WORKSPACE}
-        git clone -b yarp-3.11 https://github.com/robotology/yarp
+        git clone -b master https://github.com/robotology/yarp
 
     - name: Dependencies from source [Linux&macOS]
       if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
