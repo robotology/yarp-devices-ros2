@@ -3,8 +3,7 @@
 
 cmake_minimum_required(VERSION 3.17)
 project(yarp-devices-ros2
-        LANGUAGES CXX
-        VERSION 3.10.0)
+        LANGUAGES CXX)
 
 include(FeatureSummary)
 
