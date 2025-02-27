@@ -85,98 +85,98 @@ void Rangefinder2D_nwc_ros2::callback(sensor_msgs::msg::LaserScan::SharedPtr msg
     m_timestamp = (msg->header.stamp.sec + (msg->header.stamp.nanosec / 1000000000));
 }
 
-bool Rangefinder2D_nwc_ros2::getLaserMeasurement(std::vector<yarp::sig::LaserMeasurementData> &data, double* timestamp)
+ReturnValue Rangefinder2D_nwc_ros2::getLaserMeasurement(std::vector<yarp::sig::LaserMeasurementData> &data, double* timestamp)
 {
-    if (!m_data_valid) {return false;}
+    if (!m_data_valid) {return ReturnValue::return_code::return_value_error_generic;}
     std::lock_guard<std::mutex> data_guard(m_mutex);
     *timestamp = m_timestamp;
-    return true;
+    return ReturnValue_ok;
 }
 
-bool Rangefinder2D_nwc_ros2::getRawData(yarp::sig::Vector &data, double* timestamp)
+ReturnValue Rangefinder2D_nwc_ros2::getRawData(yarp::sig::Vector &data, double* timestamp)
 {
-    if (!m_data_valid) {return false;}
+    if (!m_data_valid) {return ReturnValue::return_code::return_value_error_generic;}
     std::lock_guard<std::mutex> data_guard(m_mutex);
     data = m_data;
     *timestamp = m_timestamp;
-    return true;
+    return ReturnValue_ok;
 }
 
-bool Rangefinder2D_nwc_ros2::getDeviceStatus(Device_status& status)
+ReturnValue Rangefinder2D_nwc_ros2::getDeviceStatus(Device_status& status)
 {
-    if (!m_data_valid) {return false;}
+    if (!m_data_valid) {return ReturnValue::return_code::return_value_error_generic;}
     std::lock_guard<std::mutex> data_guard(m_mutex);
-    return true;
+    return ReturnValue_ok;
 }
 
-bool Rangefinder2D_nwc_ros2::getDistanceRange(double& min, double& max)
+ReturnValue Rangefinder2D_nwc_ros2::getDistanceRange(double& min, double& max)
 {
-    if (!m_data_valid) {return false;}
+    if (!m_data_valid) {return ReturnValue::return_code::return_value_error_generic;}
     std::lock_guard<std::mutex> data_guard(m_mutex);
     min = m_minDistance;
     max = m_maxDistance;
-    return true;
+    return ReturnValue_ok;
 }
 
-bool Rangefinder2D_nwc_ros2::setDistanceRange(double min, double max)
+ReturnValue Rangefinder2D_nwc_ros2::setDistanceRange(double min, double max)
 {
-    if (!m_data_valid) {return false;}
+    if (!m_data_valid) {return ReturnValue::return_code::return_value_error_generic;}
     std::lock_guard<std::mutex> data_guard(m_mutex);
     yCTrace(RANGEFINDER2D_NWC_ROS2, "setDistanceRange not implemented");
-    return false;
+    return YARP_METHOD_NOT_YET_IMPLEMENTED();
 }
 
-bool Rangefinder2D_nwc_ros2::getScanLimits(double& min, double& max)
+ReturnValue Rangefinder2D_nwc_ros2::getScanLimits(double& min, double& max)
 {
-    if (!m_data_valid) {return false;}
+    if (!m_data_valid) {return ReturnValue::return_code::return_value_error_generic;}
     std::lock_guard<std::mutex> data_guard(m_mutex);
     min = m_minAngle;
     max = m_maxAngle;
-    return true;
+    return ReturnValue_ok;
 }
 
-bool Rangefinder2D_nwc_ros2::setScanLimits(double min, double max)
+ReturnValue Rangefinder2D_nwc_ros2::setScanLimits(double min, double max)
 {
-    if (!m_data_valid) {return false;}
+    if (!m_data_valid) {return ReturnValue::return_code::return_value_error_generic;}
     std::lock_guard<std::mutex> data_guard(m_mutex);
     yCTrace(RANGEFINDER2D_NWC_ROS2, "setScanLimits not implemented");
-    return false;
+    return YARP_METHOD_NOT_YET_IMPLEMENTED();
 }
 
-bool Rangefinder2D_nwc_ros2::getHorizontalResolution(double& step)
+ReturnValue Rangefinder2D_nwc_ros2::getHorizontalResolution(double& step)
 {
-    if (!m_data_valid) {return false;}
+    if (!m_data_valid) {return ReturnValue::return_code::return_value_error_generic;}
     std::lock_guard<std::mutex> data_guard(m_mutex);
     step = m_resolution;
-    return true;
+    return ReturnValue_ok;
 }
 
-bool Rangefinder2D_nwc_ros2::setHorizontalResolution(double step)
+ReturnValue Rangefinder2D_nwc_ros2::setHorizontalResolution(double step)
 {
-    if (!m_data_valid) {return false;}
+    if (!m_data_valid) {return ReturnValue::return_code::return_value_error_generic;}
     std::lock_guard<std::mutex> data_guard(m_mutex);
     yCTrace(RANGEFINDER2D_NWC_ROS2, "setHorizontalResolution not implemented");
-    return false;
+    return YARP_METHOD_NOT_YET_IMPLEMENTED();
 }
 
-bool Rangefinder2D_nwc_ros2::getScanRate(double& rate)
+ReturnValue Rangefinder2D_nwc_ros2::getScanRate(double& rate)
 {
-    if (!m_data_valid) {return false;}
+    if (!m_data_valid) {return ReturnValue::return_code::return_value_error_generic;}
     std::lock_guard<std::mutex> data_guard(m_mutex);
-    return true;
+    return ReturnValue_ok;
 }
 
-bool Rangefinder2D_nwc_ros2::setScanRate(double rate)
+ReturnValue Rangefinder2D_nwc_ros2::setScanRate(double rate)
 {
-    if (!m_data_valid) {return false;}
+    if (!m_data_valid) {return ReturnValue::return_code::return_value_error_generic;}
     std::lock_guard<std::mutex> data_guard(m_mutex);
     yCTrace(RANGEFINDER2D_NWC_ROS2, "setScanRate not implemented");
-    return false;
+    return YARP_METHOD_NOT_YET_IMPLEMENTED();
 }
 
-bool Rangefinder2D_nwc_ros2::getDeviceInfo(std::string &device_info)
+ReturnValue Rangefinder2D_nwc_ros2::getDeviceInfo(std::string &device_info)
 {
-    if (!m_data_valid) {return false;}
+    if (!m_data_valid) {return ReturnValue::return_code::return_value_error_generic;}
     std::lock_guard<std::mutex> data_guard(m_mutex);
-    return true;
+    return ReturnValue_ok;
 }
