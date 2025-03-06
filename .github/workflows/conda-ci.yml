@@ -38,7 +38,7 @@ jobs:
     - name: Check License
       run: |
         perl tests/misc/check_license.pl
-        
+
   check-tests:
     name: 'Check Devices Tests'
     runs-on: ubuntu-20.04
@@ -52,39 +52,38 @@ jobs:
     - name: Check Devices Tests
       run: |
         python3 tests/misc/check_tests.py
-        
+
   build:
     name: '[${{ matrix.os }}@${{ matrix.build_type }}@${{ matrix.ros_distro }}@conda]'
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         build_type: [Release]
-        ros_distro: [humble]
-        os: [ubuntu-latest, macos-latest, windows-2019]
+        ros_distro: [humble, jazzy]
+        os: [ubuntu-22.04, ubuntu-24.04, macos-latest, windows-2019]
       fail-fast: false
 
     steps:
     - uses: actions/checkout@v3
 
-    - uses: conda-incubator/setup-miniconda@v2
+    - uses: conda-incubator/setup-miniconda@v3
       with:
-        miniforge-variant: Mambaforge
         miniforge-version: latest
 
     - name: Dependencies
       shell: bash -l {0}
       run: |
         # Compilation related dependencies
-        mamba install cmake compilers make ninja pkg-config
+        conda install cmake compilers make ninja pkg-config
         # Actual dependencies
-        mamba install -c conda-forge -c robostack-staging ycm-cmake-modules eigen ace ros-${{ matrix.ros_distro }}-ros-base ros-${{ matrix.ros_distro }}-test-msgs
+        conda install -c conda-forge -c robostack-${{ matrix.ros_distro }} ycm-cmake-modules eigen ace ros-${{ matrix.ros_distro }}-ros-base ros-${{ matrix.ros_distro }}-test-msgs
 
 
     - name: Download YARP [Linux&macOS]
       if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
       run: |
         cd ${GITHUB_WORKSPACE}
-        git clone https://github.com/robotology/yarp
+        git clone -b master https://github.com/robotology/yarp
 
     - name: Dependencies from source [Linux&macOS]
       if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
@@ -107,7 +106,7 @@ jobs:
       shell: bash -l {0}
       run: |
         cd ${GITHUB_WORKSPACE}
-        git clone https://github.com/robotology/yarp
+        git clone -b master https://github.com/robotology/yarp
         cd yarp
         mkdir build
         cd build
@@ -191,37 +190,36 @@ jobs:
         ctest --output-on-failure -C ${{ matrix.build_type }}
 
   build-valgrind:
-    name: 'valgrind [ubuntu-latest@Debug@humble@conda]'
-    runs-on: ubuntu-latest
+    name: 'valgrind [ubuntu-22.04@Debug@humble@conda]'
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         build_type: [Debug]
         ros_distro: [humble]
-        os: [ubuntu-latest]
+        os: [ubuntu-22.04]
       fail-fast: false
 
     steps:
     - uses: actions/checkout@v3
 
-    - uses: conda-incubator/setup-miniconda@v2
+    - uses: conda-incubator/setup-miniconda@v3
       with:
-        miniforge-variant: Mambaforge
         miniforge-version: latest
 
     - name: Dependencies
       shell: bash -l {0}
       run: |
         # Compilation related dependencies
-        mamba install cmake compilers make ninja pkg-config
+        conda install cmake compilers make ninja pkg-config
         # Actual dependencies
         sudo apt-get install -qq -y libc6-dbg
-        mamba install -c conda-forge -c robostack-staging ycm-cmake-modules eigen valgrind ace ros-${{ matrix.ros_distro }}-ros-base ros-${{ matrix.ros_distro }}-test-msgs
+        conda install -c conda-forge -c robostack-${{ matrix.ros_distro }} ycm-cmake-modules eigen valgrind ace ros-${{ matrix.ros_distro }}-ros-base ros-${{ matrix.ros_distro }}-test-msgs
 
     - name: Download YARP [Linux&macOS]
       if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
       run: |
         cd ${GITHUB_WORKSPACE}
-        git clone https://github.com/robotology/yarp
+        git clone -b master https://github.com/robotology/yarp
 
     - name: Dependencies from source [Linux&macOS]
       if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')

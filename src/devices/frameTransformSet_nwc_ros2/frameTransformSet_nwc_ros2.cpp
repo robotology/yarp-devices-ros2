@@ -65,42 +65,44 @@ void FrameTransformSet_nwc_ros2::run()
     return;
 }
 
-bool FrameTransformSet_nwc_ros2::setTransforms(const std::vector<yarp::math::FrameTransform>& transforms)
+yarp::dev::ReturnValue FrameTransformSet_nwc_ros2::setTransforms(const std::vector<yarp::math::FrameTransform>& transforms)
 {
     std::lock_guard<std::mutex> lock(m_trf_mutex);
-    if(!m_ftContainer.setTransforms(transforms))
+    yarp::dev::ReturnValue ret = m_ftContainer.setTransforms(transforms);
+    if(!ret)
     {
-        yCError(FRAMETRANSFORMSETNWCROS2,"Unable to set transforms");
-        return false;
+        yCError(FRAMETRANSFORMSETNWCROS2,"Unable to set transforms. Error: %s",ret.toString().c_str());
+        return ret;
     }
     if(m_GENERAL_asynch_pub)
     {
         if (!publishFrameTransforms())
         {
             yCError(FRAMETRANSFORMSETNWCROS2,"Error while publishing transforms");
-            return false;
+            return yarp::dev::ReturnValue::return_code::return_value_error_generic;
         }
     }
-    return true;
+    return yarp::dev::ReturnValue::return_code::return_value_ok;
 }
 
-bool FrameTransformSet_nwc_ros2::setTransform(const yarp::math::FrameTransform& t)
+yarp::dev::ReturnValue FrameTransformSet_nwc_ros2::setTransform(const yarp::math::FrameTransform& t)
 {
     std::lock_guard<std::mutex> lock(m_trf_mutex);
-    if(!m_ftContainer.setTransform(t))
+    yarp::dev::ReturnValue ret = m_ftContainer.setTransform(t);
+    if(!ret)
     {
-        yCError(FRAMETRANSFORMSETNWCROS2,"Unable to set transform");
-        return false;
+        yCError(FRAMETRANSFORMSETNWCROS2,"Unable to set transform. Error: %s",ret.toString().c_str());
+        return ret;
     }
     if(m_GENERAL_asynch_pub)
     {
         if (!publishFrameTransforms())
         {
             yCError(FRAMETRANSFORMSETNWCROS2,"Error while publishing transforms");
-            return false;
+            return yarp::dev::ReturnValue::return_code::return_value_error_generic;
         }
     }
-    return true;
+    yarp::dev::ReturnValue::return_code::return_value_ok;
 }
 
 void FrameTransformSet_nwc_ros2::ros2TimeFromYarp(double yarpTime, builtin_interfaces::msg::Time& ros2Time)
@@ -179,16 +181,16 @@ bool FrameTransformSet_nwc_ros2::publishFrameTransforms()
     return true;
 }
 
-bool FrameTransformSet_nwc_ros2::deleteTransform(std::string t1, std::string t2)
+yarp::dev::ReturnValue FrameTransformSet_nwc_ros2::deleteTransform(std::string t1, std::string t2)
 {
     // Not yet implemented
     yCError(FRAMETRANSFORMSETNWCROS2, "deleteTransform not yet implemented");
-    return false;
+    return yarp::dev::ReturnValue::return_code::return_value_error_not_implemented_by_device;
 }
 
-bool FrameTransformSet_nwc_ros2::clearAll()
+yarp::dev::ReturnValue FrameTransformSet_nwc_ros2::clearAll()
 {
     // Not yet implemented
     yCError(FRAMETRANSFORMSETNWCROS2, "clearAll not yet implemented");
-    return false;
+    return yarp::dev::ReturnValue::return_code::return_value_error_not_implemented_by_device;
 }

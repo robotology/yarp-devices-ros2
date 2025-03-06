@@ -14,7 +14,6 @@
 // yarp libraries
 #include <yarp/dev/DeviceDriver.h>
 #include <yarp/dev/IRGBDSensor.h>
-#include <yarp/dev/IVisualParams.h>
 #include <yarp/os/Property.h>
 #include <Ros2Spinner.h>
 #include <yarp/sig/all.h>

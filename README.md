@@ -4,9 +4,6 @@ Yarp devices for ROS2
 
 This repository contains the YARP devices and utilities for ROS2.
 
-:construction: This repository is currently work in progress. :construction:
-:construction: The software contained is this repository is currently under testing. :construction: APIs may change without any warning. :construction: This code should be not used before its first official release :construction:
-
 Documentation
 -------------
 
@@ -54,14 +51,12 @@ export YARP_DATA_DIRS=$YARP_DATA_DIRS:<install_prefix>/share/yarp
 CI Status
 ---------
 
-:construction: This repository is currently work in progress. :construction:
-
 [![Build Status](https://github.com/robotology/yarp-devices-ros2/workflows/CI%20Workflow/badge.svg)](https://github.com/robotology/yarp-devices-ros2/actions?query=workflow%3A%22CI+Workflow%22)
 
 License
 ---------
 
-:construction: This repository is currently work in progress. :construction:
+[![License](https://img.shields.io/badge/license-BSD--3--Clause%20%2B%20others-19c2d8.svg)](https://github.com/robotology/yarp-devices-ros2/blob/master/LICENSES)
 
 Maintainers
 --------------
