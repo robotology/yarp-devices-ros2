@@ -73,7 +73,10 @@ bool ControlBoard_nws_ros2::open(Searchable& config)
 {
     parseParams(config);
     m_node = NodeCreator::createNode(m_node_name);
-    m_publisher = m_node->create_publisher<sensor_msgs::msg::JointState>(m_topic_name, 10);
+    m_jointStateTopicName = m_topic_name;
+    m_publisherJointStates = m_node->create_publisher<sensor_msgs::msg::JointState>(m_jointStateTopicName, 10);
+    m_jointControlModeTopicName = m_topic_name + "/controlModes";
+    m_publisherControlModes = m_node->create_publisher<std_msgs::msg::Int8MultiArray>(m_jointControlModeTopicName, 10);
 
     return true;
 }
@@ -424,5 +427,17 @@ void ControlBoard_nws_ros2::run()
     ++m_counter;
 //     m_ros_struct.header.seq = m_counter++;
 
-    m_publisher->publish(m_ros_struct);
+    m_publisherJointStates->publish(m_ros_struct);
+
+
+    //get and publish Control Modes
+    std::vector<int> modes_array(m_subdevice_joints);
+    m_iControlMode->getControlModes(modes_array.data());
+
+    auto modes = std_msgs::msg::Int8MultiArray();
+    modes.data.resize(m_subdevice_joints);
+    for (size_t i = 0; i < m_subdevice_joints; i++) {
+        modes.data[i]=modes_array[i];
+    }
+    m_publisherControlModes->publish(modes);
 }
