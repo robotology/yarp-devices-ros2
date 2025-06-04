@@ -31,8 +31,8 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 set(YARP_FORCE_DYNAMIC_PLUGINS TRUE CACHE INTERNAL "yarp-devices-ros2 is always built with dynamic plugins")
 option(BUILD_SHARED_LIBS "Build libraries as shared as opposed to static" ON)
 
-find_package(YARP 3.11.100 COMPONENTS os sig dev serversql OPTIONAL_COMPONENTS math REQUIRED)
-find_package(YARP 3.11.100 COMPONENTS catch2 dev_tests QUIET)
+find_package(YARP 3.12.0 COMPONENTS os sig dev serversql OPTIONAL_COMPONENTS math REQUIRED)
+find_package(YARP 3.12.0 COMPONENTS catch2 dev_tests QUIET)
 
 if(YARP_catch2_FOUND AND YARP_dev_tests_FOUND)
   option(YARP_COMPILE_TESTS "Enable YARP tests" OFF)
