@@ -26,7 +26,7 @@ YARP_DECLARE_LOG_COMPONENT(GENERICSENSOR_NWC_ROS2)
 
 
 /**
- * @ingroup dev_impl_wrapper
+ * @ingroup dev_impl_nwc_ros2
  *
  * \brief This abstract template needs to be specialized in a ROS2 subscription, for a specific ROS2 message/sensor type.
  *

@@ -24,7 +24,7 @@ YARP_DECLARE_LOG_COMPONENT(GENERICSENSOR_NWS_ROS2)
 
 
 /**
- * @ingroup dev_impl_wrapper
+ * @ingroup dev_impl_nws_ros2
  *
  * \brief This abstract template needs to be specialized in a ROS Publisher, for a specific ROS mesagge/sensor type.
  *

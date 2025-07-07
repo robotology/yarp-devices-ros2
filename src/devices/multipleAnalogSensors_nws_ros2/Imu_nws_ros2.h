@@ -10,7 +10,7 @@
 #include <sensor_msgs/msg/imu.hpp>
 
 /**
- * @ingroup dev_impl_wrapper
+ * @ingroup dev_impl_nws_ros2
  *
  * \brief `IMU_nws_ros2`: This wrapper connects to a device and publishes a ROS topic of type sensor_msgs::Imu.
  *

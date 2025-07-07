@@ -50,9 +50,9 @@
 /**
  *  @ingroup dev_impl_nws_ros2
  *
- * \brief `controlBoard_nws_ros`: A controlBoard network wrapper server for ROS2.
+ * \brief `controlBoard_nws_ros2`: A controlBoard network wrapper server for ROS2.
  *
- * \section controlBoard_nws_ros_device_parameters Description of input parameters
+ * \section controlBoard_nws_ros2_device_parameters Description of input parameters
  *
  *  Parameters required by this device are shown in class: ControlBoard_nws_ros2_ParamsParser
  *
