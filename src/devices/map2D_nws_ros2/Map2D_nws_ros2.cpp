@@ -24,6 +24,7 @@
 #include <fstream>
 #include <Ros2Utils.h>
 #include <rclcpp/qos.hpp>
+#include <rclcpp/version.h>
 
 using namespace yarp::sig;
 using namespace yarp::dev;
@@ -103,9 +104,14 @@ bool Map2D_nws_ros2::open(yarp::os::Searchable &config)
     qos_rmw.durability = RMW_QOS_POLICY_DURABILITY_SYSTEM_DEFAULT;
     qos_rmw.liveliness = RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT;
     qos_rmw.avoid_ros_namespace_conventions = true;
-    rclcpp::QoS qos(rclcpp::QoSInitialization::from_rmw(qos_rmw));
     m_ros2Service_getMap = m_node->create_service<nav_msgs::srv::GetMap>(m_getmap,
-                                                                                       std::bind(&Map2D_nws_ros2::getMapCallback,this,_1,_2,_3),qos );
+                                                                                       std::bind(&Map2D_nws_ros2::getMapCallback,this,_1,_2,_3),
+#if RCLCPP_VERSION_GTE(17,0,0)
+                                                                                       rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(qos_rmw))
+#else
+                                                                                       qos_rmw
+#endif
+                                                                                       );
     m_ros2Service_getMapByName = m_node->create_service<map2d_nws_ros2_msgs::srv::GetMapByName>(m_getmapbyname,
                                                                                                               std::bind(&Map2D_nws_ros2::getMapByNameCallback,this,_1,_2,_3));
     m_ros2Service_rosCmdParser = m_node->create_service<test_msgs::srv::BasicTypes>(m_roscmdparser,
