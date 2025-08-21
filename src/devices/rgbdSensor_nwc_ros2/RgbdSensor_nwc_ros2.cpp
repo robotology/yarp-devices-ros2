@@ -23,6 +23,7 @@
 
 using namespace std::chrono_literals;
 using namespace std::placeholders;
+using namespace yarp::dev;
 
 YARP_LOG_COMPONENT(RGBDSENSOR_NWC_ROS2, "yarp.ros2.RgbdSensor_nwc_ros2", yarp::os::Log::TraceType);
 
@@ -168,172 +169,185 @@ int RgbdSensor_nwc_ros2::getRgbWidth()
     return m_current_rgb_image.width();
 }
 
-bool RgbdSensor_nwc_ros2::getRgbSupportedConfigurations(yarp::sig::VectorOf<yarp::dev::CameraConfig> &configurations)
+yarp::dev::ReturnValue RgbdSensor_nwc_ros2::getRgbSupportedConfigurations(std::vector<yarp::dev::CameraConfig> &configurations)
 {
     yCWarning(RGBDSENSOR_NWC_ROS2) << "getRgbSupportedConfigurations not implemented yet";
-    return false;
+    return ReturnValue::return_code::return_value_error_not_implemented_by_device;
 }
 
-bool RgbdSensor_nwc_ros2::getRgbResolution(int &width, int &height)
+yarp::dev::ReturnValue RgbdSensor_nwc_ros2::getRgbResolution(int &width, int &height)
 {
     if (!m_rgb_image_valid)
     {
         width=0;
         height=0;
-        return  false;
+        return ReturnValue::return_code::return_value_error_not_ready;
     }
     width  = m_current_rgb_image.width();
     height = m_current_rgb_image.height();
-    return true;
+    return ReturnValue_ok;
 }
 
-bool RgbdSensor_nwc_ros2::setDepthResolution(int width, int height)
+yarp::dev::ReturnValue RgbdSensor_nwc_ros2::getDepthResolution(int &width, int &height)
+{
+    if (!m_rgb_image_valid)
+    {
+        width=0;
+        height=0;
+        return ReturnValue::return_code::return_value_error_not_ready;
+    }
+    width  = m_current_depth_image.width();
+    height = m_current_depth_image.height();
+    return ReturnValue_ok;
+}
+
+yarp::dev::ReturnValue RgbdSensor_nwc_ros2::setDepthResolution(int width, int height)
 {
     yCWarning(RGBDSENSOR_NWC_ROS2) << "setDepthResolution not supported";
-    return false;
+    return ReturnValue::return_code::return_value_error_not_implemented_by_device;
 }
 
-bool RgbdSensor_nwc_ros2::setRgbResolution(int width, int height)
+yarp::dev::ReturnValue RgbdSensor_nwc_ros2::setRgbResolution(int width, int height)
 {
     yCWarning(RGBDSENSOR_NWC_ROS2) << "setRgbResolution not supported";
-    return false;
+    return ReturnValue::return_code::return_value_error_not_implemented_by_device;
 }
 
-bool RgbdSensor_nwc_ros2::setRgbFOV(double horizontalFov, double verticalFov)
+yarp::dev::ReturnValue RgbdSensor_nwc_ros2::setRgbFOV(double horizontalFov, double verticalFov)
 {
     yCWarning(RGBDSENSOR_NWC_ROS2) << "setRgbFOV not supported";
-    return false;
+    return ReturnValue::return_code::return_value_error_not_implemented_by_device;
 }
 
-bool RgbdSensor_nwc_ros2::setDepthFOV(double horizontalFov, double verticalFov)
+yarp::dev::ReturnValue RgbdSensor_nwc_ros2::setDepthFOV(double horizontalFov, double verticalFov)
 {
     yCWarning(RGBDSENSOR_NWC_ROS2) << "setDepthFOV not supported";
-    return false;
+    return ReturnValue::return_code::return_value_error_not_implemented_by_device;
 }
 
-bool RgbdSensor_nwc_ros2::setDepthAccuracy(double accuracy)
+yarp::dev::ReturnValue RgbdSensor_nwc_ros2::setDepthAccuracy(double accuracy)
 {
     yCWarning(RGBDSENSOR_NWC_ROS2) << "setDepthAccuracy not supported";
-    return false;
+    return ReturnValue::return_code::return_value_error_not_implemented_by_device;
 }
 
 // not sure that it is correct, maybe I should save the full image dimension
-bool RgbdSensor_nwc_ros2::getRgbFOV(double &horizontalFov, double &verticalFov)
+yarp::dev::ReturnValue RgbdSensor_nwc_ros2::getRgbFOV(double &horizontalFov, double &verticalFov)
 {
     if (!m_rgb_image_valid && ! m_rgb_stamp_valid)
     {
         horizontalFov=0;
         verticalFov=0;
-        return  false;
+        return ReturnValue::return_code::return_value_error_not_ready;
         yCError(RGBDSENSOR_NWC_ROS2) << "get rgb IntrinsicParam missing information";
     }
     horizontalFov = 2 * atan(m_max_rgb_width / (2 * m_rgb_params.focalLengthX)) * 180.0 / M_PI;
     verticalFov = 2 * atan(m_max_rgb_height / (2 * m_rgb_params.focalLengthY)) * 180.0 / M_PI;
-    return true;
+    return ReturnValue_ok;
 }
 
 
-bool RgbdSensor_nwc_ros2::getRgbMirroring(bool& mirror)
+yarp::dev::ReturnValue RgbdSensor_nwc_ros2::getRgbMirroring(bool& mirror)
 {
     yCWarning(RGBDSENSOR_NWC_ROS2) << "Mirroring not supported";
-    return false;
+    return ReturnValue::return_code::return_value_error_not_implemented_by_device;
 }
 
-bool RgbdSensor_nwc_ros2::setRgbMirroring(bool mirror)
+yarp::dev::ReturnValue RgbdSensor_nwc_ros2::setRgbMirroring(bool mirror)
 {
     yCWarning(RGBDSENSOR_NWC_ROS2) << "Mirroring not supported";
-    return false;
+    return ReturnValue::return_code::return_value_error_not_implemented_by_device;
 }
 
-bool RgbdSensor_nwc_ros2::getRgbIntrinsicParam(yarp::os::Property& intrinsic)
+yarp::dev::ReturnValue RgbdSensor_nwc_ros2::getRgbIntrinsicParam(yarp::os::Property& intrinsic)
 {
     if (m_rgb_stamp_valid)
     {
         intrinsic.clear();
         m_rgb_params.toProperty(intrinsic);
-        return true;
+        return ReturnValue_ok;
     }
-    return false;
+    return ReturnValue::return_code::return_value_error_not_ready;
 }
 
-int  RgbdSensor_nwc_ros2::getDepthHeight()
+int RgbdSensor_nwc_ros2::getDepthHeight()
 {
     if (!m_depth_image_valid) return 0;
     return m_current_depth_image.height();
 }
 
-int  RgbdSensor_nwc_ros2::getDepthWidth()
+int RgbdSensor_nwc_ros2::getDepthWidth()
 {
     if (!m_depth_image_valid) return 0;
     return m_current_depth_image.width();
 }
 
-bool RgbdSensor_nwc_ros2::getDepthFOV(double& horizontalFov, double& verticalFov)
+yarp::dev::ReturnValue RgbdSensor_nwc_ros2::getDepthFOV(double& horizontalFov, double& verticalFov)
 {
     if (!m_depth_image_valid && !m_depth_stamp_valid)
     {
         horizontalFov=0;
         verticalFov=0;
-        return  false;
+        return ReturnValue::return_code::return_value_error_not_ready;
         yCError(RGBDSENSOR_NWC_ROS2) << "get depth IntrinsicParam missing information";
     }
     horizontalFov = 2 * atan(m_max_rgb_width / (2 * m_depth_params.focalLengthX)) * 180.0 / M_PI;
     verticalFov = 2 * atan(m_max_rgb_height / (2 * m_depth_params.focalLengthY)) * 180.0 / M_PI;
-    return true;
+    return ReturnValue_ok;
 }
 
-bool RgbdSensor_nwc_ros2::getDepthIntrinsicParam(yarp::os::Property& intrinsic)
+yarp::dev::ReturnValue RgbdSensor_nwc_ros2::getDepthIntrinsicParam(yarp::os::Property& intrinsic)
 {
     if(m_depth_stamp_valid)
     {
         intrinsic.clear();
         m_depth_params.toProperty(intrinsic);
-        return true;
+        return ReturnValue_ok;
     }
-    return false;
+    return ReturnValue::return_code::return_value_error_not_ready;
 }
 
-double RgbdSensor_nwc_ros2::getDepthAccuracy()
+yarp::dev::ReturnValue RgbdSensor_nwc_ros2::getDepthAccuracy(double& accuracy)
 {
     yCWarning(RGBDSENSOR_NWC_ROS2) << "getDepthAccuracy not supported";
-    return 0;
+    return ReturnValue::return_code::return_value_error_not_implemented_by_device;
 }
 
-bool RgbdSensor_nwc_ros2::getDepthClipPlanes(double& nearPlane, double& farPlane)
+yarp::dev::ReturnValue RgbdSensor_nwc_ros2::getDepthClipPlanes(double& nearPlane, double& farPlane)
 {
     yCWarning(RGBDSENSOR_NWC_ROS2) << "getDepthClipPlanes not supported";
-    return false;
+    return ReturnValue::return_code::return_value_error_not_implemented_by_device;
 }
 
-bool RgbdSensor_nwc_ros2::setDepthClipPlanes(double nearPlane, double farPlane)
+yarp::dev::ReturnValue RgbdSensor_nwc_ros2::setDepthClipPlanes(double nearPlane, double farPlane)
 {
     yCWarning(RGBDSENSOR_NWC_ROS2) << "setDepthClipPlanes not supported";
-    return false;
+    return ReturnValue::return_code::return_value_error_not_implemented_by_device;
 }
 
-bool RgbdSensor_nwc_ros2::getDepthMirroring(bool& mirror)
+yarp::dev::ReturnValue RgbdSensor_nwc_ros2::getDepthMirroring(bool& mirror)
 {
     yCWarning(RGBDSENSOR_NWC_ROS2) << "getDepthMirroring not supported";
-    return false;
+    return ReturnValue::return_code::return_value_error_not_implemented_by_device;
 }
 
-bool RgbdSensor_nwc_ros2::setDepthMirroring(bool mirror)
+yarp::dev::ReturnValue RgbdSensor_nwc_ros2::setDepthMirroring(bool mirror)
 {
     yCWarning(RGBDSENSOR_NWC_ROS2) << "setDepthMirroring not supported";
-    return false;
+    return ReturnValue::return_code::return_value_error_not_implemented_by_device;
 }
 
-bool RgbdSensor_nwc_ros2::getExtrinsicParam(yarp::sig::Matrix& extrinsic)
+yarp::dev::ReturnValue RgbdSensor_nwc_ros2::getExtrinsicParam(yarp::sig::Matrix& extrinsic)
 {
     yCWarning(RGBDSENSOR_NWC_ROS2) << "getExtrinsicParam not supported";
-    return  false;
+    return ReturnValue::return_code::return_value_error_not_implemented_by_device;
 }
 
 
 /*
  * TODO FIXME to update with header instead of stamp
  */
-bool RgbdSensor_nwc_ros2::getRgbImage(yarp::sig::FlexImage& rgb_image, yarp::os::Stamp* rgb_image_stamp)
+yarp::dev::ReturnValue RgbdSensor_nwc_ros2::getRgbImage(yarp::sig::FlexImage& rgb_image, yarp::os::Stamp* rgb_image_stamp)
 {
     std::lock_guard<std::mutex> guard_rgb_image(m_rgb_image_mutex);
     std::lock_guard<std::mutex> guard_rgb_camera_info(m_rgb_camera_info_mutex);
@@ -361,13 +375,14 @@ bool RgbdSensor_nwc_ros2::getRgbImage(yarp::sig::FlexImage& rgb_image, yarp::os:
     {
         yCError(RGBDSENSOR_NWC_ROS2, "missing rgb image");
     }
-    return rgb_ok;
+    if (rgb_ok) return ReturnValue_ok;
+    return ReturnValue::return_code::return_value_error_not_ready;
 }
 
 /*
  * TODO FIXME to update with header instead of stamp
  */
-bool RgbdSensor_nwc_ros2::getDepthImage(depthImage& depth_image, yarp::os::Stamp* depth_image_stamp)
+yarp::dev::ReturnValue RgbdSensor_nwc_ros2::getDepthImage(depthImage& depth_image, yarp::os::Stamp* depth_image_stamp)
 {
     std::lock_guard<std::mutex> guard_depth_image(m_depth_image_mutex);
     std::lock_guard<std::mutex> guard_depth_camera_info(m_depth_camera_info_mutex);
@@ -396,28 +411,34 @@ bool RgbdSensor_nwc_ros2::getDepthImage(depthImage& depth_image, yarp::os::Stamp
     {
         yCError(RGBDSENSOR_NWC_ROS2, "missing depth image");
     }
-    return depth_ok;
+
+    if (depth_ok) return ReturnValue_ok;
+    return ReturnValue::return_code::return_value_error_not_ready;
 }
 /*
  * TODO FIXME to update with header instead of stamp
  */
-bool RgbdSensor_nwc_ros2::getImages(yarp::sig::FlexImage& rgb_image, depthImage& depth_image, yarp::os::Stamp* rgb_image_stamp, yarp::os::Stamp* depth_image_stamp)
+yarp::dev::ReturnValue RgbdSensor_nwc_ros2::getImages(yarp::sig::FlexImage& rgb_image, depthImage& depth_image, yarp::os::Stamp* rgb_image_stamp, yarp::os::Stamp* depth_image_stamp)
 {
     bool rgb_ok, depth_ok;
     rgb_ok = getRgbImage(rgb_image, rgb_image_stamp);
     depth_ok = getDepthImage(depth_image, depth_image_stamp);
-    return (rgb_ok && depth_ok);
+
+    if (rgb_ok && depth_ok) return ReturnValue_ok;
+    return ReturnValue::return_code::return_value_error_not_ready;
 }
 
 
-RgbdSensor_nwc_ros2::RGBDSensor_status RgbdSensor_nwc_ros2::getSensorStatus()
+yarp::dev::ReturnValue RgbdSensor_nwc_ros2::getSensorStatus(yarp::dev::IRGBDSensor::RGBDSensor_status& status)
 {
-    return RGBD_SENSOR_OK_IN_USE;
+    status=RGBD_SENSOR_OK_IN_USE;
+    return ReturnValue_ok;
 }
 
 
-std::string RgbdSensor_nwc_ros2::getLastErrorMsg(yarp::os::Stamp* timeStamp)
+yarp::dev::ReturnValue RgbdSensor_nwc_ros2::getLastErrorMsg(std::string& message, yarp::os::Stamp* timeStamp)
 {
     yCError(RGBDSENSOR_NWC_ROS2) << "get last error not yet implemented";
-    return "get last error not yet implemented";
+    message = "get last error not yet implemented";
+    return ReturnValue::return_code::return_value_error_not_implemented_by_device;
 }

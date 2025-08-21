@@ -81,7 +81,9 @@ void RgbdToPointCloudSensor_nws_ros2::run()
 {
     if (m_sensor_p!=nullptr) {
         static int i = 0;
-        switch (m_sensor_p->getSensorStatus()) {
+        yarp::dev::IRGBDSensor::RGBDSensor_status status;
+        yarp::dev::ReturnValue ret = m_sensor_p->getSensorStatus(status);
+        switch (status) {
             case(yarp::dev::IRGBDSensor::RGBD_SENSOR_OK_IN_USE) :
             if (!writeData()) {
                 yCError(RGBDTOPOINTCLOUDSENSOR_NWS_ROS2, "Image not captured.. check hardware configuration");
