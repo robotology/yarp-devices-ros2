@@ -102,12 +102,11 @@ yarp::dev::ReturnValue FrameTransformSet_nwc_ros2::setTransform(const yarp::math
             return yarp::dev::ReturnValue::return_code::return_value_error_generic;
         }
     }
-    yarp::dev::ReturnValue::return_code::return_value_ok;
+    return yarp::dev::ReturnValue::return_code::return_value_ok;
 }
 
 void FrameTransformSet_nwc_ros2::ros2TimeFromYarp(double yarpTime, builtin_interfaces::msg::Time& ros2Time)
 {
-    uint64_t time;
     uint64_t sec_part;
     uint64_t nsec_part;
     sec_part = int(yarpTime); // (time / 1000000000UL);

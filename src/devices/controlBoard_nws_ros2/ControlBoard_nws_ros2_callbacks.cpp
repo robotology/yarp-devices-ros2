@@ -457,25 +457,22 @@ void ControlBoard_nws_ros2::getControlModesCallback(const std::shared_ptr<rmw_re
     }
 
     size_t forLimit = noJoints ? m_subdevice_joints : request->names.size();
-    int *tempMode = new int[1];
+    std::vector<int> tempMode(1);
     std::vector<std::string> modesToSend;
 
     for (size_t i=0; i<forLimit; i++){
 
-        if(!m_iControlMode->getControlMode(noJoints ? i : m_quickJointRef[request->names[i]],tempMode)){
+        if(!m_iControlMode->getControlMode(noJoints ? i : m_quickJointRef[request->names[i]],tempMode.data())){
             yCError(CONTROLBOARD_ROS2) << "Error while retrieving the control mode for joint"<<request->names[i];
             RCLCPP_ERROR(m_node->get_logger(),"Error while retrieving the control mode for joint %s",request->names[i].c_str());
             response->response = "RETRIEVE_ERROR";
 
-            delete tempMode;
             return;
         }
-        modesToSend.push_back(fromCtrlModeToString.at(*tempMode));
+        modesToSend.push_back(fromCtrlModeToString.at(*tempMode.data()));
     }
     response->modes = modesToSend;
     response->response = "OK";
-
-    delete tempMode;
 }
 
 
@@ -504,15 +501,14 @@ void ControlBoard_nws_ros2::getPositionCallback(const std::shared_ptr<rmw_reques
     }
 
     size_t forLimit = noJoints ? m_subdevice_joints : request->names.size();
-    double *tempPos = new double[m_jointNames.size()];
+    std::vector<double> tempPos(m_jointNames.size());
     std::vector<double> positionsToSend;
 
-    if(!m_iEncodersTimed->getEncoders(tempPos)){
+    if(!m_iEncodersTimed->getEncoders(tempPos.data())){
         yCError(CONTROLBOARD_ROS2) << "Error while retrieving joints positions";
         RCLCPP_ERROR(m_node->get_logger(),"Error while retrieving joints positions");
         response->response = "RETRIEVE_ERROR";
 
-        delete tempPos;
         return;
     }
 
@@ -534,7 +530,6 @@ void ControlBoard_nws_ros2::getPositionCallback(const std::shared_ptr<rmw_reques
     response->positions = positionsToSend;
     response->response = "OK";
 
-    delete tempPos;
 }
 
 
@@ -563,15 +558,14 @@ void ControlBoard_nws_ros2::getVelocityCallback(const std::shared_ptr<rmw_reques
     }
 
     size_t forLimit = noJoints ? m_subdevice_joints : request->names.size();
-    double *tempVel = new double[m_jointNames.size()];
+    std::vector<double> tempVel(m_jointNames.size());
     std::vector<double> velocitiesToSend;
 
-    if(!m_iEncodersTimed->getEncoderSpeeds(tempVel)){
+    if(!m_iEncodersTimed->getEncoderSpeeds(tempVel.data())){
         yCError(CONTROLBOARD_ROS2) << "Error while retrieving joints speeds";
         RCLCPP_ERROR(m_node->get_logger(),"Error while retrieving joints speeds");
         response->response = "RETRIEVE_ERROR";
 
-        delete tempVel;
         return;
     }
 
@@ -592,8 +586,6 @@ void ControlBoard_nws_ros2::getVelocityCallback(const std::shared_ptr<rmw_reques
     }
     response->velocities = velocitiesToSend;
     response->response = "OK";
-
-    delete tempVel;
 }
 
 
