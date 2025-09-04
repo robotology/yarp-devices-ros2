@@ -10,7 +10,7 @@
 #include <geometry_msgs/msg/wrench_stamped.hpp>
 
     /**
- * @ingroup dev_impl_wrapper
+ * @ingroup dev_impl_nws_ros2
  *
  * \brief `WrenchStamped_nws_ros2`: This wrapper connects to a device and publishes a ROS topic of type geometry_msgs::WrenchStamped.
  *

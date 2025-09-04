@@ -6,8 +6,6 @@
 #ifndef YARP_FRAMEGRABBER_NWS_ROS2_H
 #define YARP_FRAMEGRABBER_NWS_ROS2_H
 
-#include <yarp/os/Node.h>
-#include <yarp/os/Publisher.h>
 #include <yarp/os/PeriodicThread.h>
 #include <yarp/os/RpcServer.h>
 #include <yarp/os/Stamp.h>

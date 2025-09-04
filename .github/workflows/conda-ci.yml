@@ -13,7 +13,7 @@ jobs:
 
   check-style:
     name: 'Check Style'
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
     - name: Clone repository
       uses: actions/checkout@v3
@@ -27,7 +27,7 @@ jobs:
 
   check-license:
     name: 'Check License'
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
     - name: Clone repository
       uses: actions/checkout@v3
@@ -41,7 +41,7 @@ jobs:
 
   check-tests:
     name: 'Check Devices Tests'
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
     - name: Clone repository
       uses: actions/checkout@v3
@@ -59,8 +59,11 @@ jobs:
     strategy:
       matrix:
         build_type: [Release]
-        ros_distro: [humble, jazzy]
+        ros_distro: [humble, jazzy, kilted]
         os: [ubuntu-22.04, ubuntu-24.04, macos-latest, windows-2019]
+        exclude:
+          - os: ubuntu-22.04
+            ros_distro: kilted
       fail-fast: false
 
     steps:

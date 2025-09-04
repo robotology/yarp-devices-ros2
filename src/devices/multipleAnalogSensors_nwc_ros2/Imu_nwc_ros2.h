@@ -12,7 +12,7 @@
 #include <tf2/LinearMath/Matrix3x3.h>
 
 /**
- * @ingroup dev_impl_wrapper
+ * @ingroup dev_impl_nwc_ros2
  *
  * \brief `IMU_nwc_ros2`: This wrapper connects to a device and publishes a ROS topic of type sensor_msgs::Imu.
  *

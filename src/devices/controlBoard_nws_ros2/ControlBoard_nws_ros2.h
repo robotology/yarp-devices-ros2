@@ -50,9 +50,9 @@
 /**
  *  @ingroup dev_impl_nws_ros2
  *
- * \brief `controlBoard_nws_ros`: A controlBoard network wrapper server for ROS2.
+ * \brief `controlBoard_nws_ros2`: A controlBoard network wrapper server for ROS2.
  *
- * \section controlBoard_nws_ros_device_parameters Description of input parameters
+ * \section controlBoard_nws_ros2_device_parameters Description of input parameters
  *
  *  Parameters required by this device are shown in class: ControlBoard_nws_ros2_ParamsParser
  *
@@ -73,7 +73,6 @@ private:
     std::vector<std::string>     m_jointNames; // name of the joints
     std::string                  m_nodeName;                // name of the rosNode
     std::string                  m_jointStateTopicName;               // name of the rosTopic
-    std::string                  m_msgs_name;
     std::string                  m_posTopicName;
     std::string                  m_posDirTopicName;
     std::string                  m_velTopicName;
