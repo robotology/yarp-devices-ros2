@@ -29,6 +29,7 @@
 #include <sensor_msgs/msg/joint_state.hpp>
 #include <std_msgs/msg/header.hpp>
 #include <std_msgs/msg/float64_multi_array.hpp>
+#include <std_msgs/msg/int8_multi_array.hpp>
 #include <map>
 
 //Custom ros2 interfaces
@@ -73,6 +74,7 @@ private:
     std::vector<std::string>     m_jointNames; // name of the joints
     std::string                  m_nodeName;                // name of the rosNode
     std::string                  m_jointStateTopicName;               // name of the rosTopic
+    std::string                  m_jointControlModeTopicName;
     std::string                  m_posTopicName;
     std::string                  m_posDirTopicName;
     std::string                  m_velTopicName;
@@ -91,7 +93,8 @@ private:
 //     yarp::os::PortWriterBuffer<yarp::rosmsg::sensor_msgs::JointState> rosOutputState_buffer; // Buffer associated to the ROS topic
 //     yarp::os::Publisher<yarp::rosmsg::sensor_msgs::JointState> rosPublisherPort;             // Dedicated ROS topic publisher
 
-    rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr m_publisher;
+    rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr  m_publisherJointStates;
+    rclcpp::Publisher<std_msgs::msg::Int8MultiArray>::SharedPtr m_publisherControlModes;
     rclcpp::Node::SharedPtr m_node;
 
     static constexpr double m_default_period = 0.02; // s
