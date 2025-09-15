@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.17)
-project(cb_hw_fw_pos)
+project(cb_hw_fw_pos_read_pos_vel)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -17,10 +17,11 @@ find_package(rcpputils REQUIRED)
 find_package(rcutils REQUIRED)
 find_package(hardware_interface REQUIRED)
 find_package(yarp_control_msgs REQUIRED)
+find_package(joint_states_client REQUIRED)
 
 add_library(${PROJECT_NAME}
   SHARED
-  src/cb_hw_fw_pos.cpp
+  src/cb_hw_fw_pos_read_pos_vel.cpp
   )
 target_compile_features(${PROJECT_NAME} PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
 target_include_directories(
@@ -40,11 +41,12 @@ ament_target_dependencies(
   rcpputils
   rcutils
   yarp_control_msgs
+  joint_states_client
 )
 
 # Causes the visibility macros to use dllexport rather than dllimport,
 # which is appropriate when building the dll but not consuming it.
-target_compile_definitions(${PROJECT_NAME} PRIVATE "CB_HW_FW_POS_BUILDING_LIBRARY")
+target_compile_definitions(${PROJECT_NAME} PRIVATE "cb_hw_fw_pos_read_pos_vel_BUILDING_LIBRARY")
 
 #target_compile_definitions(${PROJECT_NAME} PUBLIC "PLUGINLIB__DISABLE_BOOST_FUNCTIONS")
 pluginlib_export_plugin_description_file(hardware_interface ${PROJECT_NAME}.xml)
