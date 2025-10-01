@@ -8,7 +8,7 @@
 // This is an automatically generated file. Please do not edit it.
 // It will be re-generated if the cmake flag ALLOW_DEVICE_PARAM_PARSER_GERNERATION is ON.
 
-// Generated on: Mon May 26 22:00:40 2025
+// Generated on: Wed Oct  1 16:30:22 2025
 
 
 #include "RgbdSensor_nws_ros2_ParamsParser.h"
@@ -35,6 +35,7 @@ std::vector<std::string> RgbdSensor_nws_ros2_ParamsParser::getListOfParams() con
     params.push_back("force_info_synch");
     params.push_back("depth_frame_id");
     params.push_back("color_frame_id");
+    params.push_back("pub_status_topic");
     return params;
 }
 
@@ -74,6 +75,11 @@ bool RgbdSensor_nws_ros2_ParamsParser::getParamValue(const std::string& paramNam
     if (paramName =="color_frame_id")
     {
         paramValue = m_color_frame_id;
+        return true;
+    }
+    if (paramName =="pub_status_topic")
+    {
+        paramValue = std::to_string(m_pub_status_topic);
         return true;
     }
 
@@ -211,6 +217,20 @@ bool      RgbdSensor_nws_ros2_ParamsParser::parseParams(const yarp::os::Searchab
         prop_check.unput("color_frame_id");
     }
 
+    //Parser of parameter pub_status_topic
+    {
+        if (config.check("pub_status_topic"))
+        {
+            m_pub_status_topic = config.find("pub_status_topic").asInt64();
+            yCInfo(RgbdSensor_nws_ros2ParamsCOMPONENT) << "Parameter 'pub_status_topic' using value:" << m_pub_status_topic;
+        }
+        else
+        {
+            yCInfo(RgbdSensor_nws_ros2ParamsCOMPONENT) << "Parameter 'pub_status_topic' using DEFAULT value:" << m_pub_status_topic;
+        }
+        prop_check.unput("pub_status_topic");
+    }
+
     /*
     //This code check if the user set some parameter which are not check by the parser
     //If the parser is set in strict mode, this will generate an error
@@ -254,9 +274,10 @@ std::string      RgbdSensor_nws_ros2_ParamsParser::getDocumentationOfDeviceParam
     doc = doc + std::string("'force_info_synch': if 1, it forces synching images time stamp with and cameras time stamp\n");
     doc = doc + std::string("'depth_frame_id': The depth image frame\n");
     doc = doc + std::string("'color_frame_id': The color image frame\n");
+    doc = doc + std::string("'pub_status_topic': If 1 a topic publishing 0 if no image has been published on ros2 topic, 1 if only the RGB image is bein published, 2 for only the depth image, and 3 for both images will be opened\n");
     doc = doc + std::string("\n");
     doc = doc + std::string("Here are some examples of invocation command with yarpdev, with all params:\n");
-    doc = doc + " yarpdev --device rgbdSensor_nws_ros2 --period 0.02 --node_name <mandatory_value> --color_topic_name <mandatory_value> --depth_topic_name <mandatory_value> --force_info_synch 0 --depth_frame_id <mandatory_value> --color_frame_id <mandatory_value>\n";
+    doc = doc + " yarpdev --device rgbdSensor_nws_ros2 --period 0.02 --node_name <mandatory_value> --color_topic_name <mandatory_value> --depth_topic_name <mandatory_value> --force_info_synch 0 --depth_frame_id <mandatory_value> --color_frame_id <mandatory_value> --pub_status_topic 0\n";
     doc = doc + std::string("Using only mandatory params:\n");
     doc = doc + " yarpdev --device rgbdSensor_nws_ros2 --node_name <mandatory_value> --color_topic_name <mandatory_value> --depth_topic_name <mandatory_value> --depth_frame_id <mandatory_value> --color_frame_id <mandatory_value>\n";
     doc = doc + std::string("=============================================\n\n");    return doc;
