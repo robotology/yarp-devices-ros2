@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>yarp_to_ros2_sound_bridge</name>
+  <version>0.1.0</version>
+  <description>Bridge from YARP Sound to ROS2 Int16MultiArray</description>
+
+  <maintainer email="your.email@example.com">Your Name</maintainer>
+  <license>BSD</license>
+
+  <!-- Build system -->
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <!-- ROS2 dependencies -->
+  <depend>rclcpp</depend>
+  <depend>std_msgs</depend>
+
+  <!-- Non-ROS dependency -->
+  <exec_depend>yarp</exec_depend>
+
+  <!-- Required for colcon/ament -->
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
