@@ -17,6 +17,7 @@
 #include <std_msgs/msg/string.hpp>
 #include <sensor_msgs/msg/image.hpp>
 #include <sensor_msgs/msg/camera_info.hpp>
+#include <std_msgs/msg/u_int8.hpp>
 
 #include "RgbdSensor_nws_ros2_ParamsParser.h"
 
@@ -84,6 +85,7 @@ private:
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr rosPublisher_depth;
     rclcpp::Publisher<sensor_msgs::msg::CameraInfo>::SharedPtr rosPublisher_colorCaminfo;
     rclcpp::Publisher<sensor_msgs::msg::CameraInfo>::SharedPtr rosPublisher_depthCaminfo;
+    rclcpp::Publisher<std_msgs::msg::UInt8>::SharedPtr m_rosPublisher_status;
 
     std::string m_depth_info_topic_name;
     std::string m_color_info_topic_name;

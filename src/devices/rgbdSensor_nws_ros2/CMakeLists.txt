@@ -31,6 +31,7 @@ if(NOT SKIP_rgbdSensor_nws_ros2)
       YARP::YARP_dev
       rclcpp::rclcpp
       sensor_msgs::sensor_msgs__rosidl_typesupport_cpp
+      std_msgs::std_msgs__rosidl_typesupport_cpp
       Ros2Utils
   )
 

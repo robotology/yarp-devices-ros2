@@ -134,6 +134,10 @@ bool RgbdSensor_nws_ros2::initialize_ROS2(yarp::os::Searchable &params)
     rosPublisher_depth = m_node->create_publisher<sensor_msgs::msg::Image>(m_depth_topic_name, 10);
     rosPublisher_colorCaminfo = m_node->create_publisher<sensor_msgs::msg::CameraInfo>(m_color_info_topic_name, 10);
     rosPublisher_depthCaminfo = m_node->create_publisher<sensor_msgs::msg::CameraInfo>(m_depth_info_topic_name, 10);
+    if(m_pub_status_topic == 1) {
+        std::string status_topic_name = "/" + m_node_name + "/publisher_status";
+        m_rosPublisher_status = m_node->create_publisher<std_msgs::msg::UInt8>(status_topic_name, 10);
+    }
     return true;
 }
 
@@ -404,6 +408,12 @@ bool RgbdSensor_nws_ros2::writeData()
             m_camInfoData.depthCamInfo.header.stamp = rDepthImage.header.stamp;
         }
         rosPublisher_depthCaminfo->publish(m_camInfoData.depthCamInfo);
+    }
+
+    if (m_pub_status_topic == 1 && m_rosPublisher_status) {
+        std_msgs::msg::UInt8 status_msg;
+        status_msg.data = rgb_data_ok*1 + depth_data_ok*2;
+        m_rosPublisher_status->publish(status_msg);
     }
 
     return true;
