@@ -177,6 +177,7 @@ bool Map2D_nws_ros2::read(yarp::os::ConnectionReader& connection)
 
 bool Map2D_nws_ros2::updateVizMarkers()
 {
+    yCInfo(MAP2D_NWS_ROS2) << "Updating rviz markers. Current map is: " << m_currentMapName;
     if (!m_ros2Publisher_markers)
     {
         m_ros2Publisher_markers = m_node->create_publisher<visualization_msgs::msg::MarkerArray>(m_markers_pub, 10);
@@ -201,8 +202,10 @@ bool Map2D_nws_ros2::updateVizMarkers()
     visualization_msgs::msg::MarkerArray markers;
 
     std::vector<std::string> locations;
+    std::vector<std::string> objects;
     int count = 1;
     m_iMap2D->getLocationsList(locations);
+    m_iMap2D->getObjectsList(objects);
     for (auto it : locations)
     {
         yarp::dev::Nav2D::Map2DLocation loc;
@@ -220,12 +223,12 @@ bool Map2D_nws_ros2::updateVizMarkers()
         q.fromRotationMatrix(m);
 
         marker.header.frame_id    = "map";
-        tt.sec                    = (yarp::os::NetUint32) sec_part;;
+        tt.sec                    = (yarp::os::NetUint32) sec_part;
         marker.header.stamp       = tt;
         marker.ns                 = m_markers_pub+"_ns";
         marker.id                 = count;
-        marker.type               = visualization_msgs::msg::Marker::ARROW;//yarp::rosmsg::visualization_msgs::Marker::ARROW;
-        marker.action             = visualization_msgs::msg::Marker::ADD;//yarp::rosmsg::visualization_msgs::Marker::ADD;
+        marker.type               = visualization_msgs::msg::Marker::ARROW;
+        marker.action             = visualization_msgs::msg::Marker::ADD;
         marker.pose.position.x    = loc.x;
         marker.pose.position.y    = loc.y;
         marker.pose.position.z    = 0;
@@ -245,7 +248,49 @@ bool Map2D_nws_ros2::updateVizMarkers()
         markers.markers.push_back(marker);
         count++;
     }
+    for (auto it : objects)
+    {
+        yarp::dev::Nav2D::Map2DObject obj;
+        m_iMap2D->getObject(it, obj);
 
+        if(obj.map_id != m_currentMapName && m_currentMapName != "none")
+        {
+            continue;
+        }
+
+        rpy[0] = obj.roll / 180.0 * M_PI; //x
+        rpy[1] = obj.pitch / 180.0 * M_PI; //y
+        rpy[2] = obj.yaw / 180.0 * M_PI; //z
+        yarp::sig::Matrix m = yarp::math::rpy2dcm(rpy);
+        q.fromRotationMatrix(m);
+
+        marker.header.frame_id    = "map";
+        tt.sec                    = (yarp::os::NetUint32) sec_part;
+        marker.header.stamp       = tt;
+        marker.ns                 = m_markers_pub+"_ns";
+        marker.id                 = count;
+        marker.type               = visualization_msgs::msg::Marker::ARROW;
+        marker.action             = visualization_msgs::msg::Marker::ADD;
+        marker.pose.position.x    = obj.x;
+        marker.pose.position.y    = obj.y;
+        marker.pose.position.z    = obj.z;
+        marker.pose.orientation.x = q.x();
+        marker.pose.orientation.y = q.y();
+        marker.pose.orientation.z = q.z();
+        marker.pose.orientation.w = q.w();
+        marker.scale.x            = 1;
+        marker.scale.y            = 0.1;
+        marker.scale.z            = 0.1;
+        marker.color.a            = 1.0;
+        marker.color.r            = 0.0;
+        marker.color.g            = 0.0;
+        marker.color.b            = 1.0;
+        marker.lifetime           = dur;
+        marker.text               = it;
+        markers.markers.push_back(marker);
+        count++;
+    }
+    
     m_ros2Publisher_markers->publish(markers);
     return true;
 }
