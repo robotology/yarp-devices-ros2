@@ -115,6 +115,10 @@ void AudioRecorder_nws_ros2::run()
         }
 
         std_msgs::msg::Int16MultiArray statusMsg;
+        statusMsg.data.resize(3);
+        statusMsg.data[0] = static_cast<int>(isRecording);
+        statusMsg.data[1] = static_cast<int>(device_buffer_current_size.getBufferElements());
+        statusMsg.data[2] = static_cast<int>(device_buffer_max_size.getBufferElements());
         m_ros2Publisher_status->publish(statusMsg);
 
     } else{
