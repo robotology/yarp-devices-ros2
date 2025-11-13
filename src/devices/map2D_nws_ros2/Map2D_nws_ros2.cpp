@@ -57,6 +57,12 @@ bool Map2D_nws_ros2::attach(yarp::dev::PolyDriver* driver)
         return false;
     }
 
+    //updateRvizMarkers on startup
+    if (1)
+    {
+        updateVizMarkers();
+    }
+
     return true;
 }
 
@@ -144,8 +150,6 @@ bool Map2D_nws_ros2::close()
 
 bool Map2D_nws_ros2::read(yarp::os::ConnectionReader& connection)
 {
-    yCWarning(MAP2D_NWS_ROS2) << "not yet implemented";
-
     std::lock_guard<std::mutex> lock(m_mutex);
     yarp::os::Bottle in;
     yarp::os::Bottle out;
@@ -155,12 +159,25 @@ bool Map2D_nws_ros2::read(yarp::os::ConnectionReader& connection)
     //parse string command
     if(in.get(0).isString())
     {
-      //  parse_string_command(in, out);
-    }
-    // parse vocab command
-    else if(in.get(0).isVocab32())
-    {
-   //     parse_vocab_command(in, out);
+         std::string ss = in.get(0).asString();
+         if (ss == "help")
+         {
+             yInfo("updateMarkers");
+             yInfo("publishMap <name>");           
+             out.addString("updateMarkers");
+             out.addString("publishMap");
+         }
+         else if (ss == "updateMarkers")
+         {
+             updateVizMarkers();
+             out.addString("ok");
+         }
+         else if (ss == "publishMap")
+         {
+             std::string mapname = in.get(1).asString();
+             publishMap(mapname);
+             out.addString("ok");
+         }
     }
 
     yarp::os::ConnectionWriter *returnToSender = connection.getWriter();
@@ -322,10 +339,7 @@ void Map2D_nws_ros2::rosCmdParserCallback(const std::shared_ptr<rmw_request_id_t
     }
 }
 
-//void Map2D_nws_ros2::prepareMapMsg(MapGrid2D inputMap, nav_msgs::msg::OccupancyGrid &outputMsg)
-void Map2D_nws_ros2::getMapByNameCallback(const std::shared_ptr<rmw_request_id_t> request_header,
-                                          const std::shared_ptr<map2d_nws_ros2_msgs::srv::GetMapByName::Request> request,
-                                          std::shared_ptr<map2d_nws_ros2_msgs::srv::GetMapByName::Response> response)
+nav_msgs::msg::OccupancyGrid Map2D_nws_ros2::publishMap(std::string mapname)
 {
     if (!m_ros2Publisher_map)
     {
@@ -335,11 +349,10 @@ void Map2D_nws_ros2::getMapByNameCallback(const std::shared_ptr<rmw_request_id_t
     nav_msgs::msg::MapMetaData metaToGo;
     mapToGo.header.frame_id = "map";
     MapGrid2D theMap;
-    if(!m_iMap2D->get_map(request->name,theMap))
+    if(!m_iMap2D->get_map(mapname,theMap))
     {
         mapToGo.header.frame_id = "invalid_frame";
-        response->map = mapToGo;
-        return;
+        return mapToGo;
     }
     mapToGo.info.map_load_time = m_node->get_clock()->now();
     mapToGo.header.stamp = m_node->get_clock()->now();
@@ -374,9 +387,6 @@ void Map2D_nws_ros2::getMapByNameCallback(const std::shared_ptr<rmw_request_id_t
       }
     }
 
-    response->map = mapToGo;
-    m_currentMapName = request->name;
-
     metaToGo.map_load_time = mapToGo.info.map_load_time;
     metaToGo.height = theMap.height();
     metaToGo.width = theMap.width();
@@ -386,5 +396,17 @@ void Map2D_nws_ros2::getMapByNameCallback(const std::shared_ptr<rmw_request_id_t
     if (m_ros2Publisher_map)
     {
         m_ros2Publisher_map->publish(mapToGo);
-    }
+    }   
+    
+    return mapToGo;
+}
+
+//void Map2D_nws_ros2::prepareMapMsg(MapGrid2D inputMap, nav_msgs::msg::OccupancyGrid &outputMsg)
+void Map2D_nws_ros2::getMapByNameCallback(const std::shared_ptr<rmw_request_id_t> request_header,
+                                          const std::shared_ptr<map2d_nws_ros2_msgs::srv::GetMapByName::Request> request,
+                                          std::shared_ptr<map2d_nws_ros2_msgs::srv::GetMapByName::Response> response)
+{
+    m_currentMapName = request->name;
+    auto rmap = publishMap(request->name);
+    response->map = rmap;    
 }
