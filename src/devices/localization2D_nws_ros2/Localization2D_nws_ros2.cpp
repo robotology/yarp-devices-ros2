@@ -206,5 +206,7 @@ void Localization2D_nws_ros2::publish_odometry_on_ROS_topic()
     rosData.twist.twist.angular.z = m_current_odometry.base_vel_theta;
     //rosData.twist.covariance = 0;
 
-    m_publisher_odom->publish(rosData);
+    if (m_publisher_odom->get_subscription_count() > 0) {
+        m_publisher_odom->publish(rosData);
+    }
 }
