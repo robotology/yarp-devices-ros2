@@ -184,8 +184,10 @@ void FrameGrabber_nws_ros2::run()
     //         rosimg.header.stamp.sec = static_cast<int>(m_stamp.getTime()); // FIXME
     //         rosimg.header.stamp.nanosec = static_cast<int>(1000000000UL * (m_stamp.getTime() - int(m_stamp.getTime()))); // FIXME
             rosimg.is_bigendian = 0;
-            memcpy(rosimg.data.data(), yarpimg->getRawImage(), yarpimg->getRawImageSize());
-            publisher_image->publish(rosimg);
+            if(publisher_image->get_subscription_count()>0){
+                memcpy(rosimg.data.data(), yarpimg->getRawImage(), yarpimg->getRawImageSize());
+                publisher_image->publish(rosimg);
+            }
         }
         else
         {
@@ -197,10 +199,11 @@ void FrameGrabber_nws_ros2::run()
         yCError(FRAMEGRABBER_NWS_ROS2) << "Invalid call to interface iFrameGrabberImage";
     }
 
-    if (iRgbVisualParams)
+    if (iRgbVisualParams && publisher_cameraInfo->get_subscription_count()>0)
     {
         sensor_msgs::msg::CameraInfo cameraInfo;
         if (setCamInfo(cameraInfo)) {
+
             publisher_cameraInfo->publish(cameraInfo);
         }
     }
