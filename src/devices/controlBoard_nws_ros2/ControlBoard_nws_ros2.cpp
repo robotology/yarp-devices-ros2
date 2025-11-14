@@ -427,7 +427,8 @@ void ControlBoard_nws_ros2::run()
     ++m_counter;
 //     m_ros_struct.header.seq = m_counter++;
 
-    m_publisherJointStates->publish(m_ros_struct);
+    if(m_publisherJointStates->get_subscription_count()>0)
+        m_publisherJointStates->publish(m_ros_struct);
 
 
     //get and publish Control Modes
@@ -439,5 +440,6 @@ void ControlBoard_nws_ros2::run()
     for (size_t i = 0; i < m_subdevice_joints; i++) {
         modes.data[i]=modes_array[i];
     }
-    m_publisherControlModes->publish(modes);
+    if(m_publisherControlModes->get_subscription_count()>0)
+        m_publisherControlModes->publish(modes);
 }
