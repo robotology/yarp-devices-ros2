@@ -119,7 +119,8 @@ void AudioRecorder_nws_ros2::run()
         statusMsg.data[0] = static_cast<int>(isRecording);
         statusMsg.data[1] = static_cast<int>(device_buffer_current_size.getBufferElements());
         statusMsg.data[2] = static_cast<int>(device_buffer_max_size.getBufferElements());
-        m_ros2Publisher_status->publish(statusMsg);
+        if(m_ros2Publisher_status->get_subscription_count()>0)
+            m_ros2Publisher_status->publish(statusMsg);
 
     } else{
         yCError(AUDIORECORDER_NWS_ROS2) << "the interface is not valid";
