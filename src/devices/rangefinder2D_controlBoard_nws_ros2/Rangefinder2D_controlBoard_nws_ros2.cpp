@@ -94,7 +94,7 @@ void Rangefinder2D_controlBoard_nws_ros2::run()
     auto message = std_msgs::msg::String();
     sensor_msgs::msg::LaserScan rosData;
 
-    if (m_iLidar!=nullptr)
+    if (m_iLidar!=nullptr && m_publisher_laser->get_subscription_count() > 0)
     {
         bool ret = true;
         IRangefinder2D::Device_status status;
@@ -173,7 +173,8 @@ void Rangefinder2D_controlBoard_nws_ros2::run()
     m_ros_struct.name = jointNames;
     m_ros_struct.header.stamp.sec = rosData.header.stamp.sec;
     m_ros_struct.header.stamp.nanosec = rosData.header.stamp.nanosec;
-    m_publisher_joint->publish(m_ros_struct);
+    if(m_publisher_joint->get_subscription_count() > 0)
+        m_publisher_joint->publish(m_ros_struct);
 }
 
 bool Rangefinder2D_controlBoard_nws_ros2::setDevice(yarp::dev::DeviceDriver* driver)
