@@ -176,7 +176,7 @@ bool RgbdToPointCloudSensor_nws_ros2::writeData()
 
 
     // TBD: We should check here somehow if the timestamp was correctly updated and, if not, update it ourselves.
-    if (rgb_data_ok) {
+    if (rgb_data_ok && m_rosPublisher_pointCloud2->get_subscription_count() > 0) {
         if (depth_data_ok) {
             if (intrinsic_ok) {
                 yarp::sig::IntrinsicParams intrinsics(propIntrinsic);
