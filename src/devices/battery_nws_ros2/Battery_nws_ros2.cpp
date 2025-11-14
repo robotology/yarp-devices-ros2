@@ -120,7 +120,8 @@ void Battery_nws_ros2::run()
         battMsg.header.stamp.sec = int(m_timeStamp.getTime());
         battMsg.header.stamp.nanosec = int(1000000000UL * (m_timeStamp.getTime() - int(m_timeStamp.getTime())));
 
-        m_ros2Publisher->publish(battMsg);
+        if(m_ros2Publisher->get_subscription_count()>0)
+            m_ros2Publisher->publish(battMsg);
     }
 }
 
