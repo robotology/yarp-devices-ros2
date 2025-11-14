@@ -380,12 +380,14 @@ bool RgbdSensor_nws_ros2::writeData()
         rColorImage.header.stamp.nanosec = static_cast<int>(1000000000UL * (colorStamp.getTime() - int(colorStamp.getTime()))); // FIXME
         rColorImage.is_bigendian = 0;
 
-        rosPublisher_color->publish(rColorImage);
+        if(rosPublisher_color->get_subscription_count() > 0)
+            rosPublisher_color->publish(rColorImage);
 
         if (m_forceInfoSync) {
             m_camInfoData.colorCamInfo.header.stamp = rColorImage.header.stamp;
         }
-        rosPublisher_colorCaminfo->publish(m_camInfoData.colorCamInfo);
+        if(rosPublisher_colorCaminfo->get_subscription_count() > 0)
+            rosPublisher_colorCaminfo->publish(m_camInfoData.colorCamInfo);
     }
 
     if (depth_data_ok)
@@ -402,18 +404,21 @@ bool RgbdSensor_nws_ros2::writeData()
         rDepthImage.header.stamp.nanosec = static_cast<int>(1000000000UL * (depthStamp.getTime() - int(depthStamp.getTime()))); // FIXME
         rDepthImage.is_bigendian = 0;
 
-        rosPublisher_depth->publish(rDepthImage);
+        if(rosPublisher_depth->get_subscription_count() > 0)
+            rosPublisher_depth->publish(rDepthImage);
 
         if (m_forceInfoSync) {
             m_camInfoData.depthCamInfo.header.stamp = rDepthImage.header.stamp;
         }
-        rosPublisher_depthCaminfo->publish(m_camInfoData.depthCamInfo);
+        if(rosPublisher_depthCaminfo->get_subscription_count() > 0)
+            rosPublisher_depthCaminfo->publish(m_camInfoData.depthCamInfo);
     }
 
     if (m_pub_status_topic == 1 && m_rosPublisher_status) {
         std_msgs::msg::UInt8 status_msg;
         status_msg.data = rgb_data_ok*1 + depth_data_ok*2;
-        m_rosPublisher_status->publish(status_msg);
+        if(m_rosPublisher_status->get_subscription_count() > 0)
+            m_rosPublisher_status->publish(status_msg);
     }
 
     return true;
