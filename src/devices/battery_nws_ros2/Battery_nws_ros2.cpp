@@ -85,7 +85,7 @@ void Battery_nws_ros2::run()
     {
         yCError(BATTERY_NWS_ROS2) << "the publisher is not ready";
     }
-    else
+    else if(m_ros2Publisher->get_subscription_count()>0)
     {
         double voltage=0;
         double current=0;
@@ -120,8 +120,7 @@ void Battery_nws_ros2::run()
         battMsg.header.stamp.sec = int(m_timeStamp.getTime());
         battMsg.header.stamp.nanosec = int(1000000000UL * (m_timeStamp.getTime() - int(m_timeStamp.getTime())));
 
-        if(m_ros2Publisher->get_subscription_count()>0)
-            m_ros2Publisher->publish(battMsg);
+        m_ros2Publisher->publish(battMsg);
     }
 }
 

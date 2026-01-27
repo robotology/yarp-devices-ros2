@@ -96,31 +96,33 @@ void AudioRecorder_nws_ros2::run()
 
     if (m_audioRecorder_interface!=nullptr && m_ros2Publisher_status)
     {
-        double synchronized_timestamp = 0;
-
-        yarp::sig::AudioBufferSize device_buffer_current_size;
-        yarp::sig::AudioBufferSize device_buffer_max_size;
-        bool isRecording=0;
-        m_audioRecorder_interface->getRecordingAudioBufferCurrentSize(device_buffer_current_size);
-        m_audioRecorder_interface->getRecordingAudioBufferMaxSize(device_buffer_max_size);
-        m_audioRecorder_interface->isRecording(isRecording);
-
-        if (std::isnan(synchronized_timestamp) == false)
-        {
-            m_timeStamp.update(synchronized_timestamp);
-        }
-        else
-        {
-            m_timeStamp.update(yarp::os::Time::now());
-        }
-
-        std_msgs::msg::Int16MultiArray statusMsg;
-        statusMsg.data.resize(3);
-        statusMsg.data[0] = static_cast<int>(isRecording);
-        statusMsg.data[1] = static_cast<int>(device_buffer_current_size.getBufferElements());
-        statusMsg.data[2] = static_cast<int>(device_buffer_max_size.getBufferElements());
         if(m_ros2Publisher_status->get_subscription_count()>0)
+        {
+            double synchronized_timestamp = 0;
+
+            yarp::sig::AudioBufferSize device_buffer_current_size;
+            yarp::sig::AudioBufferSize device_buffer_max_size;
+            bool isRecording=0;
+            m_audioRecorder_interface->getRecordingAudioBufferCurrentSize(device_buffer_current_size);
+            m_audioRecorder_interface->getRecordingAudioBufferMaxSize(device_buffer_max_size);
+            m_audioRecorder_interface->isRecording(isRecording);
+
+            if (std::isnan(synchronized_timestamp) == false)
+            {
+                m_timeStamp.update(synchronized_timestamp);
+            }
+            else
+            {
+                m_timeStamp.update(yarp::os::Time::now());
+            }
+
+            std_msgs::msg::Int16MultiArray statusMsg;
+            statusMsg.data.resize(3);
+            statusMsg.data[0] = static_cast<int>(isRecording);
+            statusMsg.data[1] = static_cast<int>(device_buffer_current_size.getBufferElements());
+            statusMsg.data[2] = static_cast<int>(device_buffer_max_size.getBufferElements());
             m_ros2Publisher_status->publish(statusMsg);
+        }
 
     } else{
         yCError(AUDIORECORDER_NWS_ROS2) << "the interface is not valid";

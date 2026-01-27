@@ -174,7 +174,9 @@ void Rangefinder2D_controlBoard_nws_ros2::run()
     m_ros_struct.header.stamp.sec = rosData.header.stamp.sec;
     m_ros_struct.header.stamp.nanosec = rosData.header.stamp.nanosec;
     if(m_publisher_joint->get_subscription_count() > 0)
+    {
         m_publisher_joint->publish(m_ros_struct);
+    }
 }
 
 bool Rangefinder2D_controlBoard_nws_ros2::setDevice(yarp::dev::DeviceDriver* driver)
