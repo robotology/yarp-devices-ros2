@@ -101,8 +101,11 @@ void Localization2D_nws_ros2::run()
             yCWarning(LOCALIZATION2D_NWS_ROS2, "The system is not properly localized!");
         }
 
-        if (1) publish_odometry_on_ROS_topic();
-        if (1) publish_odometry_on_TF_topic();
+        if (m_publisher_odom->get_subscription_count() > 0)
+        {
+            publish_odometry_on_ROS_topic();
+        }
+        publish_odometry_on_TF_topic();
     }
 }
 

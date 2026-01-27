@@ -172,8 +172,8 @@ void Odometry2D_nws_ros2::run()
             yCWarning(ODOMETRY2D_NWS_ROS2) << "Size of /tf topic should be 1, instead it is:" << rosData.transforms.size();
         }
 
-
-        m_ros2Publisher_odometry->publish(odometryMsg);
+        if(m_ros2Publisher_odometry->get_subscription_count() > 0)
+            m_ros2Publisher_odometry->publish(odometryMsg);
 
         m_publisher_tf->publish(rosData);
 

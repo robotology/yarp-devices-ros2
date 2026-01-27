@@ -90,7 +90,7 @@ void Rangefinder2D_nws_ros2::run()
         ret &= m_iDevice->getRawData(ranges, &synchronized_timestamp);
         ret &= m_iDevice->getDeviceStatus(status);
 
-        if (ret)
+        if (ret && m_publisher->get_subscription_count() > 0)
         {
             int ranges_size = ranges.size();
 
