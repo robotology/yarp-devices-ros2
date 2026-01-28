@@ -1,0 +1,9 @@
+string id
+float64 size
+simulated_world_nws_ros2_msgs/Pose6D pose
+simulated_world_nws_ros2_msgs/ColorRGB color
+string frame_name
+bool gravity_enable
+bool collision_enable
+---
+bool success
