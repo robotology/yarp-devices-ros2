@@ -16,6 +16,7 @@ using namespace yarp::dev;
 TEST_CASE("dev::SimulatedWorld_nws_ros2_test", "[yarp::dev]")
 {
     YARP_REQUIRE_PLUGIN("simulatedWorld_nws_ros2", "device");
+    YARP_REQUIRE_PLUGIN("fakeSimulatedWorld", "device");
 
     Network::setLocalMode(true);
 
@@ -31,6 +32,40 @@ TEST_CASE("dev::SimulatedWorld_nws_ros2_test", "[yarp::dev]")
 
         {
             CHECK(dd_nws.close());
+        }
+    }
+
+    SECTION("Checking simulatedWorld_nws_ros2 attached to fakeSimulatedWorld")
+    {
+        PolyDriver dd_nws;
+        PolyDriver dd_fake;
+        yarp::dev::WrapperSingle* ww_nws = nullptr;
+
+        {
+            Property p_nws;
+            p_nws.put("device", "simulatedWorld_nws_ros2");
+            p_nws.put("node_name", "simulatedworld_nws_ros2_test");
+            REQUIRE(dd_nws.open(p_nws));
+        }
+
+        {
+            Property p_fake;
+            p_fake.put("device", "fakeSimulatedWorld");
+            p_fake.put("period", 10);
+            REQUIRE(dd_fake.open(p_fake));
+        }
+
+        // Attach the nws to the fake device
+        {
+            dd_nws.view(ww_nws);
+            REQUIRE(ww_nws != nullptr);
+            bool result_att = ww_nws->attach(&dd_fake);
+            REQUIRE(result_att);
+        }
+
+        {
+            CHECK(dd_nws.close());
+            CHECK(dd_fake.close());
         }
     }
 
