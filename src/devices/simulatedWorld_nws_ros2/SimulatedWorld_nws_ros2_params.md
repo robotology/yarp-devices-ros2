@@ -1,4 +1,5 @@
 | | node_name       | string | - | simulatedWorld_nws_ros2 | No | The ROS2 node name                       | |
+| | namespace       | string | - |   -                     | No | optional namespace for ros2 node         | |
 | | makesphere      | string | - | makeSphere              | No | ROS2 service name for makeSphere         | |
 | | makebox         | string | - | makeBox                 | No | ROS2 service name for makeBox            | |
 | | makecylinder    | string | - | makeCylinder            | No | ROS2 service name for makeCylinder       | |
