@@ -42,11 +42,11 @@ bool RgbdSensor_nwc_ros2::open(yarp::os::Searchable& config)
 
     if(m_namespace.empty())
     {
-        m_node = rclcpp::Node::make_shared(m_node_name);
+        m_node = NodeCreator::createNode(m_node_name);
     }
     else
     {
-        m_node = rclcpp::Node::make_shared(m_node_name, m_namespace);
+        m_node = NodeCreator::createNode(m_node_name, m_namespace);
     }
     if(!m_node)
     {

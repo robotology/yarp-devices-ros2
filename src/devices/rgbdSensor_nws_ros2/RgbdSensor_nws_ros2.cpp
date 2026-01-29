@@ -130,10 +130,10 @@ bool RgbdSensor_nws_ros2::fromConfig(yarp::os::Searchable &config)
 bool RgbdSensor_nws_ros2::initialize_ROS2(yarp::os::Searchable &params)
 {
     if(m_namespace.empty()) {
-        m_node = rclcpp::Node::make_shared(m_node_name);
+        m_node = NodeCreator::createNode(m_node_name);
     }
     else {
-        m_node = rclcpp::Node::make_shared(m_node_name, m_namespace);
+        m_node = NodeCreator::createNode(m_node_name, m_namespace);
     }
     if(!m_node) {
         yCError(RGBDSENSOR_NWS_ROS2) << "Failed to create node";
