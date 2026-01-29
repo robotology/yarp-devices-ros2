@@ -72,7 +72,15 @@ bool ControlBoard_nws_ros2::close()
 bool ControlBoard_nws_ros2::open(Searchable& config)
 {
     parseParams(config);
-    m_node = NodeCreator::createNode(m_node_name);
+    if(m_namespace.empty()) {
+        m_node = NodeCreator::createNode(m_node_name);
+    } else {
+        m_node = NodeCreator::createNode(m_node_name, m_namespace);
+    }
+    if (m_node == nullptr) {
+        yCError(CONTROLBOARD_ROS2) << " opening " << m_node_name << " Node, check your yarp-ROS2 network configuration\n";
+        return false;
+    }
     m_jointStateTopicName = m_topic_name;
     m_publisherJointStates = m_node->create_publisher<sensor_msgs::msg::JointState>(m_jointStateTopicName, 10);
     m_jointControlModeTopicName = m_topic_name + "/controlModes";
