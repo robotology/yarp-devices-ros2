@@ -89,7 +89,18 @@ bool FrameGrabber_nws_ros2::open(yarp::os::Searchable& config)
     }
     parseParams(config);
 
-    m_node = NodeCreator::createNode(m_node_name);
+    if(m_namespace.empty())
+    {
+        m_node = NodeCreator::createNode(m_node_name);
+    } else {
+        m_node = NodeCreator::createNode(m_node_name, m_namespace);
+    }
+
+    if(m_node == nullptr) {
+        yCError(FRAMEGRABBER_NWS_ROS2) << " opening " << m_node_name << " Node, check your yarp-ROS2 network configuration\n";
+        return false;
+    }
+
     publisher_image = m_node->create_publisher<sensor_msgs::msg::Image>(m_topic_name, 10);
 
 
