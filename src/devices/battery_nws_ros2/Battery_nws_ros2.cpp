@@ -61,7 +61,12 @@ bool Battery_nws_ros2::open(yarp::os::Searchable &config)
     rclcpp::NodeOptions node_options;
     node_options.allow_undeclared_parameters(true);
     node_options.automatically_declare_parameters_from_overrides(true);
-    m_node = NodeCreator::createNode(m_node_name, node_options);
+    if(m_namespace.empty()) {
+        m_node = NodeCreator::createNode(m_node_name, node_options);
+    } else {
+        m_node = NodeCreator::createNode(m_node_name, m_namespace, node_options);
+    }
+
     if (m_node == nullptr) {
         yCError(BATTERY_NWS_ROS2) << " opening " << m_node_name << " Node, check your yarp-ROS2 network configuration\n";
         return false;
