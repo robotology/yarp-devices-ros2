@@ -129,7 +129,16 @@ bool RgbdSensor_nws_ros2::fromConfig(yarp::os::Searchable &config)
 
 bool RgbdSensor_nws_ros2::initialize_ROS2(yarp::os::Searchable &params)
 {
-    m_node = NodeCreator::createNode(m_node_name);
+    if(m_namespace.empty()) {
+        m_node = rclcpp::Node::make_shared(m_node_name);
+    }
+    else {
+        m_node = rclcpp::Node::make_shared(m_node_name, m_namespace);
+    }
+    if(!m_node) {
+        yCError(RGBDSENSOR_NWS_ROS2) << "Failed to create node";
+        return false;
+    }
     rosPublisher_color = m_node->create_publisher<sensor_msgs::msg::Image>(m_color_topic_name, 10);
     rosPublisher_depth = m_node->create_publisher<sensor_msgs::msg::Image>(m_depth_topic_name, 10);
     rosPublisher_colorCaminfo = m_node->create_publisher<sensor_msgs::msg::CameraInfo>(m_color_info_topic_name, 10);

@@ -8,7 +8,7 @@
 // This is an automatically generated file. Please do not edit it.
 // It will be re-generated if the cmake flag ALLOW_DEVICE_PARAM_PARSER_GERNERATION is ON.
 
-// Generated on: Wed Oct  1 16:30:22 2025
+// Generated on: Thu Jan 29 14:11:54 2026
 
 
 #include "RgbdSensor_nws_ros2_ParamsParser.h"
@@ -30,6 +30,7 @@ std::vector<std::string> RgbdSensor_nws_ros2_ParamsParser::getListOfParams() con
     std::vector<std::string> params;
     params.push_back("period");
     params.push_back("node_name");
+    params.push_back("namespace");
     params.push_back("color_topic_name");
     params.push_back("depth_topic_name");
     params.push_back("force_info_synch");
@@ -50,6 +51,11 @@ bool RgbdSensor_nws_ros2_ParamsParser::getParamValue(const std::string& paramNam
     if (paramName =="node_name")
     {
         paramValue = m_node_name;
+        return true;
+    }
+    if (paramName =="namespace")
+    {
+        paramValue = m_namespace;
         return true;
     }
     if (paramName =="color_topic_name")
@@ -137,6 +143,20 @@ bool      RgbdSensor_nws_ros2_ParamsParser::parseParams(const yarp::os::Searchab
             return false;
         }
         prop_check.unput("node_name");
+    }
+
+    //Parser of parameter namespace
+    {
+        if (config.check("namespace"))
+        {
+            m_namespace = config.find("namespace").asString();
+            yCInfo(RgbdSensor_nws_ros2ParamsCOMPONENT) << "Parameter 'namespace' using value:" << m_namespace;
+        }
+        else
+        {
+            yCInfo(RgbdSensor_nws_ros2ParamsCOMPONENT) << "Parameter 'namespace' using DEFAULT value:" << m_namespace;
+        }
+        prop_check.unput("namespace");
     }
 
     //Parser of parameter color_topic_name
@@ -269,6 +289,7 @@ std::string      RgbdSensor_nws_ros2_ParamsParser::getDocumentationOfDeviceParam
     doc = doc + std::string("This is the list of the parameters accepted by the device:\n");
     doc = doc + std::string("'period': refresh period of the broadcasted values in s\n");
     doc = doc + std::string("'node_name': name of the ros2 node\n");
+    doc = doc + std::string("'namespace': optional namespace for ros2 node\n");
     doc = doc + std::string("'color_topic_name': ros rgb topic (it's also the base name for the rgb camera_info topic)\n");
     doc = doc + std::string("'depth_topic_name': ros depth topic (it's also the base name for the depth camera_info topic)\n");
     doc = doc + std::string("'force_info_synch': if 1, it forces synching images time stamp with and cameras time stamp\n");
@@ -277,7 +298,7 @@ std::string      RgbdSensor_nws_ros2_ParamsParser::getDocumentationOfDeviceParam
     doc = doc + std::string("'pub_status_topic': If 1 a topic publishing 0 if no image has been published on ros2 topic, 1 if only the RGB image is bein published, 2 for only the depth image, and 3 for both images will be opened\n");
     doc = doc + std::string("\n");
     doc = doc + std::string("Here are some examples of invocation command with yarpdev, with all params:\n");
-    doc = doc + " yarpdev --device rgbdSensor_nws_ros2 --period 0.02 --node_name <mandatory_value> --color_topic_name <mandatory_value> --depth_topic_name <mandatory_value> --force_info_synch 0 --depth_frame_id <mandatory_value> --color_frame_id <mandatory_value> --pub_status_topic 0\n";
+    doc = doc + " yarpdev --device rgbdSensor_nws_ros2 --period 0.02 --node_name <mandatory_value> --namespace <optional_value> --color_topic_name <mandatory_value> --depth_topic_name <mandatory_value> --force_info_synch 0 --depth_frame_id <mandatory_value> --color_frame_id <mandatory_value> --pub_status_topic 0\n";
     doc = doc + std::string("Using only mandatory params:\n");
     doc = doc + " yarpdev --device rgbdSensor_nws_ros2 --node_name <mandatory_value> --color_topic_name <mandatory_value> --depth_topic_name <mandatory_value> --depth_frame_id <mandatory_value> --color_frame_id <mandatory_value>\n";
     doc = doc + std::string("=============================================\n\n");    return doc;
