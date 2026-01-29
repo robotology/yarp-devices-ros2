@@ -8,7 +8,7 @@
 // This is an automatically generated file. Please do not edit it.
 // It will be re-generated if the cmake flag ALLOW_DEVICE_PARAM_PARSER_GERNERATION is ON.
 
-// Generated on: Mon May 26 22:00:40 2025
+// Generated on: Thu Jan 29 14:11:54 2026
 
 
 #include "RgbdToPointCloudSensor_nws_ros2_ParamsParser.h"
@@ -32,6 +32,7 @@ std::vector<std::string> RgbdToPointCloudSensor_nws_ros2_ParamsParser::getListOf
     params.push_back("topic_name");
     params.push_back("frame_id");
     params.push_back("node_name");
+    params.push_back("namespace");
     return params;
 }
 
@@ -56,6 +57,11 @@ bool RgbdToPointCloudSensor_nws_ros2_ParamsParser::getParamValue(const std::stri
     if (paramName =="node_name")
     {
         paramValue = m_node_name;
+        return true;
+    }
+    if (paramName =="namespace")
+    {
+        paramValue = m_namespace;
         return true;
     }
 
@@ -147,6 +153,20 @@ bool      RgbdToPointCloudSensor_nws_ros2_ParamsParser::parseParams(const yarp::
         prop_check.unput("node_name");
     }
 
+    //Parser of parameter namespace
+    {
+        if (config.check("namespace"))
+        {
+            m_namespace = config.find("namespace").asString();
+            yCInfo(RgbdToPointCloudSensor_nws_ros2ParamsCOMPONENT) << "Parameter 'namespace' using value:" << m_namespace;
+        }
+        else
+        {
+            yCInfo(RgbdToPointCloudSensor_nws_ros2ParamsCOMPONENT) << "Parameter 'namespace' using DEFAULT value:" << m_namespace;
+        }
+        prop_check.unput("namespace");
+    }
+
     /*
     //This code check if the user set some parameter which are not check by the parser
     //If the parser is set in strict mode, this will generate an error
@@ -187,9 +207,10 @@ std::string      RgbdToPointCloudSensor_nws_ros2_ParamsParser::getDocumentationO
     doc = doc + std::string("'topic_name': set the name for ROS point cloud topic\n");
     doc = doc + std::string("'frame_id': set the name of the reference frame\n");
     doc = doc + std::string("'node_name': set the name for ROS node\n");
+    doc = doc + std::string("'namespace': optional namespace for ros2 node\n");
     doc = doc + std::string("\n");
     doc = doc + std::string("Here are some examples of invocation command with yarpdev, with all params:\n");
-    doc = doc + " yarpdev --device rgbdToPointCloudSensor_nws_ros2 --period 0.03 --topic_name <mandatory_value> --frame_id <mandatory_value> --node_name <mandatory_value>\n";
+    doc = doc + " yarpdev --device rgbdToPointCloudSensor_nws_ros2 --period 0.03 --topic_name <mandatory_value> --frame_id <mandatory_value> --node_name <mandatory_value> --namespace <optional_value>\n";
     doc = doc + std::string("Using only mandatory params:\n");
     doc = doc + " yarpdev --device rgbdToPointCloudSensor_nws_ros2 --topic_name <mandatory_value> --frame_id <mandatory_value> --node_name <mandatory_value>\n";
     doc = doc + std::string("=============================================\n\n");    return doc;
