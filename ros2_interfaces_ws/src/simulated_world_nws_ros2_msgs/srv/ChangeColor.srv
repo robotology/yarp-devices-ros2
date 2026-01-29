@@ -1,0 +1,4 @@
+string id
+simulated_world_nws_ros2_msgs/ColorRGB color
+---
+bool success
