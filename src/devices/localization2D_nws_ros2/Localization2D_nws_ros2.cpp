@@ -121,7 +121,15 @@ bool Localization2D_nws_ros2::open(yarp::os::Searchable &config)
     //create the topics
     const std::string m_odom_topic ="/odom";
     const std::string m_tf_topic ="/tf";
-    m_node = NodeCreator::createNode(m_node_name);
+    if(m_namespace.empty()) {
+        m_node = NodeCreator::createNode(m_node_name);
+    } else {
+        m_node = NodeCreator::createNode(m_node_name, m_namespace);
+    }
+    if (m_node == nullptr) {
+        yCError(LOCALIZATION2D_NWS_ROS2) << " opening " << m_node_name << " Node, check your yarp-ROS2 network configuration\n";
+        return false;
+    }
 
     m_publisher_odom = m_node->create_publisher<nav_msgs::msg::Odometry>(m_odom_topic, 10);
     m_publisher_tf   = m_node->create_publisher<tf2_msgs::msg::TFMessage>(m_tf_topic, 10);
