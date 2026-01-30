@@ -147,7 +147,18 @@ bool Rangefinder2D_nws_ros2::open(yarp::os::Searchable &config)
 {
     parseParams(config);
     //create the topic
-    m_node = NodeCreator::createNode(m_node_name);
+    if(m_namespace.empty())
+    {
+        m_node = NodeCreator::createNode(m_node_name);
+    }
+    else
+    {
+        m_node = NodeCreator::createNode(m_node_name,m_namespace);
+    }
+    if( m_node == nullptr) {
+        yCError(RANGEFINDER2D_NWS_ROS2, "Could not create node %s", m_node_name.c_str());
+        return false;
+    }
     m_publisher = m_node->create_publisher<sensor_msgs::msg::LaserScan>(m_topic_name, 10);
     yCInfo(RANGEFINDER2D_NWS_ROS2, "Opened topic: %s", m_topic_name.c_str());
 

@@ -8,7 +8,7 @@
 // This is an automatically generated file. Please do not edit it.
 // It will be re-generated if the cmake flag ALLOW_DEVICE_PARAM_PARSER_GERNERATION is ON.
 
-// Generated on: Mon May 26 22:00:40 2025
+// Generated on: Thu Jan 29 14:11:54 2026
 
 
 #include "Rangefinder2D_controlBoard_nws_ros2_ParamsParser.h"
@@ -30,6 +30,7 @@ std::vector<std::string> Rangefinder2D_controlBoard_nws_ros2_ParamsParser::getLi
     std::vector<std::string> params;
     params.push_back("period");
     params.push_back("node_name");
+    params.push_back("namespace");
     params.push_back("topic_lidar");
     params.push_back("topic_joint");
     params.push_back("frame_id");
@@ -47,6 +48,11 @@ bool Rangefinder2D_controlBoard_nws_ros2_ParamsParser::getParamValue(const std::
     if (paramName =="node_name")
     {
         paramValue = m_node_name;
+        return true;
+    }
+    if (paramName =="namespace")
+    {
+        paramValue = m_namespace;
         return true;
     }
     if (paramName =="topic_lidar")
@@ -117,6 +123,20 @@ bool      Rangefinder2D_controlBoard_nws_ros2_ParamsParser::parseParams(const ya
             yCInfo(Rangefinder2D_controlBoard_nws_ros2ParamsCOMPONENT) << "Parameter 'node_name' using DEFAULT value:" << m_node_name;
         }
         prop_check.unput("node_name");
+    }
+
+    //Parser of parameter namespace
+    {
+        if (config.check("namespace"))
+        {
+            m_namespace = config.find("namespace").asString();
+            yCInfo(Rangefinder2D_controlBoard_nws_ros2ParamsCOMPONENT) << "Parameter 'namespace' using value:" << m_namespace;
+        }
+        else
+        {
+            yCInfo(Rangefinder2D_controlBoard_nws_ros2ParamsCOMPONENT) << "Parameter 'namespace' using DEFAULT value:" << m_namespace;
+        }
+        prop_check.unput("namespace");
     }
 
     //Parser of parameter topic_lidar
@@ -199,12 +219,13 @@ std::string      Rangefinder2D_controlBoard_nws_ros2_ParamsParser::getDocumentat
     doc = doc + std::string("This is the list of the parameters accepted by the device:\n");
     doc = doc + std::string("'period': refresh period of the broadcasted values in s\n");
     doc = doc + std::string("'node_name': name of the ros2 node\n");
+    doc = doc + std::string("'namespace': optional namespace for ros2 node\n");
     doc = doc + std::string("'topic_lidar': name of the topic for lidar data\n");
     doc = doc + std::string("'topic_joint': name of the topic for joints data\n");
     doc = doc + std::string("'frame_id': name of the base frameId\n");
     doc = doc + std::string("\n");
     doc = doc + std::string("Here are some examples of invocation command with yarpdev, with all params:\n");
-    doc = doc + " yarpdev --device rangefinder2D_controlBoard_nws_ros2 --period 0.02 --node_name laser_node --topic_lidar topic_name_lidar --topic_joint topic_lidar_joint --frame_id laser_frame\n";
+    doc = doc + " yarpdev --device rangefinder2D_controlBoard_nws_ros2 --period 0.02 --node_name laser_node --namespace <optional_value> --topic_lidar topic_name_lidar --topic_joint topic_lidar_joint --frame_id laser_frame\n";
     doc = doc + std::string("Using only mandatory params:\n");
     doc = doc + " yarpdev --device rangefinder2D_controlBoard_nws_ros2\n";
     doc = doc + std::string("=============================================\n\n");    return doc;

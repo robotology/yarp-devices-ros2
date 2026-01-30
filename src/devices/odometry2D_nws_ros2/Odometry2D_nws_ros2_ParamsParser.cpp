@@ -8,7 +8,7 @@
 // This is an automatically generated file. Please do not edit it.
 // It will be re-generated if the cmake flag ALLOW_DEVICE_PARAM_PARSER_GERNERATION is ON.
 
-// Generated on: Mon May 26 22:00:40 2025
+// Generated on: Thu Jan 29 14:11:54 2026
 
 
 #include "Odometry2D_nws_ros2_ParamsParser.h"
@@ -30,6 +30,7 @@ std::vector<std::string> Odometry2D_nws_ros2_ParamsParser::getListOfParams() con
     std::vector<std::string> params;
     params.push_back("period");
     params.push_back("node_name");
+    params.push_back("namespace");
     params.push_back("topic_name");
     params.push_back("odom_frame");
     params.push_back("base_frame");
@@ -47,6 +48,11 @@ bool Odometry2D_nws_ros2_ParamsParser::getParamValue(const std::string& paramNam
     if (paramName =="node_name")
     {
         paramValue = m_node_name;
+        return true;
+    }
+    if (paramName =="namespace")
+    {
+        paramValue = m_namespace;
         return true;
     }
     if (paramName =="topic_name")
@@ -119,6 +125,20 @@ bool      Odometry2D_nws_ros2_ParamsParser::parseParams(const yarp::os::Searchab
             return false;
         }
         prop_check.unput("node_name");
+    }
+
+    //Parser of parameter namespace
+    {
+        if (config.check("namespace"))
+        {
+            m_namespace = config.find("namespace").asString();
+            yCInfo(Odometry2D_nws_ros2ParamsCOMPONENT) << "Parameter 'namespace' using value:" << m_namespace;
+        }
+        else
+        {
+            yCInfo(Odometry2D_nws_ros2ParamsCOMPONENT) << "Parameter 'namespace' using DEFAULT value:" << m_namespace;
+        }
+        prop_check.unput("namespace");
     }
 
     //Parser of parameter topic_name
@@ -207,12 +227,13 @@ std::string      Odometry2D_nws_ros2_ParamsParser::getDocumentationOfDeviceParam
     doc = doc + std::string("This is the list of the parameters accepted by the device:\n");
     doc = doc + std::string("'period': refresh period of the broadcasted values in s\n");
     doc = doc + std::string("'node_name': name of the ros2 node\n");
+    doc = doc + std::string("'namespace': optional namespace for ros2 node\n");
     doc = doc + std::string("'topic_name': name of the topic where the device must publish the data\n");
     doc = doc + std::string("'odom_frame': name of the reference frame for odometry\n");
     doc = doc + std::string("'base_frame': name of the base frame for odometry\n");
     doc = doc + std::string("\n");
     doc = doc + std::string("Here are some examples of invocation command with yarpdev, with all params:\n");
-    doc = doc + " yarpdev --device odometry2D_nws_ros2 --period 0.02 --node_name <mandatory_value> --topic_name <mandatory_value> --odom_frame <mandatory_value> --base_frame <mandatory_value>\n";
+    doc = doc + " yarpdev --device odometry2D_nws_ros2 --period 0.02 --node_name <mandatory_value> --namespace <optional_value> --topic_name <mandatory_value> --odom_frame <mandatory_value> --base_frame <mandatory_value>\n";
     doc = doc + std::string("Using only mandatory params:\n");
     doc = doc + " yarpdev --device odometry2D_nws_ros2 --node_name <mandatory_value> --topic_name <mandatory_value> --odom_frame <mandatory_value> --base_frame <mandatory_value>\n";
     doc = doc + std::string("=============================================\n\n");    return doc;

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2026-2026 Istituto Italiano di Tecnologia (IIT)
+ * SPDX-FileCopyrightText: 2023-2023 Istituto Italiano di Tecnologia (IIT)
  * SPDX-License-Identifier: LGPL-2.1-or-later
  */
 
@@ -8,7 +8,7 @@
 // This is an automatically generated file. Please do not edit it.
 // It will be re-generated if the cmake flag ALLOW_DEVICE_PARAM_PARSER_GERNERATION is ON.
 
-// Generated on: Wed Jan 22 12:00:00 2026
+// Generated on: Thu Jan 29 14:11:54 2026
 
 
 #include "SimulatedWorld_nws_ros2_ParamsParser.h"
@@ -29,6 +29,7 @@ std::vector<std::string> SimulatedWorld_nws_ros2_ParamsParser::getListOfParams()
 {
     std::vector<std::string> params;
     params.push_back("node_name");
+    params.push_back("namespace");
     params.push_back("makesphere");
     params.push_back("makebox");
     params.push_back("makecylinder");
@@ -54,6 +55,11 @@ bool SimulatedWorld_nws_ros2_ParamsParser::getParamValue(const std::string& para
     if (paramName =="node_name")
     {
         paramValue = m_node_name;
+        return true;
+    }
+    if (paramName =="namespace")
+    {
+        paramValue = m_namespace;
         return true;
     }
     if (paramName =="makesphere")
@@ -153,7 +159,7 @@ std::string SimulatedWorld_nws_ros2_ParamsParser::getConfiguration() const
     return s_cfg;
 }
 
-bool SimulatedWorld_nws_ros2_ParamsParser::parseParams(const yarp::os::Searchable & config)
+bool      SimulatedWorld_nws_ros2_ParamsParser::parseParams(const yarp::os::Searchable & config)
 {
     //Check for --help option
     if (config.check("help"))
@@ -163,7 +169,6 @@ bool SimulatedWorld_nws_ros2_ParamsParser::parseParams(const yarp::os::Searchabl
 
     m_provided_configuration = config.toString();
     yarp::os::Property prop_check(m_provided_configuration.c_str());
-
     //Parser of parameter node_name
     {
         if (config.check("node_name"))
@@ -176,6 +181,20 @@ bool SimulatedWorld_nws_ros2_ParamsParser::parseParams(const yarp::os::Searchabl
             yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'node_name' using DEFAULT value:" << m_node_name;
         }
         prop_check.unput("node_name");
+    }
+
+    //Parser of parameter namespace
+    {
+        if (config.check("namespace"))
+        {
+            m_namespace = config.find("namespace").asString();
+            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'namespace' using value:" << m_namespace;
+        }
+        else
+        {
+            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'namespace' using DEFAULT value:" << m_namespace;
+        }
+        prop_check.unput("namespace");
     }
 
     //Parser of parameter makesphere
@@ -431,7 +450,7 @@ bool SimulatedWorld_nws_ros2_ParamsParser::parseParams(const yarp::os::Searchabl
 }
 
 
-std::string SimulatedWorld_nws_ros2_ParamsParser::getDocumentationOfDeviceParams() const
+std::string      SimulatedWorld_nws_ros2_ParamsParser::getDocumentationOfDeviceParams() const
 {
     std::string doc;
     doc = doc + std::string("\n=============================================\n");
@@ -439,6 +458,7 @@ std::string SimulatedWorld_nws_ros2_ParamsParser::getDocumentationOfDeviceParams
     doc = doc + std::string("\n");
     doc = doc + std::string("This is the list of the parameters accepted by the device:\n");
     doc = doc + std::string("'node_name': The ROS2 node name\n");
+    doc = doc + std::string("'namespace': optional namespace for ros2 node\n");
     doc = doc + std::string("'makesphere': ROS2 service name for makeSphere\n");
     doc = doc + std::string("'makebox': ROS2 service name for makeBox\n");
     doc = doc + std::string("'makecylinder': ROS2 service name for makeCylinder\n");
@@ -457,9 +477,8 @@ std::string SimulatedWorld_nws_ros2_ParamsParser::getDocumentationOfDeviceParams
     doc = doc + std::string("'rename': ROS2 service name for rename\n");
     doc = doc + std::string("\n");
     doc = doc + std::string("Here are some examples of invocation command with yarpdev, with all params:\n");
-    doc = doc + " yarpdev --device simulatedWorld_nws_ros2 --node_name simulatedWorld_nws_ros2 --makesphere makeSphere --makebox makeBox --makecylinder makeCylinder --makeframe makeFrame --makemodel makeModel --changecolor changeColor --setpose setPose --enablegravity enableGravity --enablecollision enableCollision --getpose getPose --deleteobject deleteObject --deleteall deleteAll --getlist getList --attach attach --detach detach --rename rename\n";
+    doc = doc + " yarpdev --device simulatedWorld_nws_ros2 --node_name simulatedWorld_nws_ros2 --namespace <optional_value> --makesphere makeSphere --makebox makeBox --makecylinder makeCylinder --makeframe makeFrame --makemodel makeModel --changecolor changeColor --setpose setPose --enablegravity enableGravity --enablecollision enableCollision --getpose getPose --deleteobject deleteObject --deleteall deleteAll --getlist getList --attach attach --detach detach --rename rename\n";
     doc = doc + std::string("Using only mandatory params:\n");
     doc = doc + " yarpdev --device simulatedWorld_nws_ros2\n";
-    doc = doc + std::string("=============================================\n\n");
-    return doc;
+    doc = doc + std::string("=============================================\n\n");    return doc;
 }

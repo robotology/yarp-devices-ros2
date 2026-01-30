@@ -2,3 +2,4 @@
 | | topic_name  | string  |  -  |  -     |  Yes  | set the name for ROS point cloud topic          | must start with a leading '/' |
 | | frame_id    | string  |  -  |        |  Yes  | set the name of the reference frame             |                               |
 | | node_name   | string  |  -  |  -     |  Yes  | set the name for ROS node                       | must start with a leading '/' |
+| | namespace   | string  |  -  |  -     |  No   | optional namespace for ros2 node                |                               |

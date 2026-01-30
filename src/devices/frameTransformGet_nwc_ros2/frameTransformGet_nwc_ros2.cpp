@@ -28,7 +28,16 @@ bool FrameTransformGet_nwc_ros2::open(yarp::os::Searchable& config)
     parseParams(config);
 
     m_ftContainer.m_timeout = m_GENERAL_refresh_interval;
-    m_node = NodeCreator::createNode(m_ROS2_ft_node);
+    if(m_ROS2_namespace.empty())
+    {
+        m_node = NodeCreator::createNode(m_ROS2_ft_node);
+    } else {
+        m_node = NodeCreator::createNode(m_ROS2_ft_node, m_ROS2_namespace);
+    }
+    if(m_node == nullptr) {
+        yCError(FRAMETRANSFORGETNWCROS2) << " opening " << m_ROS2_ft_node << " Node, check your yarp-ROS2 network configuration\n";
+        return false;
+    }
     m_subscriptionFtTimed = m_node->create_subscription<tf2_msgs::msg::TFMessage>(m_ROS2_ft_topic, 10,
                                                                                   std::bind(&FrameTransformGet_nwc_ros2::frameTransformTimedGet_callback,
                                                                                   this, _1));

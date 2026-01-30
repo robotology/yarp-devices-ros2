@@ -96,7 +96,15 @@ bool Map2D_nws_ros2::open(yarp::os::Searchable &config)
         yCError(MAP2D_NWS_ROS2) << "node_name cannot begin with an initial /";
         return false;
     }
-    m_node = NodeCreator::createNode(m_node_name);
+    if(m_namespace.empty()) {
+        m_node = NodeCreator::createNode(m_node_name);
+    } else {
+        m_node = NodeCreator::createNode(m_node_name, m_namespace);
+    }
+    if (m_node == nullptr) {
+        yCError(MAP2D_NWS_ROS2) << " opening " << m_node_name << " Node, check your yarp-ROS2 network configuration\n";
+        return false;
+    }
     rmw_qos_profile_t qos_rmw;
     qos_rmw.history = RMW_QOS_POLICY_HISTORY_SYSTEM_DEFAULT;
     qos_rmw.depth=10;
@@ -163,7 +171,7 @@ bool Map2D_nws_ros2::read(yarp::os::ConnectionReader& connection)
          if (ss == "help")
          {
              yInfo("updateMarkers");
-             yInfo("publishMap <name>");           
+             yInfo("publishMap <name>");
              out.addString("updateMarkers");
              out.addString("publishMap");
          }
@@ -307,7 +315,7 @@ bool Map2D_nws_ros2::updateVizMarkers()
         markers.markers.push_back(marker);
         count++;
     }
-    
+
     m_ros2Publisher_markers->publish(markers);
     return true;
 }
@@ -396,8 +404,8 @@ nav_msgs::msg::OccupancyGrid Map2D_nws_ros2::publishMap(std::string mapname)
     if (m_ros2Publisher_map)
     {
         m_ros2Publisher_map->publish(mapToGo);
-    }   
-    
+    }
+
     return mapToGo;
 }
 
@@ -408,5 +416,5 @@ void Map2D_nws_ros2::getMapByNameCallback(const std::shared_ptr<rmw_request_id_t
 {
     m_currentMapName = request->name;
     auto rmap = publishMap(request->name);
-    response->map = rmap;    
+    response->map = rmap;
 }

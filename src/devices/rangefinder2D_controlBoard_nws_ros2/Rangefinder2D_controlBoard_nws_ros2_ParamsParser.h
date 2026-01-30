@@ -8,7 +8,7 @@
 // This is an automatically generated file. Please do not edit it.
 // It will be re-generated if the cmake flag ALLOW_DEVICE_PARAM_PARSER_GERNERATION is ON.
 
-// Generated on: Mon May 26 22:00:40 2025
+// Generated on: Thu Jan 29 14:11:54 2026
 
 
 #ifndef RANGEFINDER2D_CONTROLBOARD_NWS_ROS2_PARAMSPARSER_H
@@ -27,13 +27,14 @@
 * |:----------:|:--------------:|:------:|:-----:|:-----------------:|:--------:|:---------------------------------------------:|:-----:|
 * | -          | period         | double | s     | 0.02              | 0        | refresh period of the broadcasted values in s | -     |
 * | -          | node_name      | string | -     | laser_node        | 0        | name of the ros2 node                         | -     |
+* | -          | namespace      | string | -     | -                 | 0        | optional namespace for ros2 node              | -     |
 * | -          | topic_lidar    | string | -     | topic_name_lidar  | 0        | name of the topic for lidar data              | -     |
 * | -          | topic_joint    | string | -     | topic_lidar_joint | 0        | name of the topic for joints data             | -     |
 * | -          | frame_id       | string | -     | laser_frame       | 0        | name of the base frameId                      | -     |
 *
 * The device can be launched by yarpdev using one of the following examples (with and without all optional parameters):
 * \code{.unparsed}
-* yarpdev --device rangefinder2D_controlBoard_nws_ros2 --period 0.02 --node_name laser_node --topic_lidar topic_name_lidar --topic_joint topic_lidar_joint --frame_id laser_frame
+* yarpdev --device rangefinder2D_controlBoard_nws_ros2 --period 0.02 --node_name laser_node --namespace <optional_value> --topic_lidar topic_name_lidar --topic_joint topic_lidar_joint --frame_id laser_frame
 * \endcode
 *
 * \code{.unparsed}
@@ -63,12 +64,14 @@ public:
 
     const std::string m_period_defaultValue = {"0.02"};
     const std::string m_node_name_defaultValue = {"laser_node"};
+    const std::string m_namespace_defaultValue = {""};
     const std::string m_topic_lidar_defaultValue = {"topic_name_lidar"};
     const std::string m_topic_joint_defaultValue = {"topic_lidar_joint"};
     const std::string m_frame_id_defaultValue = {"laser_frame"};
 
     double m_period = {0.02};
     std::string m_node_name = {"laser_node"};
+    std::string m_namespace = {}; //This default value of this string is an empty string. It is highly recommended to provide a suggested value also for optional string parameters.
     std::string m_topic_lidar = {"topic_name_lidar"};
     std::string m_topic_joint = {"topic_lidar_joint"};
     std::string m_frame_id = {"laser_frame"};

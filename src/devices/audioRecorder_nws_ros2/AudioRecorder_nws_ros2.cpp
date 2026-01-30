@@ -75,12 +75,15 @@ bool AudioRecorder_nws_ros2::open(yarp::os::Searchable &config)
     rclcpp::NodeOptions node_options;
     node_options.allow_undeclared_parameters(true);
     node_options.automatically_declare_parameters_from_overrides(true);
-    m_node = NodeCreator::createNode(m_node_name, node_options);
+    if(m_namespace.empty()) {
+        m_node = NodeCreator::createNode(m_node_name, node_options);
+    } else {
+        m_node = NodeCreator::createNode(m_node_name, m_namespace, node_options);
+    }
     if (m_node == nullptr) {
         yCError(AUDIORECORDER_NWS_ROS2) << " opening " << m_node_name << " Node, check your yarp-ROS2 network configuration\n";
         return false;
     }
-
     m_ros2Publisher_status = m_node->create_publisher<std_msgs::msg::Int16MultiArray>(m_topic_name, 10);
 
     yCInfo(AUDIORECORDER_NWS_ROS2) << "Waiting for device to attach";

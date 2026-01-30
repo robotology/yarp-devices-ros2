@@ -8,7 +8,7 @@
 // This is an automatically generated file. Please do not edit it.
 // It will be re-generated if the cmake flag ALLOW_DEVICE_PARAM_PARSER_GERNERATION is ON.
 
-// Generated on: Mon May 26 22:00:40 2025
+// Generated on: Thu Jan 29 14:11:54 2026
 
 
 #ifndef FRAMETRANSFORMSET_NWC_ROS2_PARAMSPARSER_H
@@ -29,12 +29,13 @@
 * | GENERAL    | period           | double | seconds | 0.01          | 0        | The PeriodicThread period in seconds                                                                     | -     |
 * | GENERAL    | asynch_pub       | int    | -       | 1             | 0        | If 1, the fts will be published not only every \"period\" seconds but also when set functions are called | -     |
 * | ROS2       | ft_node          | string | -       | tfNodeSet     | 0        | The name of the ROS2 node                                                                                | -     |
+* | ROS2       | namespace        | string | -       | -             | 0        | optional namespace for ros2 node                                                                         | -     |
 * | ROS2       | ft_topic         | string | -       | /tf           | 0        | The name of the ROS2 topic from which fts will be received                                               | -     |
 * | ROS2       | ft_topic_static  | string | -       | /tf_static    | 0        | The name of the ROS2 topic from which static fts will be received                                        | -     |
 *
 * The device can be launched by yarpdev using one of the following examples (with and without all optional parameters):
 * \code{.unparsed}
-* yarpdev --device frameTransformSet_nwc_ros2 --GENERAL::refresh_interval 0.1 --GENERAL::period 0.01 --GENERAL::asynch_pub 1 --ROS2::ft_node tfNodeSet --ROS2::ft_topic /tf --ROS2::ft_topic_static /tf_static
+* yarpdev --device frameTransformSet_nwc_ros2 --GENERAL::refresh_interval 0.1 --GENERAL::period 0.01 --GENERAL::asynch_pub 1 --ROS2::ft_node tfNodeSet --ROS2::namespace <optional_value> --ROS2::ft_topic /tf --ROS2::ft_topic_static /tf_static
 * \endcode
 *
 * \code{.unparsed}
@@ -66,6 +67,7 @@ public:
     const std::string m_GENERAL_period_defaultValue = {"0.01"};
     const std::string m_GENERAL_asynch_pub_defaultValue = {"1"};
     const std::string m_ROS2_ft_node_defaultValue = {"tfNodeSet"};
+    const std::string m_ROS2_namespace_defaultValue = {""};
     const std::string m_ROS2_ft_topic_defaultValue = {"/tf"};
     const std::string m_ROS2_ft_topic_static_defaultValue = {"/tf_static"};
 
@@ -73,6 +75,7 @@ public:
     double m_GENERAL_period = {0.01};
     int m_GENERAL_asynch_pub = {1};
     std::string m_ROS2_ft_node = {"tfNodeSet"};
+    std::string m_ROS2_namespace = {}; //This default value of this string is an empty string. It is highly recommended to provide a suggested value also for optional string parameters.
     std::string m_ROS2_ft_topic = {"/tf"};
     std::string m_ROS2_ft_topic_static = {"/tf_static"};
 

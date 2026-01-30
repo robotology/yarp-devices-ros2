@@ -40,7 +40,19 @@ bool RgbdSensor_nwc_ros2::open(yarp::os::Searchable& config)
 
     m_verbose = m_verbose_on == 1;
 
-    m_node = NodeCreator::createNode(m_node_name);
+    if(m_namespace.empty())
+    {
+        m_node = NodeCreator::createNode(m_node_name);
+    }
+    else
+    {
+        m_node = NodeCreator::createNode(m_node_name, m_namespace);
+    }
+    if(!m_node)
+    {
+        yCError(RGBDSENSOR_NWC_ROS2) << "Cannot create node";
+        return false;
+    }
     m_sub1= new Ros2Subscriber<RgbdSensor_nwc_ros2, sensor_msgs::msg::CameraInfo>(m_node, this);
     m_sub1->subscribe_to_topic(m_topic_rgb_camera_info);
     m_sub1->subscribe_to_topic(m_topic_depth_camera_info);

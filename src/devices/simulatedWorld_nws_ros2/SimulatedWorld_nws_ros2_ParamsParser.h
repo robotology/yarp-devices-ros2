@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2026-2026 Istituto Italiano di Tecnologia (IIT)
+ * SPDX-FileCopyrightText: 2023-2023 Istituto Italiano di Tecnologia (IIT)
  * SPDX-License-Identifier: LGPL-2.1-or-later
  */
 
@@ -8,7 +8,7 @@
 // This is an automatically generated file. Please do not edit it.
 // It will be re-generated if the cmake flag ALLOW_DEVICE_PARAM_PARSER_GERNERATION is ON.
 
-// Generated on: Wed Jan 22 12:00:00 2026
+// Generated on: Thu Jan 29 14:11:54 2026
 
 
 #ifndef SIMULATEDWORLD_NWS_ROS2_PARAMSPARSER_H
@@ -23,29 +23,30 @@
 * This class is the parameters parser for class SimulatedWorld_nws_ros2.
 *
 * These are the used parameters:
-* | Group name | Parameter name | Type   | Units | Default Value            | Required | Description                                           | Notes |
-* |:----------:|:--------------:|:------:|:-----:|:------------------------:|:--------:|:-----------------------------------------------------:|:-----:|
-* | -          | node_name      | string | -     | simulatedWorld_nws_ros2  | 0        | The ROS2 node name                                    | -     |
-* | -          | makesphere     | string | -     | makeSphere               | 0        | ROS2 service name for makeSphere                      | -     |
-* | -          | makebox        | string | -     | makeBox                  | 0        | ROS2 service name for makeBox                         | -     |
-* | -          | makecylinder   | string | -     | makeCylinder             | 0        | ROS2 service name for makeCylinder                    | -     |
-* | -          | makeframe      | string | -     | makeFrame                | 0        | ROS2 service name for makeFrame                       | -     |
-* | -          | makemodel      | string | -     | makeModel                | 0        | ROS2 service name for makeModel                       | -     |
-* | -          | changecolor    | string | -     | changeColor              | 0        | ROS2 service name for changeColor                     | -     |
-* | -          | setpose        | string | -     | setPose                  | 0        | ROS2 service name for setPose                         | -     |
-* | -          | enablegravity  | string | -     | enableGravity            | 0        | ROS2 service name for enableGravity                   | -     |
-* | -          | enablecollision| string | -     | enableCollision          | 0        | ROS2 service name for enableCollision                 | -     |
-* | -          | getpose        | string | -     | getPose                  | 0        | ROS2 service name for getPose                         | -     |
-* | -          | deleteobject   | string | -     | deleteObject             | 0        | ROS2 service name for deleteObject                    | -     |
-* | -          | deleteall      | string | -     | deleteAll                | 0        | ROS2 service name for deleteAll                       | -     |
-* | -          | getlist        | string | -     | getList                  | 0        | ROS2 service name for getList                         | -     |
-* | -          | attach         | string | -     | attach                   | 0        | ROS2 service name for attach                          | -     |
-* | -          | detach         | string | -     | detach                   | 0        | ROS2 service name for detach                          | -     |
-* | -          | rename         | string | -     | rename                   | 0        | ROS2 service name for rename                          | -     |
+* | Group name | Parameter name  | Type   | Units | Default Value           | Required | Description                           | Notes |
+* |:----------:|:---------------:|:------:|:-----:|:-----------------------:|:--------:|:-------------------------------------:|:-----:|
+* | -          | node_name       | string | -     | simulatedWorld_nws_ros2 | 0        | The ROS2 node name                    | -     |
+* | -          | namespace       | string | -     | -                       | 0        | optional namespace for ros2 node      | -     |
+* | -          | makesphere      | string | -     | makeSphere              | 0        | ROS2 service name for makeSphere      | -     |
+* | -          | makebox         | string | -     | makeBox                 | 0        | ROS2 service name for makeBox         | -     |
+* | -          | makecylinder    | string | -     | makeCylinder            | 0        | ROS2 service name for makeCylinder    | -     |
+* | -          | makeframe       | string | -     | makeFrame               | 0        | ROS2 service name for makeFrame       | -     |
+* | -          | makemodel       | string | -     | makeModel               | 0        | ROS2 service name for makeModel       | -     |
+* | -          | changecolor     | string | -     | changeColor             | 0        | ROS2 service name for changeColor     | -     |
+* | -          | setpose         | string | -     | setPose                 | 0        | ROS2 service name for setPose         | -     |
+* | -          | enablegravity   | string | -     | enableGravity           | 0        | ROS2 service name for enableGravity   | -     |
+* | -          | enablecollision | string | -     | enableCollision         | 0        | ROS2 service name for enableCollision | -     |
+* | -          | getpose         | string | -     | getPose                 | 0        | ROS2 service name for getPose         | -     |
+* | -          | deleteobject    | string | -     | deleteObject            | 0        | ROS2 service name for deleteObject    | -     |
+* | -          | deleteall       | string | -     | deleteAll               | 0        | ROS2 service name for deleteAll       | -     |
+* | -          | getlist         | string | -     | getList                 | 0        | ROS2 service name for getList         | -     |
+* | -          | attach          | string | -     | attach                  | 0        | ROS2 service name for attach          | -     |
+* | -          | detach          | string | -     | detach                  | 0        | ROS2 service name for detach          | -     |
+* | -          | rename          | string | -     | rename                  | 0        | ROS2 service name for rename          | -     |
 *
 * The device can be launched by yarpdev using one of the following examples (with and without all optional parameters):
 * \code{.unparsed}
-* yarpdev --device simulatedWorld_nws_ros2 --node_name simulatedWorld_nws_ros2 --makesphere makeSphere --makebox makeBox --makecylinder makeCylinder --makeframe makeFrame --makemodel makeModel --changecolor changeColor --setpose setPose --enablegravity enableGravity --enablecollision enableCollision --getpose getPose --deleteobject deleteObject --deleteall deleteAll --getlist getList --attach attach --detach detach --rename rename
+* yarpdev --device simulatedWorld_nws_ros2 --node_name simulatedWorld_nws_ros2 --namespace <optional_value> --makesphere makeSphere --makebox makeBox --makecylinder makeCylinder --makeframe makeFrame --makemodel makeModel --changecolor changeColor --setpose setPose --enablegravity enableGravity --enablecollision enableCollision --getpose getPose --deleteobject deleteObject --deleteall deleteAll --getlist getList --attach attach --detach detach --rename rename
 * \endcode
 *
 * \code{.unparsed}
@@ -74,6 +75,7 @@ public:
     std::string m_provided_configuration;
 
     const std::string m_node_name_defaultValue = {"simulatedWorld_nws_ros2"};
+    const std::string m_namespace_defaultValue = {""};
     const std::string m_makesphere_defaultValue = {"makeSphere"};
     const std::string m_makebox_defaultValue = {"makeBox"};
     const std::string m_makecylinder_defaultValue = {"makeCylinder"};
@@ -92,6 +94,7 @@ public:
     const std::string m_rename_defaultValue = {"rename"};
 
     std::string m_node_name = {"simulatedWorld_nws_ros2"};
+    std::string m_namespace = {}; //This default value of this string is an empty string. It is highly recommended to provide a suggested value also for optional string parameters.
     std::string m_makesphere = {"makeSphere"};
     std::string m_makebox = {"makeBox"};
     std::string m_makecylinder = {"makeCylinder"};
