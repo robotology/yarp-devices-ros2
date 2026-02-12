@@ -174,6 +174,18 @@ void SimulatedWorld_nws_ros2::makeSphereCallback(
         response->success = false;
         return;
     }
+    if (request->frame_name == "None")
+    {
+        request->frame_name = "";
+        yCWarning(SIMULATEDWORLD_NWS_ROS2) << "Frame name was 'None', setting to empty string";
+    }
+
+    if (request->id == "None" || request->id.empty())
+    {
+        yCError(SIMULATEDWORLD_NWS_ROS2) << "Invalid request ID";
+        response->success = false;
+        return;
+    }
 
     auto ret = m_iSim->makeSphere(request->id, request->radius, toYarpPose(request->pose),
                                   toYarpColor(request->color), request->frame_name,
@@ -198,12 +210,22 @@ void SimulatedWorld_nws_ros2::makeBoxCallback(
     if (request->frame_name == "None")
     {
         request->frame_name = "";
+        yCWarning(SIMULATEDWORLD_NWS_ROS2) << "Frame name was 'None', setting to empty string";
     }
 
-    auto ret = m_iSim->makeBox(request->id, request->width, request->height, request->thickness,
+    if (request->id == "None" || request->id.empty())
+    {
+        yCError(SIMULATEDWORLD_NWS_ROS2) << "Invalid request ID";
+        response->success = false;
+    }
+    else
+    {
+        auto ret = m_iSim->makeBox(request->id, request->width, request->height, request->thickness,
                                toYarpPose(request->pose), toYarpColor(request->color),
                                request->frame_name, request->gravity_enable, request->collision_enable);
-    response->success = static_cast<bool>(ret);
+        response->success = static_cast<bool>(ret);
+    }
+
 }
 
 void SimulatedWorld_nws_ros2::makeCylinderCallback(
@@ -215,6 +237,19 @@ void SimulatedWorld_nws_ros2::makeCylinderCallback(
     std::lock_guard<std::mutex> lock(m_mutex);
     if (!m_iSim)
     {
+        response->success = false;
+        return;
+    }
+
+    if (request->frame_name == "None")
+    {
+        request->frame_name = "";
+        yCWarning(SIMULATEDWORLD_NWS_ROS2) << "Frame name was 'None', setting to empty string";
+    }
+
+    if (request->id == "None" || request->id.empty())
+    {
+        yCError(SIMULATEDWORLD_NWS_ROS2) << "Invalid request ID";
         response->success = false;
         return;
     }
@@ -238,6 +273,19 @@ void SimulatedWorld_nws_ros2::makeFrameCallback(
         return;
     }
 
+    if (request->frame_name == "None")
+    {
+        request->frame_name = "";
+        yCWarning(SIMULATEDWORLD_NWS_ROS2) << "Frame name was 'None', setting to empty string";
+    }
+
+    if (request->id == "None" || request->id.empty())
+    {
+        yCError(SIMULATEDWORLD_NWS_ROS2) << "Invalid request ID";
+        response->success = false;
+        return;
+    }
+
     auto ret = m_iSim->makeFrame(request->id, request->size, toYarpPose(request->pose),
                                  toYarpColor(request->color), request->frame_name,
                                  request->gravity_enable, request->collision_enable);
@@ -253,6 +301,18 @@ void SimulatedWorld_nws_ros2::makeModelCallback(
     std::lock_guard<std::mutex> lock(m_mutex);
     if (!m_iSim)
     {
+        response->success = false;
+        return;
+    }
+    if (request->frame_name == "None")
+    {
+        request->frame_name = "";
+        yCWarning(SIMULATEDWORLD_NWS_ROS2) << "Frame name was 'None', setting to empty string";
+    }
+
+    if (request->id == "None" || request->id.empty())
+    {
+        yCError(SIMULATEDWORLD_NWS_ROS2) << "Invalid request ID";
         response->success = false;
         return;
     }
@@ -275,6 +335,13 @@ void SimulatedWorld_nws_ros2::changeColorCallback(
         return;
     }
 
+    if (request->id == "None" || request->id.empty())
+    {
+        yCError(SIMULATEDWORLD_NWS_ROS2) << "Invalid request ID";
+        response->success = false;
+        return;
+    }
+
     auto ret = m_iSim->changeColor(request->id, toYarpColor(request->color));
     response->success = static_cast<bool>(ret);
 }
@@ -288,6 +355,19 @@ void SimulatedWorld_nws_ros2::setPoseCallback(
     std::lock_guard<std::mutex> lock(m_mutex);
     if (!m_iSim)
     {
+        response->success = false;
+        return;
+    }
+
+    if (request->frame_name == "None")
+    {
+        request->frame_name = "";
+        yCWarning(SIMULATEDWORLD_NWS_ROS2) << "Frame name was 'None', setting to empty string";
+    }
+
+    if (request->id == "None" || request->id.empty())
+    {
+        yCError(SIMULATEDWORLD_NWS_ROS2) << "Invalid request ID";
         response->success = false;
         return;
     }
@@ -309,6 +389,12 @@ void SimulatedWorld_nws_ros2::enableGravityCallback(
         return;
     }
 
+    if (request->id == "None" || request->id.empty())
+    {
+        yCError(SIMULATEDWORLD_NWS_ROS2) << "Invalid request ID";
+        response->success = false;
+        return;
+    }
     auto ret = m_iSim->enableGravity(request->id, request->enable);
     response->success = static_cast<bool>(ret);
 }
@@ -322,6 +408,12 @@ void SimulatedWorld_nws_ros2::enableCollisionCallback(
     std::lock_guard<std::mutex> lock(m_mutex);
     if (!m_iSim)
     {
+        response->success = false;
+        return;
+    }
+    if (request->id == "None" || request->id.empty())
+    {
+        yCError(SIMULATEDWORLD_NWS_ROS2) << "Invalid request ID";
         response->success = false;
         return;
     }
@@ -339,6 +431,19 @@ void SimulatedWorld_nws_ros2::getPoseCallback(
     std::lock_guard<std::mutex> lock(m_mutex);
     if (!m_iSim)
     {
+        response->success = false;
+        return;
+    }
+
+    if (request->frame_name == "None")
+    {
+        request->frame_name = "";
+        yCWarning(SIMULATEDWORLD_NWS_ROS2) << "Frame name was 'None', setting to empty string";
+    }
+
+    if (request->id == "None" || request->id.empty())
+    {
+        yCError(SIMULATEDWORLD_NWS_ROS2) << "Invalid request ID";
         response->success = false;
         return;
     }
@@ -361,6 +466,12 @@ void SimulatedWorld_nws_ros2::deleteObjectCallback(
     std::lock_guard<std::mutex> lock(m_mutex);
     if (!m_iSim)
     {
+        response->success = false;
+        return;
+    }
+     if (request->id == "None" || request->id.empty())
+    {
+        yCError(SIMULATEDWORLD_NWS_ROS2) << "Invalid request ID";
         response->success = false;
         return;
     }
@@ -423,8 +534,23 @@ void SimulatedWorld_nws_ros2::attachCallback(
         return;
     }
 
-    auto ret = m_iSim->attach(request->id, request->link_name);
-    response->success = static_cast<bool>(ret);
+    if (request->link_name == "None")
+    {
+        request->link_name = "";
+        yCWarning(SIMULATEDWORLD_NWS_ROS2) << "Link name was 'None', setting to empty string";
+    }
+
+    if (request->id == "None" || request->id.empty())
+    {
+        yCError(SIMULATEDWORLD_NWS_ROS2) << "Invalid request ID";
+        response->success = false;
+    }
+    else
+    {
+        auto ret = m_iSim->attach(request->id, request->link_name);
+        response->success = static_cast<bool>(ret);
+    }
+    
 }
 
 void SimulatedWorld_nws_ros2::detachCallback(
@@ -436,6 +562,13 @@ void SimulatedWorld_nws_ros2::detachCallback(
     std::lock_guard<std::mutex> lock(m_mutex);
     if (!m_iSim)
     {
+        response->success = false;
+        return;
+    }
+
+    if (request->id == "None" || request->id.empty())
+    {
+        yCError(SIMULATEDWORLD_NWS_ROS2) << "Invalid request ID";
         response->success = false;
         return;
     }
@@ -453,6 +586,12 @@ void SimulatedWorld_nws_ros2::renameCallback(
     std::lock_guard<std::mutex> lock(m_mutex);
     if (!m_iSim)
     {
+        response->success = false;
+        return;
+    }
+    if (request->old_name=="None" || request->old_name.empty() || request->new_name == "None" || request->new_name.empty())
+    {
+        yCError(SIMULATEDWORLD_NWS_ROS2) << "Invalid input parameters";
         response->success = false;
         return;
     }
