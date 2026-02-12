@@ -187,7 +187,6 @@ void SimulatedWorld_nws_ros2::makeBoxCallback(
     std::shared_ptr<simulated_world_nws_ros2_msgs::srv::MakeBox::Response> response)
 {
 
-    yCInfo(SIMULATEDWORLD_NWS_ROS2, "call received");
     (void)request_header;
     std::lock_guard<std::mutex> lock(m_mutex);
     if (!m_iSim)
