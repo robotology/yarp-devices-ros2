@@ -60,6 +60,7 @@ SimulatedWorld_nws_ros2::SimulatedWorld_nws_ros2() = default;
 
 bool SimulatedWorld_nws_ros2::attach(yarp::dev::PolyDriver* driver)
 {
+    yCInfo(SIMULATEDWORLD_NWS_ROS2, "Attaching to driver");
     if (driver && driver->isValid())
     {
         driver->view(m_iSim);
@@ -82,6 +83,7 @@ bool SimulatedWorld_nws_ros2::detach()
 
 bool SimulatedWorld_nws_ros2::open(yarp::os::Searchable& config)
 {
+    yCInfo(SIMULATEDWORLD_NWS_ROS2, "Opening SimulatedWorld_nws_ros2");
     parseParams(config);
 
     if (!m_node_name.empty() && m_node_name[0] == '/')
@@ -93,7 +95,7 @@ bool SimulatedWorld_nws_ros2::open(yarp::os::Searchable& config)
     rclcpp::NodeOptions node_options;
     node_options.allow_undeclared_parameters(true);
     node_options.automatically_declare_parameters_from_overrides(true);
-    if(m_namespace.empty()) {
+    if (m_namespace.empty()) {
         m_node = NodeCreator::createNode(m_node_name, node_options);
     } else {
         m_node = NodeCreator::createNode(m_node_name, m_namespace, node_options);
@@ -136,6 +138,10 @@ bool SimulatedWorld_nws_ros2::open(yarp::os::Searchable& config)
     m_srv_rename = m_node->create_service<simulated_world_nws_ros2_msgs::srv::Rename>(
         m_rename, std::bind(&SimulatedWorld_nws_ros2::renameCallback, this, _1, _2, _3));
 
+    // Start the spinner
+    m_spinner = new Ros2Spinner(m_node);
+    m_spinner->start();
+
     yCInfo(SIMULATEDWORLD_NWS_ROS2) << "Waiting for device to attach";
     return true;
 }
@@ -143,6 +149,14 @@ bool SimulatedWorld_nws_ros2::open(yarp::os::Searchable& config)
 bool SimulatedWorld_nws_ros2::close()
 {
     yCTrace(SIMULATEDWORLD_NWS_ROS2, "Close");
+
+    // Stop and delete the spinner
+    if (m_spinner) {
+        m_spinner->stop();
+        delete m_spinner;
+        m_spinner = nullptr;
+    }
+
     detach();
     rclcpp::shutdown();
     return true;
@@ -172,12 +186,19 @@ void SimulatedWorld_nws_ros2::makeBoxCallback(
     const std::shared_ptr<simulated_world_nws_ros2_msgs::srv::MakeBox::Request> request,
     std::shared_ptr<simulated_world_nws_ros2_msgs::srv::MakeBox::Response> response)
 {
+
+    yCInfo(SIMULATEDWORLD_NWS_ROS2, "call received");
     (void)request_header;
     std::lock_guard<std::mutex> lock(m_mutex);
     if (!m_iSim)
     {
         response->success = false;
         return;
+    }
+
+    if (request->frame_name == "None")
+    {
+        request->frame_name = "";
     }
 
     auto ret = m_iSim->makeBox(request->id, request->width, request->height, request->thickness,
