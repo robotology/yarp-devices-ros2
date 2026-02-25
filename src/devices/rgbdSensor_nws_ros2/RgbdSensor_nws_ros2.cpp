@@ -371,8 +371,8 @@ bool RgbdSensor_nws_ros2::writeData()
 
     // Call setCamInfo only the first time
     if (m_firstTime) {
-        setCamInfo(m_camInfoData.colorCamInfo, "color_frame", COLOR_SENSOR);
-        setCamInfo(m_camInfoData.depthCamInfo, "depth_frame", DEPTH_SENSOR);
+        setCamInfo(m_camInfoData.colorCamInfo, m_color_frame_id, COLOR_SENSOR);
+        setCamInfo(m_camInfoData.depthCamInfo, m_depth_frame_id, DEPTH_SENSOR);
         m_firstTime = false;
     }
 
