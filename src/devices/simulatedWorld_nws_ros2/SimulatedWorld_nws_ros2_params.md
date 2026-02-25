@@ -1,18 +1,19 @@
-| | node_name       | string | - | simulatedWorld_nws_ros2 | No | The ROS2 node name                       | |
-| | namespace       | string | - |   -                     | No | optional namespace for ros2 node         | |
-| | makesphere      | string | - | makeSphere              | No | ROS2 service name for makeSphere         | |
-| | makebox         | string | - | makeBox                 | No | ROS2 service name for makeBox            | |
-| | makecylinder    | string | - | makeCylinder            | No | ROS2 service name for makeCylinder       | |
-| | makeframe       | string | - | makeFrame               | No | ROS2 service name for makeFrame          | |
-| | makemodel       | string | - | makeModel               | No | ROS2 service name for makeModel          | |
-| | changecolor     | string | - | changeColor             | No | ROS2 service name for changeColor        | |
-| | setpose         | string | - | setPose                 | No | ROS2 service name for setPose            | |
-| | enablegravity   | string | - | enableGravity           | No | ROS2 service name for enableGravity      | |
-| | enablecollision | string | - | enableCollision         | No | ROS2 service name for enableCollision    | |
-| | getpose         | string | - | getPose                 | No | ROS2 service name for getPose            | |
-| | deleteobject    | string | - | deleteObject            | No | ROS2 service name for deleteObject       | |
-| | deleteall       | string | - | deleteAll               | No | ROS2 service name for deleteAll          | |
-| | getlist         | string | - | getList                 | No | ROS2 service name for getList            | |
-| | attach          | string | - | attach                  | No | ROS2 service name for attach             | |
-| | detach          | string | - | detach                  | No | ROS2 service name for detach             | |
-| | rename          | string | - | rename                  | No | ROS2 service name for rename             | |
+| | node_name                   | string | - | simulatedWorld_nws_ros2 | No | The ROS2 node name                       | |
+| | namespace                   | string | - |   -                     | No | optional namespace for ros2 node         | |
+| | makesphere_servicename      | string | - | makeSphere              | No | ROS2 service name for makeSphere         | |
+| | makebox_servicename         | string | - | makeBox                 | No | ROS2 service name for makeBox            | |
+| | makecylinder_servicename    | string | - | makeCylinder            | No | ROS2 service name for makeCylinder       | |
+| | makeframe_servicename       | string | - | makeFrame               | No | ROS2 service name for makeFrame          | |
+| | makemodel_servicename       | string | - | makeModel               | No | ROS2 service name for makeModel          | |
+| | makeactor_servicename       | string | - | makeActor               | No | ROS2 service name for makeActor          | |
+| | changecolor_servicename     | string | - | changeColor             | No | ROS2 service name for changeColor        | |
+| | setpose_servicename         | string | - | setPose                 | No | ROS2 service name for setPose            | |
+| | enablegravity_servicename   | string | - | enableGravity           | No | ROS2 service name for enableGravity      | |
+| | enablecollision_servicename | string | - | enableCollision         | No | ROS2 service name for enableCollision    | |
+| | getpose_servicename         | string | - | getPose                 | No | ROS2 service name for getPose            | |
+| | deleteobject_servicename    | string | - | deleteObject            | No | ROS2 service name for deleteObject       | |
+| | deleteall_servicename       | string | - | deleteAll               | No | ROS2 service name for deleteAll          | |
+| | getlist_servicename         | string | - | getList                 | No | ROS2 service name for getList            | |
+| | attach_servicename          | string | - | attach                  | No | ROS2 service name for attach             | |
+| | detach_servicename          | string | - | detach                  | No | ROS2 service name for detach             | |
+| | rename_servicename          | string | - | rename                  | No | ROS2 service name for rename             | |

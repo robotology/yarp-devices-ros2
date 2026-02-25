@@ -8,7 +8,7 @@
 // This is an automatically generated file. Please do not edit it.
 // It will be re-generated if the cmake flag ALLOW_DEVICE_PARAM_PARSER_GERNERATION is ON.
 
-// Generated on: Thu Jan 29 14:11:54 2026
+// Generated on: Wed Feb 25 10:20:51 2026
 
 
 #include "SimulatedWorld_nws_ros2_ParamsParser.h"
@@ -30,22 +30,23 @@ std::vector<std::string> SimulatedWorld_nws_ros2_ParamsParser::getListOfParams()
     std::vector<std::string> params;
     params.push_back("node_name");
     params.push_back("namespace");
-    params.push_back("makesphere");
-    params.push_back("makebox");
-    params.push_back("makecylinder");
-    params.push_back("makeframe");
-    params.push_back("makemodel");
-    params.push_back("changecolor");
-    params.push_back("setpose");
-    params.push_back("enablegravity");
-    params.push_back("enablecollision");
-    params.push_back("getpose");
-    params.push_back("deleteobject");
-    params.push_back("deleteall");
-    params.push_back("getlist");
-    params.push_back("attach");
-    params.push_back("detach");
-    params.push_back("rename");
+    params.push_back("makesphere_servicename");
+    params.push_back("makebox_servicename");
+    params.push_back("makecylinder_servicename");
+    params.push_back("makeframe_servicename");
+    params.push_back("makemodel_servicename");
+    params.push_back("makeactor_servicename");
+    params.push_back("changecolor_servicename");
+    params.push_back("setpose_servicename");
+    params.push_back("enablegravity_servicename");
+    params.push_back("enablecollision_servicename");
+    params.push_back("getpose_servicename");
+    params.push_back("deleteobject_servicename");
+    params.push_back("deleteall_servicename");
+    params.push_back("getlist_servicename");
+    params.push_back("attach_servicename");
+    params.push_back("detach_servicename");
+    params.push_back("rename_servicename");
     return params;
 }
 
@@ -62,84 +63,89 @@ bool SimulatedWorld_nws_ros2_ParamsParser::getParamValue(const std::string& para
         paramValue = m_namespace;
         return true;
     }
-    if (paramName =="makesphere")
+    if (paramName =="makesphere_servicename")
     {
-        paramValue = m_makesphere;
+        paramValue = m_makesphere_servicename;
         return true;
     }
-    if (paramName =="makebox")
+    if (paramName =="makebox_servicename")
     {
-        paramValue = m_makebox;
+        paramValue = m_makebox_servicename;
         return true;
     }
-    if (paramName =="makecylinder")
+    if (paramName =="makecylinder_servicename")
     {
-        paramValue = m_makecylinder;
+        paramValue = m_makecylinder_servicename;
         return true;
     }
-    if (paramName =="makeframe")
+    if (paramName =="makeframe_servicename")
     {
-        paramValue = m_makeframe;
+        paramValue = m_makeframe_servicename;
         return true;
     }
-    if (paramName =="makemodel")
+    if (paramName =="makemodel_servicename")
     {
-        paramValue = m_makemodel;
+        paramValue = m_makemodel_servicename;
         return true;
     }
-    if (paramName =="changecolor")
+    if (paramName =="makeactor_servicename")
     {
-        paramValue = m_changecolor;
+        paramValue = m_makeactor_servicename;
         return true;
     }
-    if (paramName =="setpose")
+    if (paramName =="changecolor_servicename")
     {
-        paramValue = m_setpose;
+        paramValue = m_changecolor_servicename;
         return true;
     }
-    if (paramName =="enablegravity")
+    if (paramName =="setpose_servicename")
     {
-        paramValue = m_enablegravity;
+        paramValue = m_setpose_servicename;
         return true;
     }
-    if (paramName =="enablecollision")
+    if (paramName =="enablegravity_servicename")
     {
-        paramValue = m_enablecollision;
+        paramValue = m_enablegravity_servicename;
         return true;
     }
-    if (paramName =="getpose")
+    if (paramName =="enablecollision_servicename")
     {
-        paramValue = m_getpose;
+        paramValue = m_enablecollision_servicename;
         return true;
     }
-    if (paramName =="deleteobject")
+    if (paramName =="getpose_servicename")
     {
-        paramValue = m_deleteobject;
+        paramValue = m_getpose_servicename;
         return true;
     }
-    if (paramName =="deleteall")
+    if (paramName =="deleteobject_servicename")
     {
-        paramValue = m_deleteall;
+        paramValue = m_deleteobject_servicename;
         return true;
     }
-    if (paramName =="getlist")
+    if (paramName =="deleteall_servicename")
     {
-        paramValue = m_getlist;
+        paramValue = m_deleteall_servicename;
         return true;
     }
-    if (paramName =="attach")
+    if (paramName =="getlist_servicename")
     {
-        paramValue = m_attach;
+        paramValue = m_getlist_servicename;
         return true;
     }
-    if (paramName =="detach")
+    if (paramName =="attach_servicename")
     {
-        paramValue = m_detach;
+        paramValue = m_attach_servicename;
         return true;
     }
-    if (paramName =="rename")
+    if (paramName =="detach_servicename")
     {
-        paramValue = m_rename;
+        paramValue = m_detach_servicename;
+        return true;
+    }
+    if (paramName =="rename_servicename")
+    {
+        paramValue = m_rename_servicename;
         return true;
     }
 
@@ -197,228 +203,242 @@ bool      SimulatedWorld_nws_ros2_ParamsParser::parseParams(const yarp::os::Sear
         prop_check.unput("namespace");
     }
 
-    //Parser of parameter makesphere
+    //Parser of parameter makesphere_servicename
     {
-        if (config.check("makesphere"))
+        if (config.check("makesphere_servicename"))
         {
-            m_makesphere = config.find("makesphere").asString();
-            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'makesphere' using value:" << m_makesphere;
+            m_makesphere_servicename = config.find("makesphere_servicename").asString();
+            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'makesphere_servicename' using value:" << m_makesphere_servicename;
         }
         else
         {
-            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'makesphere' using DEFAULT value:" << m_makesphere;
+            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'makesphere_servicename' using DEFAULT value:" << m_makesphere_servicename;
         }
-        prop_check.unput("makesphere");
+        prop_check.unput("makesphere_servicename");
     }
 
-    //Parser of parameter makebox
+    //Parser of parameter makebox_servicename
     {
-        if (config.check("makebox"))
+        if (config.check("makebox_servicename"))
         {
-            m_makebox = config.find("makebox").asString();
-            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'makebox' using value:" << m_makebox;
+            m_makebox_servicename = config.find("makebox_servicename").asString();
+            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'makebox_servicename' using value:" << m_makebox_servicename;
         }
         else
         {
-            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'makebox' using DEFAULT value:" << m_makebox;
+            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'makebox_servicename' using DEFAULT value:" << m_makebox_servicename;
         }
-        prop_check.unput("makebox");
+        prop_check.unput("makebox_servicename");
     }
 
-    //Parser of parameter makecylinder
+    //Parser of parameter makecylinder_servicename
     {
-        if (config.check("makecylinder"))
+        if (config.check("makecylinder_servicename"))
         {
-            m_makecylinder = config.find("makecylinder").asString();
-            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'makecylinder' using value:" << m_makecylinder;
+            m_makecylinder_servicename = config.find("makecylinder_servicename").asString();
+            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'makecylinder_servicename' using value:" << m_makecylinder_servicename;
         }
         else
         {
-            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'makecylinder' using DEFAULT value:" << m_makecylinder;
+            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'makecylinder_servicename' using DEFAULT value:" << m_makecylinder_servicename;
         }
-        prop_check.unput("makecylinder");
+        prop_check.unput("makecylinder_servicename");
     }
 
-    //Parser of parameter makeframe
+    //Parser of parameter makeframe_servicename
     {
-        if (config.check("makeframe"))
+        if (config.check("makeframe_servicename"))
         {
-            m_makeframe = config.find("makeframe").asString();
-            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'makeframe' using value:" << m_makeframe;
+            m_makeframe_servicename = config.find("makeframe_servicename").asString();
+            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'makeframe_servicename' using value:" << m_makeframe_servicename;
         }
         else
         {
-            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'makeframe' using DEFAULT value:" << m_makeframe;
+            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'makeframe_servicename' using DEFAULT value:" << m_makeframe_servicename;
         }
-        prop_check.unput("makeframe");
+        prop_check.unput("makeframe_servicename");
     }
 
-    //Parser of parameter makemodel
+    //Parser of parameter makemodel_servicename
     {
-        if (config.check("makemodel"))
+        if (config.check("makemodel_servicename"))
         {
-            m_makemodel = config.find("makemodel").asString();
-            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'makemodel' using value:" << m_makemodel;
+            m_makemodel_servicename = config.find("makemodel_servicename").asString();
+            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'makemodel_servicename' using value:" << m_makemodel_servicename;
         }
         else
         {
-            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'makemodel' using DEFAULT value:" << m_makemodel;
+            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'makemodel_servicename' using DEFAULT value:" << m_makemodel_servicename;
         }
-        prop_check.unput("makemodel");
+        prop_check.unput("makemodel_servicename");
     }
 
-    //Parser of parameter changecolor
+    //Parser of parameter makeactor_servicename
     {
-        if (config.check("changecolor"))
+        if (config.check("makeactor_servicename"))
         {
-            m_changecolor = config.find("changecolor").asString();
-            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'changecolor' using value:" << m_changecolor;
+            m_makeactor_servicename = config.find("makeactor_servicename").asString();
+            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'makeactor_servicename' using value:" << m_makeactor_servicename;
         }
         else
         {
-            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'changecolor' using DEFAULT value:" << m_changecolor;
+            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'makeactor_servicename' using DEFAULT value:" << m_makeactor_servicename;
         }
-        prop_check.unput("changecolor");
+        prop_check.unput("makeactor_servicename");
     }
 
-    //Parser of parameter setpose
+    //Parser of parameter changecolor_servicename
     {
-        if (config.check("setpose"))
+        if (config.check("changecolor_servicename"))
         {
-            m_setpose = config.find("setpose").asString();
-            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'setpose' using value:" << m_setpose;
+            m_changecolor_servicename = config.find("changecolor_servicename").asString();
+            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'changecolor_servicename' using value:" << m_changecolor_servicename;
         }
         else
         {
-            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'setpose' using DEFAULT value:" << m_setpose;
+            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'changecolor_servicename' using DEFAULT value:" << m_changecolor_servicename;
         }
-        prop_check.unput("setpose");
+        prop_check.unput("changecolor_servicename");
     }
 
-    //Parser of parameter enablegravity
+    //Parser of parameter setpose_servicename
     {
-        if (config.check("enablegravity"))
+        if (config.check("setpose_servicename"))
         {
-            m_enablegravity = config.find("enablegravity").asString();
-            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'enablegravity' using value:" << m_enablegravity;
+            m_setpose_servicename = config.find("setpose_servicename").asString();
+            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'setpose_servicename' using value:" << m_setpose_servicename;
         }
         else
         {
-            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'enablegravity' using DEFAULT value:" << m_enablegravity;
+            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'setpose_servicename' using DEFAULT value:" << m_setpose_servicename;
         }
-        prop_check.unput("enablegravity");
+        prop_check.unput("setpose_servicename");
     }
 
-    //Parser of parameter enablecollision
+    //Parser of parameter enablegravity_servicename
     {
-        if (config.check("enablecollision"))
+        if (config.check("enablegravity_servicename"))
         {
-            m_enablecollision = config.find("enablecollision").asString();
-            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'enablecollision' using value:" << m_enablecollision;
+            m_enablegravity_servicename = config.find("enablegravity_servicename").asString();
+            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'enablegravity_servicename' using value:" << m_enablegravity_servicename;
         }
         else
         {
-            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'enablecollision' using DEFAULT value:" << m_enablecollision;
+            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'enablegravity_servicename' using DEFAULT value:" << m_enablegravity_servicename;
         }
-        prop_check.unput("enablecollision");
+        prop_check.unput("enablegravity_servicename");
     }
 
-    //Parser of parameter getpose
+    //Parser of parameter enablecollision_servicename
     {
-        if (config.check("getpose"))
+        if (config.check("enablecollision_servicename"))
         {
-            m_getpose = config.find("getpose").asString();
-            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'getpose' using value:" << m_getpose;
+            m_enablecollision_servicename = config.find("enablecollision_servicename").asString();
+            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'enablecollision_servicename' using value:" << m_enablecollision_servicename;
         }
         else
         {
-            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'getpose' using DEFAULT value:" << m_getpose;
+            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'enablecollision_servicename' using DEFAULT value:" << m_enablecollision_servicename;
         }
-        prop_check.unput("getpose");
+        prop_check.unput("enablecollision_servicename");
     }
 
-    //Parser of parameter deleteobject
+    //Parser of parameter getpose_servicename
     {
-        if (config.check("deleteobject"))
+        if (config.check("getpose_servicename"))
         {
-            m_deleteobject = config.find("deleteobject").asString();
-            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'deleteobject' using value:" << m_deleteobject;
+            m_getpose_servicename = config.find("getpose_servicename").asString();
+            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'getpose_servicename' using value:" << m_getpose_servicename;
         }
         else
         {
-            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'deleteobject' using DEFAULT value:" << m_deleteobject;
+            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'getpose_servicename' using DEFAULT value:" << m_getpose_servicename;
         }
-        prop_check.unput("deleteobject");
+        prop_check.unput("getpose_servicename");
     }
 
-    //Parser of parameter deleteall
+    //Parser of parameter deleteobject_servicename
     {
-        if (config.check("deleteall"))
+        if (config.check("deleteobject_servicename"))
         {
-            m_deleteall = config.find("deleteall").asString();
-            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'deleteall' using value:" << m_deleteall;
+            m_deleteobject_servicename = config.find("deleteobject_servicename").asString();
+            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'deleteobject_servicename' using value:" << m_deleteobject_servicename;
         }
         else
         {
-            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'deleteall' using DEFAULT value:" << m_deleteall;
+            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'deleteobject_servicename' using DEFAULT value:" << m_deleteobject_servicename;
         }
-        prop_check.unput("deleteall");
+        prop_check.unput("deleteobject_servicename");
     }
 
-    //Parser of parameter getlist
+    //Parser of parameter deleteall_servicename
     {
-        if (config.check("getlist"))
+        if (config.check("deleteall_servicename"))
         {
-            m_getlist = config.find("getlist").asString();
-            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'getlist' using value:" << m_getlist;
+            m_deleteall_servicename = config.find("deleteall_servicename").asString();
+            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'deleteall_servicename' using value:" << m_deleteall_servicename;
         }
         else
         {
-            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'getlist' using DEFAULT value:" << m_getlist;
+            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'deleteall_servicename' using DEFAULT value:" << m_deleteall_servicename;
         }
-        prop_check.unput("getlist");
+        prop_check.unput("deleteall_servicename");
     }
 
-    //Parser of parameter attach
+    //Parser of parameter getlist_servicename
     {
-        if (config.check("attach"))
+        if (config.check("getlist_servicename"))
         {
-            m_attach = config.find("attach").asString();
-            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'attach' using value:" << m_attach;
+            m_getlist_servicename = config.find("getlist_servicename").asString();
+            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'getlist_servicename' using value:" << m_getlist_servicename;
         }
         else
         {
-            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'attach' using DEFAULT value:" << m_attach;
+            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'getlist_servicename' using DEFAULT value:" << m_getlist_servicename;
         }
-        prop_check.unput("attach");
+        prop_check.unput("getlist_servicename");
     }
 
-    //Parser of parameter detach
+    //Parser of parameter attach_servicename
     {
-        if (config.check("detach"))
+        if (config.check("attach_servicename"))
         {
-            m_detach = config.find("detach").asString();
-            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'detach' using value:" << m_detach;
+            m_attach_servicename = config.find("attach_servicename").asString();
+            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'attach_servicename' using value:" << m_attach_servicename;
         }
         else
         {
-            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'detach' using DEFAULT value:" << m_detach;
+            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'attach_servicename' using DEFAULT value:" << m_attach_servicename;
         }
-        prop_check.unput("detach");
+        prop_check.unput("attach_servicename");
     }
 
-    //Parser of parameter rename
+    //Parser of parameter detach_servicename
     {
-        if (config.check("rename"))
+        if (config.check("detach_servicename"))
         {
-            m_rename = config.find("rename").asString();
-            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'rename' using value:" << m_rename;
+            m_detach_servicename = config.find("detach_servicename").asString();
+            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'detach_servicename' using value:" << m_detach_servicename;
         }
         else
         {
-            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'rename' using DEFAULT value:" << m_rename;
+            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'detach_servicename' using DEFAULT value:" << m_detach_servicename;
         }
-        prop_check.unput("rename");
+        prop_check.unput("detach_servicename");
+    }
+
+    //Parser of parameter rename_servicename
+    {
+        if (config.check("rename_servicename"))
+        {
+            m_rename_servicename = config.find("rename_servicename").asString();
+            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'rename_servicename' using value:" << m_rename_servicename;
+        }
+        else
+        {
+            yCInfo(SimulatedWorld_nws_ros2ParamsCOMPONENT) << "Parameter 'rename_servicename' using DEFAULT value:" << m_rename_servicename;
+        }
+        prop_check.unput("rename_servicename");
     }
 
     /*
@@ -459,25 +479,26 @@ std::string      SimulatedWorld_nws_ros2_ParamsParser::getDocumentationOfDeviceP
     doc = doc + std::string("This is the list of the parameters accepted by the device:\n");
     doc = doc + std::string("'node_name': The ROS2 node name\n");
     doc = doc + std::string("'namespace': optional namespace for ros2 node\n");
-    doc = doc + std::string("'makesphere': ROS2 service name for makeSphere\n");
-    doc = doc + std::string("'makebox': ROS2 service name for makeBox\n");
-    doc = doc + std::string("'makecylinder': ROS2 service name for makeCylinder\n");
-    doc = doc + std::string("'makeframe': ROS2 service name for makeFrame\n");
-    doc = doc + std::string("'makemodel': ROS2 service name for makeModel\n");
-    doc = doc + std::string("'changecolor': ROS2 service name for changeColor\n");
-    doc = doc + std::string("'setpose': ROS2 service name for setPose\n");
-    doc = doc + std::string("'enablegravity': ROS2 service name for enableGravity\n");
-    doc = doc + std::string("'enablecollision': ROS2 service name for enableCollision\n");
-    doc = doc + std::string("'getpose': ROS2 service name for getPose\n");
-    doc = doc + std::string("'deleteobject': ROS2 service name for deleteObject\n");
-    doc = doc + std::string("'deleteall': ROS2 service name for deleteAll\n");
-    doc = doc + std::string("'getlist': ROS2 service name for getList\n");
-    doc = doc + std::string("'attach': ROS2 service name for attach\n");
-    doc = doc + std::string("'detach': ROS2 service name for detach\n");
-    doc = doc + std::string("'rename': ROS2 service name for rename\n");
+    doc = doc + std::string("'makesphere_servicename': ROS2 service name for makeSphere\n");
+    doc = doc + std::string("'makebox_servicename': ROS2 service name for makeBox\n");
+    doc = doc + std::string("'makecylinder_servicename': ROS2 service name for makeCylinder\n");
+    doc = doc + std::string("'makeframe_servicename': ROS2 service name for makeFrame\n");
+    doc = doc + std::string("'makemodel_servicename': ROS2 service name for makeModel\n");
+    doc = doc + std::string("'makeactor_servicename': ROS2 service name for makeActor\n");
+    doc = doc + std::string("'changecolor_servicename': ROS2 service name for changeColor\n");
+    doc = doc + std::string("'setpose_servicename': ROS2 service name for setPose\n");
+    doc = doc + std::string("'enablegravity_servicename': ROS2 service name for enableGravity\n");
+    doc = doc + std::string("'enablecollision_servicename': ROS2 service name for enableCollision\n");
+    doc = doc + std::string("'getpose_servicename': ROS2 service name for getPose\n");
+    doc = doc + std::string("'deleteobject_servicename': ROS2 service name for deleteObject\n");
+    doc = doc + std::string("'deleteall_servicename': ROS2 service name for deleteAll\n");
+    doc = doc + std::string("'getlist_servicename': ROS2 service name for getList\n");
+    doc = doc + std::string("'attach_servicename': ROS2 service name for attach\n");
+    doc = doc + std::string("'detach_servicename': ROS2 service name for detach\n");
+    doc = doc + std::string("'rename_servicename': ROS2 service name for rename\n");
     doc = doc + std::string("\n");
     doc = doc + std::string("Here are some examples of invocation command with yarpdev, with all params:\n");
-    doc = doc + " yarpdev --device simulatedWorld_nws_ros2 --node_name simulatedWorld_nws_ros2 --namespace <optional_value> --makesphere makeSphere --makebox makeBox --makecylinder makeCylinder --makeframe makeFrame --makemodel makeModel --changecolor changeColor --setpose setPose --enablegravity enableGravity --enablecollision enableCollision --getpose getPose --deleteobject deleteObject --deleteall deleteAll --getlist getList --attach attach --detach detach --rename rename\n";
+    doc = doc + " yarpdev --device simulatedWorld_nws_ros2 --node_name simulatedWorld_nws_ros2 --namespace <optional_value> --makesphere_servicename makeSphere --makebox_servicename makeBox --makecylinder_servicename makeCylinder --makeframe_servicename makeFrame --makemodel_servicename makeModel --makeactor_servicename makeActor --changecolor_servicename changeColor --setpose_servicename setPose --enablegravity_servicename enableGravity --enablecollision_servicename enableCollision --getpose_servicename getPose --deleteobject_servicename deleteObject --deleteall_servicename deleteAll --getlist_servicename getList --attach_servicename attach --detach_servicename detach --rename_servicename rename\n";
     doc = doc + std::string("Using only mandatory params:\n");
     doc = doc + " yarpdev --device simulatedWorld_nws_ros2\n";
     doc = doc + std::string("=============================================\n\n");    return doc;

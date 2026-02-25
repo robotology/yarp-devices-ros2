@@ -43,6 +43,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/MakeCylinder.srv"
   "srv/MakeFrame.srv"
   "srv/MakeModel.srv"
+  "srv/MakeActor.srv"
   "srv/ChangeColor.srv"
   "srv/SetPose.srv"
   "srv/EnableGravity.srv"

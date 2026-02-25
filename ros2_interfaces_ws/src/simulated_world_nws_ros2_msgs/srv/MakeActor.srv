@@ -1,0 +1,6 @@
+string id
+string filename_skin
+string filename_animation
+simulated_world_nws_ros2_msgs/Pose6D pose
+---
+bool success

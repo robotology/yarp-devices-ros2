@@ -23,6 +23,7 @@
 #include <simulated_world_nws_ros2_msgs/srv/make_cylinder.hpp>
 #include <simulated_world_nws_ros2_msgs/srv/make_frame.hpp>
 #include <simulated_world_nws_ros2_msgs/srv/make_model.hpp>
+#include <simulated_world_nws_ros2_msgs/srv/make_actor.hpp>
 #include <simulated_world_nws_ros2_msgs/srv/change_color.hpp>
 #include <simulated_world_nws_ros2_msgs/srv/set_pose.hpp>
 #include <simulated_world_nws_ros2_msgs/srv/enable_gravity.hpp>
@@ -79,6 +80,9 @@ public:
     void makeModelCallback(const std::shared_ptr<rmw_request_id_t> request_header,
                            const std::shared_ptr<simulated_world_nws_ros2_msgs::srv::MakeModel::Request> request,
                            std::shared_ptr<simulated_world_nws_ros2_msgs::srv::MakeModel::Response> response);
+    void makeActorCallback(const std::shared_ptr<rmw_request_id_t> request_header,
+                           const std::shared_ptr<simulated_world_nws_ros2_msgs::srv::MakeActor::Request> request,
+                           std::shared_ptr<simulated_world_nws_ros2_msgs::srv::MakeActor::Response> response);
     void changeColorCallback(const std::shared_ptr<rmw_request_id_t> request_header,
                              const std::shared_ptr<simulated_world_nws_ros2_msgs::srv::ChangeColor::Request> request,
                              std::shared_ptr<simulated_world_nws_ros2_msgs::srv::ChangeColor::Response> response);
@@ -124,6 +128,7 @@ private:
     rclcpp::Service<simulated_world_nws_ros2_msgs::srv::MakeCylinder>::SharedPtr m_srv_makeCylinder{nullptr};
     rclcpp::Service<simulated_world_nws_ros2_msgs::srv::MakeFrame>::SharedPtr m_srv_makeFrame{nullptr};
     rclcpp::Service<simulated_world_nws_ros2_msgs::srv::MakeModel>::SharedPtr m_srv_makeModel{nullptr};
+    rclcpp::Service<simulated_world_nws_ros2_msgs::srv::MakeActor>::SharedPtr m_srv_makeActor{nullptr};
     rclcpp::Service<simulated_world_nws_ros2_msgs::srv::ChangeColor>::SharedPtr m_srv_changeColor{nullptr};
     rclcpp::Service<simulated_world_nws_ros2_msgs::srv::SetPose>::SharedPtr m_srv_setPose{nullptr};
     rclcpp::Service<simulated_world_nws_ros2_msgs::srv::EnableGravity>::SharedPtr m_srv_enableGravity{nullptr};

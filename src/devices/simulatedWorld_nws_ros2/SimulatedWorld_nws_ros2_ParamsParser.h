@@ -8,7 +8,7 @@
 // This is an automatically generated file. Please do not edit it.
 // It will be re-generated if the cmake flag ALLOW_DEVICE_PARAM_PARSER_GERNERATION is ON.
 
-// Generated on: Thu Jan 29 14:11:54 2026
+// Generated on: Wed Feb 25 10:20:51 2026
 
 
 #ifndef SIMULATEDWORLD_NWS_ROS2_PARAMSPARSER_H
@@ -23,30 +23,31 @@
 * This class is the parameters parser for class SimulatedWorld_nws_ros2.
 *
 * These are the used parameters:
-* | Group name | Parameter name  | Type   | Units | Default Value           | Required | Description                           | Notes |
-* |:----------:|:---------------:|:------:|:-----:|:-----------------------:|:--------:|:-------------------------------------:|:-----:|
-* | -          | node_name       | string | -     | simulatedWorld_nws_ros2 | 0        | The ROS2 node name                    | -     |
-* | -          | namespace       | string | -     | -                       | 0        | optional namespace for ros2 node      | -     |
-* | -          | makesphere      | string | -     | makeSphere              | 0        | ROS2 service name for makeSphere      | -     |
-* | -          | makebox         | string | -     | makeBox                 | 0        | ROS2 service name for makeBox         | -     |
-* | -          | makecylinder    | string | -     | makeCylinder            | 0        | ROS2 service name for makeCylinder    | -     |
-* | -          | makeframe       | string | -     | makeFrame               | 0        | ROS2 service name for makeFrame       | -     |
-* | -          | makemodel       | string | -     | makeModel               | 0        | ROS2 service name for makeModel       | -     |
-* | -          | changecolor     | string | -     | changeColor             | 0        | ROS2 service name for changeColor     | -     |
-* | -          | setpose         | string | -     | setPose                 | 0        | ROS2 service name for setPose         | -     |
-* | -          | enablegravity   | string | -     | enableGravity           | 0        | ROS2 service name for enableGravity   | -     |
-* | -          | enablecollision | string | -     | enableCollision         | 0        | ROS2 service name for enableCollision | -     |
-* | -          | getpose         | string | -     | getPose                 | 0        | ROS2 service name for getPose         | -     |
-* | -          | deleteobject    | string | -     | deleteObject            | 0        | ROS2 service name for deleteObject    | -     |
-* | -          | deleteall       | string | -     | deleteAll               | 0        | ROS2 service name for deleteAll       | -     |
-* | -          | getlist         | string | -     | getList                 | 0        | ROS2 service name for getList         | -     |
-* | -          | attach          | string | -     | attach                  | 0        | ROS2 service name for attach          | -     |
-* | -          | detach          | string | -     | detach                  | 0        | ROS2 service name for detach          | -     |
-* | -          | rename          | string | -     | rename                  | 0        | ROS2 service name for rename          | -     |
+* | Group name | Parameter name              | Type   | Units | Default Value           | Required | Description                           | Notes |
+* |:----------:|:---------------------------:|:------:|:-----:|:-----------------------:|:--------:|:-------------------------------------:|:-----:|
+* | -          | node_name                   | string | -     | simulatedWorld_nws_ros2 | 0        | The ROS2 node name                    | -     |
+* | -          | namespace                   | string | -     | -                       | 0        | optional namespace for ros2 node      | -     |
+* | -          | makesphere_servicename      | string | -     | makeSphere              | 0        | ROS2 service name for makeSphere      | -     |
+* | -          | makebox_servicename         | string | -     | makeBox                 | 0        | ROS2 service name for makeBox         | -     |
+* | -          | makecylinder_servicename    | string | -     | makeCylinder            | 0        | ROS2 service name for makeCylinder    | -     |
+* | -          | makeframe_servicename       | string | -     | makeFrame               | 0        | ROS2 service name for makeFrame       | -     |
+* | -          | makemodel_servicename       | string | -     | makeModel               | 0        | ROS2 service name for makeModel       | -     |
+* | -          | makeactor_servicename       | string | -     | makeActor               | 0        | ROS2 service name for makeActor       | -     |
+* | -          | changecolor_servicename     | string | -     | changeColor             | 0        | ROS2 service name for changeColor     | -     |
+* | -          | setpose_servicename         | string | -     | setPose                 | 0        | ROS2 service name for setPose         | -     |
+* | -          | enablegravity_servicename   | string | -     | enableGravity           | 0        | ROS2 service name for enableGravity   | -     |
+* | -          | enablecollision_servicename | string | -     | enableCollision         | 0        | ROS2 service name for enableCollision | -     |
+* | -          | getpose_servicename         | string | -     | getPose                 | 0        | ROS2 service name for getPose         | -     |
+* | -          | deleteobject_servicename    | string | -     | deleteObject            | 0        | ROS2 service name for deleteObject    | -     |
+* | -          | deleteall_servicename       | string | -     | deleteAll               | 0        | ROS2 service name for deleteAll       | -     |
+* | -          | getlist_servicename         | string | -     | getList                 | 0        | ROS2 service name for getList         | -     |
+* | -          | attach_servicename          | string | -     | attach                  | 0        | ROS2 service name for attach          | -     |
+* | -          | detach_servicename          | string | -     | detach                  | 0        | ROS2 service name for detach          | -     |
+* | -          | rename_servicename          | string | -     | rename                  | 0        | ROS2 service name for rename          | -     |
 *
 * The device can be launched by yarpdev using one of the following examples (with and without all optional parameters):
 * \code{.unparsed}
-* yarpdev --device simulatedWorld_nws_ros2 --node_name simulatedWorld_nws_ros2 --namespace <optional_value> --makesphere makeSphere --makebox makeBox --makecylinder makeCylinder --makeframe makeFrame --makemodel makeModel --changecolor changeColor --setpose setPose --enablegravity enableGravity --enablecollision enableCollision --getpose getPose --deleteobject deleteObject --deleteall deleteAll --getlist getList --attach attach --detach detach --rename rename
+* yarpdev --device simulatedWorld_nws_ros2 --node_name simulatedWorld_nws_ros2 --namespace <optional_value> --makesphere_servicename makeSphere --makebox_servicename makeBox --makecylinder_servicename makeCylinder --makeframe_servicename makeFrame --makemodel_servicename makeModel --makeactor_servicename makeActor --changecolor_servicename changeColor --setpose_servicename setPose --enablegravity_servicename enableGravity --enablecollision_servicename enableCollision --getpose_servicename getPose --deleteobject_servicename deleteObject --deleteall_servicename deleteAll --getlist_servicename getList --attach_servicename attach --detach_servicename detach --rename_servicename rename
 * \endcode
 *
 * \code{.unparsed}
@@ -76,41 +77,43 @@ public:
 
     const std::string m_node_name_defaultValue = {"simulatedWorld_nws_ros2"};
     const std::string m_namespace_defaultValue = {""};
-    const std::string m_makesphere_defaultValue = {"makeSphere"};
-    const std::string m_makebox_defaultValue = {"makeBox"};
-    const std::string m_makecylinder_defaultValue = {"makeCylinder"};
-    const std::string m_makeframe_defaultValue = {"makeFrame"};
-    const std::string m_makemodel_defaultValue = {"makeModel"};
-    const std::string m_changecolor_defaultValue = {"changeColor"};
-    const std::string m_setpose_defaultValue = {"setPose"};
-    const std::string m_enablegravity_defaultValue = {"enableGravity"};
-    const std::string m_enablecollision_defaultValue = {"enableCollision"};
-    const std::string m_getpose_defaultValue = {"getPose"};
-    const std::string m_deleteobject_defaultValue = {"deleteObject"};
-    const std::string m_deleteall_defaultValue = {"deleteAll"};
-    const std::string m_getlist_defaultValue = {"getList"};
-    const std::string m_attach_defaultValue = {"attach"};
-    const std::string m_detach_defaultValue = {"detach"};
-    const std::string m_rename_defaultValue = {"rename"};
+    const std::string m_makesphere_servicename_defaultValue = {"makeSphere"};
+    const std::string m_makebox_servicename_defaultValue = {"makeBox"};
+    const std::string m_makecylinder_servicename_defaultValue = {"makeCylinder"};
+    const std::string m_makeframe_servicename_defaultValue = {"makeFrame"};
+    const std::string m_makemodel_servicename_defaultValue = {"makeModel"};
+    const std::string m_makeactor_servicename_defaultValue = {"makeActor"};
+    const std::string m_changecolor_servicename_defaultValue = {"changeColor"};
+    const std::string m_setpose_servicename_defaultValue = {"setPose"};
+    const std::string m_enablegravity_servicename_defaultValue = {"enableGravity"};
+    const std::string m_enablecollision_servicename_defaultValue = {"enableCollision"};
+    const std::string m_getpose_servicename_defaultValue = {"getPose"};
+    const std::string m_deleteobject_servicename_defaultValue = {"deleteObject"};
+    const std::string m_deleteall_servicename_defaultValue = {"deleteAll"};
+    const std::string m_getlist_servicename_defaultValue = {"getList"};
+    const std::string m_attach_servicename_defaultValue = {"attach"};
+    const std::string m_detach_servicename_defaultValue = {"detach"};
+    const std::string m_rename_servicename_defaultValue = {"rename"};
 
     std::string m_node_name = {"simulatedWorld_nws_ros2"};
     std::string m_namespace = {}; //This default value of this string is an empty string. It is highly recommended to provide a suggested value also for optional string parameters.
-    std::string m_makesphere = {"makeSphere"};
-    std::string m_makebox = {"makeBox"};
-    std::string m_makecylinder = {"makeCylinder"};
-    std::string m_makeframe = {"makeFrame"};
-    std::string m_makemodel = {"makeModel"};
-    std::string m_changecolor = {"changeColor"};
-    std::string m_setpose = {"setPose"};
-    std::string m_enablegravity = {"enableGravity"};
-    std::string m_enablecollision = {"enableCollision"};
-    std::string m_getpose = {"getPose"};
-    std::string m_deleteobject = {"deleteObject"};
-    std::string m_deleteall = {"deleteAll"};
-    std::string m_getlist = {"getList"};
-    std::string m_attach = {"attach"};
-    std::string m_detach = {"detach"};
-    std::string m_rename = {"rename"};
+    std::string m_makesphere_servicename = {"makeSphere"};
+    std::string m_makebox_servicename = {"makeBox"};
+    std::string m_makecylinder_servicename = {"makeCylinder"};
+    std::string m_makeframe_servicename = {"makeFrame"};
+    std::string m_makemodel_servicename = {"makeModel"};
+    std::string m_makeactor_servicename = {"makeActor"};
+    std::string m_changecolor_servicename = {"changeColor"};
+    std::string m_setpose_servicename = {"setPose"};
+    std::string m_enablegravity_servicename = {"enableGravity"};
+    std::string m_enablecollision_servicename = {"enableCollision"};
+    std::string m_getpose_servicename = {"getPose"};
+    std::string m_deleteobject_servicename = {"deleteObject"};
+    std::string m_deleteall_servicename = {"deleteAll"};
+    std::string m_getlist_servicename = {"getList"};
+    std::string m_attach_servicename = {"attach"};
+    std::string m_detach_servicename = {"detach"};
+    std::string m_rename_servicename = {"rename"};
 
     bool          parseParams(const yarp::os::Searchable & config) override;
     std::string   getDeviceClassName() const override { return m_device_classname; }

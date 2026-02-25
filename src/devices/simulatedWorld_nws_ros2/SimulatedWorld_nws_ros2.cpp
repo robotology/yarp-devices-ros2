@@ -104,37 +104,39 @@ bool SimulatedWorld_nws_ros2::open(yarp::os::Searchable& config)
     }
 
     m_srv_makeSphere = m_node->create_service<simulated_world_nws_ros2_msgs::srv::MakeSphere>(
-        m_makesphere, std::bind(&SimulatedWorld_nws_ros2::makeSphereCallback, this, _1, _2, _3));
+        m_makesphere_servicename, std::bind(&SimulatedWorld_nws_ros2::makeSphereCallback, this, _1, _2, _3));
     m_srv_makeBox = m_node->create_service<simulated_world_nws_ros2_msgs::srv::MakeBox>(
-        m_makebox, std::bind(&SimulatedWorld_nws_ros2::makeBoxCallback, this, _1, _2, _3));
+        m_makebox_servicename, std::bind(&SimulatedWorld_nws_ros2::makeBoxCallback, this, _1, _2, _3));
     m_srv_makeCylinder = m_node->create_service<simulated_world_nws_ros2_msgs::srv::MakeCylinder>(
-        m_makecylinder, std::bind(&SimulatedWorld_nws_ros2::makeCylinderCallback, this, _1, _2, _3));
+        m_makecylinder_servicename, std::bind(&SimulatedWorld_nws_ros2::makeCylinderCallback, this, _1, _2, _3));
     m_srv_makeFrame = m_node->create_service<simulated_world_nws_ros2_msgs::srv::MakeFrame>(
-        m_makeframe, std::bind(&SimulatedWorld_nws_ros2::makeFrameCallback, this, _1, _2, _3));
+        m_makeframe_servicename, std::bind(&SimulatedWorld_nws_ros2::makeFrameCallback, this, _1, _2, _3));
     m_srv_makeModel = m_node->create_service<simulated_world_nws_ros2_msgs::srv::MakeModel>(
-        m_makemodel, std::bind(&SimulatedWorld_nws_ros2::makeModelCallback, this, _1, _2, _3));
+        m_makemodel_servicename, std::bind(&SimulatedWorld_nws_ros2::makeModelCallback, this, _1, _2, _3));
+    m_srv_makeActor = m_node->create_service<simulated_world_nws_ros2_msgs::srv::MakeActor>(
+        m_makeactor_servicename, std::bind(&SimulatedWorld_nws_ros2::makeActorCallback, this, _1, _2, _3));
     m_srv_changeColor = m_node->create_service<simulated_world_nws_ros2_msgs::srv::ChangeColor>(
-        m_changecolor, std::bind(&SimulatedWorld_nws_ros2::changeColorCallback, this, _1, _2, _3));
+        m_changecolor_servicename, std::bind(&SimulatedWorld_nws_ros2::changeColorCallback, this, _1, _2, _3));
     m_srv_setPose = m_node->create_service<simulated_world_nws_ros2_msgs::srv::SetPose>(
-        m_setpose, std::bind(&SimulatedWorld_nws_ros2::setPoseCallback, this, _1, _2, _3));
+        m_setpose_servicename, std::bind(&SimulatedWorld_nws_ros2::setPoseCallback, this, _1, _2, _3));
     m_srv_enableGravity = m_node->create_service<simulated_world_nws_ros2_msgs::srv::EnableGravity>(
-        m_enablegravity, std::bind(&SimulatedWorld_nws_ros2::enableGravityCallback, this, _1, _2, _3));
+        m_enablegravity_servicename, std::bind(&SimulatedWorld_nws_ros2::enableGravityCallback, this, _1, _2, _3));
     m_srv_enableCollision = m_node->create_service<simulated_world_nws_ros2_msgs::srv::EnableCollision>(
-        m_enablecollision, std::bind(&SimulatedWorld_nws_ros2::enableCollisionCallback, this, _1, _2, _3));
+        m_enablecollision_servicename, std::bind(&SimulatedWorld_nws_ros2::enableCollisionCallback, this, _1, _2, _3));
     m_srv_getPose = m_node->create_service<simulated_world_nws_ros2_msgs::srv::GetPose>(
-        m_getpose, std::bind(&SimulatedWorld_nws_ros2::getPoseCallback, this, _1, _2, _3));
+        m_getpose_servicename, std::bind(&SimulatedWorld_nws_ros2::getPoseCallback, this, _1, _2, _3));
     m_srv_deleteObject = m_node->create_service<simulated_world_nws_ros2_msgs::srv::DeleteObject>(
-        m_deleteobject, std::bind(&SimulatedWorld_nws_ros2::deleteObjectCallback, this, _1, _2, _3));
+        m_deleteobject_servicename, std::bind(&SimulatedWorld_nws_ros2::deleteObjectCallback, this, _1, _2, _3));
     m_srv_deleteAll = m_node->create_service<simulated_world_nws_ros2_msgs::srv::DeleteAll>(
-        m_deleteall, std::bind(&SimulatedWorld_nws_ros2::deleteAllCallback, this, _1, _2, _3));
+        m_deleteall_servicename, std::bind(&SimulatedWorld_nws_ros2::deleteAllCallback, this, _1, _2, _3));
     m_srv_getList = m_node->create_service<simulated_world_nws_ros2_msgs::srv::GetList>(
-        m_getlist, std::bind(&SimulatedWorld_nws_ros2::getListCallback, this, _1, _2, _3));
+        m_getlist_servicename, std::bind(&SimulatedWorld_nws_ros2::getListCallback, this, _1, _2, _3));
     m_srv_attach = m_node->create_service<simulated_world_nws_ros2_msgs::srv::Attach>(
-        m_attach, std::bind(&SimulatedWorld_nws_ros2::attachCallback, this, _1, _2, _3));
+        m_attach_servicename, std::bind(&SimulatedWorld_nws_ros2::attachCallback, this, _1, _2, _3));
     m_srv_detach = m_node->create_service<simulated_world_nws_ros2_msgs::srv::Detach>(
-        m_detach, std::bind(&SimulatedWorld_nws_ros2::detachCallback, this, _1, _2, _3));
+        m_detach_servicename, std::bind(&SimulatedWorld_nws_ros2::detachCallback, this, _1, _2, _3));
     m_srv_rename = m_node->create_service<simulated_world_nws_ros2_msgs::srv::Rename>(
-        m_rename, std::bind(&SimulatedWorld_nws_ros2::renameCallback, this, _1, _2, _3));
+        m_rename_servicename, std::bind(&SimulatedWorld_nws_ros2::renameCallback, this, _1, _2, _3));
 
     yCInfo(SIMULATEDWORLD_NWS_ROS2) << "Waiting for device to attach";
     return true;
@@ -239,6 +241,23 @@ void SimulatedWorld_nws_ros2::makeModelCallback(
 
     auto ret = m_iSim->makeModel(request->id, request->filename, toYarpPose(request->pose),
                                  request->frame_name, request->gravity_enable, request->collision_enable);
+    response->success = static_cast<bool>(ret);
+}
+
+void SimulatedWorld_nws_ros2::makeActorCallback(
+    const std::shared_ptr<rmw_request_id_t> request_header,
+    const std::shared_ptr<simulated_world_nws_ros2_msgs::srv::MakeActor::Request> request,
+    std::shared_ptr<simulated_world_nws_ros2_msgs::srv::MakeActor::Response> response)
+{
+    (void)request_header;
+    std::lock_guard<std::mutex> lock(m_mutex);
+    if (!m_iSim)
+    {
+        response->success = false;
+        return;
+    }
+
+    auto ret = m_iSim->makeActor(request->id, request->filename_skin, request->filename_animation, toYarpPose(request->pose));
     response->success = static_cast<bool>(ret);
 }
 
