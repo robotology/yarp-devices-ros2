@@ -151,6 +151,7 @@ bool SimulatedWorld_nws_ros2::close()
     yCTrace(SIMULATEDWORLD_NWS_ROS2, "Close");
 
     // Stop and delete the spinner
+    rclcpp::shutdown();
     if (m_spinner) {
         m_spinner->stop();
         delete m_spinner;
@@ -158,7 +159,6 @@ bool SimulatedWorld_nws_ros2::close()
     }
 
     detach();
-    rclcpp::shutdown();
     return true;
 }
 
