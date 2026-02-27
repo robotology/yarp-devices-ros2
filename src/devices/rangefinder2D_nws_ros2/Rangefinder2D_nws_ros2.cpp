@@ -138,7 +138,7 @@ void Rangefinder2D_nws_ros2::run()
         }
         else
         {
-            yCError(RANGEFINDER2D_NWS_ROS2, "Sensor returned error");
+            yCErrorThrottle(RANGEFINDER2D_NWS_ROS2, 5, "Sensor returned error");
         }
     }
 }
