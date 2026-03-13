@@ -399,6 +399,13 @@ void HapticDevice_nws_ros2::run()
         trans_msg.translation.x = trans(0, 3);
         trans_msg.translation.y = trans(1, 3);
         trans_msg.translation.z = trans(2, 3);
+
+        KDL::Rotation rot(trans(0,0), trans(0,1), trans(0,2),
+                          trans(1,0), trans(1,1), trans(1,2),
+                          trans(2,0), trans(2,1), trans(2,2));
+        rot.GetQuaternion(trans_msg.rotation.x, trans_msg.rotation.y,
+                          trans_msg.rotation.z, trans_msg.rotation.w);
+
         m_transform->publish(trans_msg);
 
         // Force mode
