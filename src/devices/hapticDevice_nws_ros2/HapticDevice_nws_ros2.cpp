@@ -3,9 +3,7 @@
 #include "HapticDevice_nws_ros2.h"
 
 #include <cmath>
-#include <algorithm>
-#include <vector>
-#include <kdl/frames.hpp>
+#include <yarp/math/Math.h>
 #include <yarp/os/LogStream.h>
 #include <Ros2Utils.h>
 
@@ -368,9 +366,13 @@ void HapticDevice_nws_ros2::run()
         pose_msg.position.y = pos[1];
         pose_msg.position.z = pos[2];
 
-        const auto ori = KDL::Rotation::RPY(rpy[0], rpy[1], rpy[2]);
-        ori.GetQuaternion(pose_msg.orientation.x, pose_msg.orientation.y,
-                          pose_msg.orientation.z, pose_msg.orientation.w);
+        yarp::sig::Matrix pose_matrix = yarp::math::rpy2dcm(rpy);
+        yarp::math::Quaternion pose_q;
+        pose_q.fromRotationMatrix(pose_matrix);
+        pose_msg.orientation.x = pose_q.x();
+        pose_msg.orientation.y = pose_q.y();
+        pose_msg.orientation.z = pose_q.z();
+        pose_msg.orientation.w = pose_q.w();
         m_stat->publish(pose_msg);
 
         // Buttons
@@ -395,17 +397,18 @@ void HapticDevice_nws_ros2::run()
         // Transform
         yarp::sig::Matrix trans;
         iHapticDevice->getTransformation(trans);
+
         geometry_msgs::msg::Transform trans_msg;
         trans_msg.translation.x = trans(0, 3);
         trans_msg.translation.y = trans(1, 3);
         trans_msg.translation.z = trans(2, 3);
 
-        KDL::Rotation rot(trans(0,0), trans(0,1), trans(0,2),
-                          trans(1,0), trans(1,1), trans(1,2),
-                          trans(2,0), trans(2,1), trans(2,2));
-        rot.GetQuaternion(trans_msg.rotation.x, trans_msg.rotation.y,
-                          trans_msg.rotation.z, trans_msg.rotation.w);
-
+        yarp::math::Quaternion trans_q;
+        trans_q.fromRotationMatrix(trans);
+        trans_msg.rotation.x = trans_q.x();
+        trans_msg.rotation.y = trans_q.y();
+        trans_msg.rotation.z = trans_q.z();
+        trans_msg.rotation.w = trans_q.w();
         m_transform->publish(trans_msg);
 
         // Force mode

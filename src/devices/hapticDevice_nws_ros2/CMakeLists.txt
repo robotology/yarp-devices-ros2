@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2023 Istituto Italiano di Tecnologia (IIT)
 # SPDX-License-Identifier: BSD-3-Clause
 
-find_package(orocos_kdl REQUIRED)
+find_package(YARP_math)
 
 yarp_prepare_plugin(
   hapticDevice_nws_ros2
@@ -11,6 +11,7 @@ yarp_prepare_plugin(
   EXTRA_CONFIG WRAPPER=hapticDevice_nws_ros2
   DEFAULT ON
   INTERNAL ON
+  DEPENDS "YARP_math_FOUND"
 )
 
 if(NOT SKIP_hapticDevice_nws_ros2)
@@ -45,8 +46,8 @@ if(NOT SKIP_hapticDevice_nws_ros2)
       std_msgs::std_msgs__rosidl_typesupport_cpp
       std_srvs::std_srvs__rosidl_typesupport_cpp
       geometry_msgs::geometry_msgs__rosidl_typesupport_cpp
-      orocos-kdl
       Ros2Utils
+      YARP::YARP_math
   )
 
   yarp_install(
