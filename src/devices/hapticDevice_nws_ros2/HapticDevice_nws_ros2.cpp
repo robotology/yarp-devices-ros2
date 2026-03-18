@@ -3,9 +3,7 @@
 #include "HapticDevice_nws_ros2.h"
 
 #include <cmath>
-#include <algorithm>
-#include <vector>
-#include <kdl/frames.hpp>
+#include <yarp/math/Math.h>
 #include <yarp/os/LogStream.h>
 #include <Ros2Utils.h>
 
@@ -44,7 +42,7 @@ bool HapticDevice_nws_ros2::subscriberConfigureRosHandlers()
 
     m_feedback = m_node->create_subscription<sensor_msgs::msg::JointState>(
         prefix + "/feedback", 10,
-        std::bind(&HapticDevice_nws_ros2::_feedbackCallback, this, std::placeholders::_1));
+        std::bind(&HapticDevice_nws_ros2::feedbackCallback, this, std::placeholders::_1));
 
     if (!m_feedback)
     {
@@ -54,7 +52,7 @@ bool HapticDevice_nws_ros2::subscriberConfigureRosHandlers()
 
     m_setTransformation = m_node->create_subscription<geometry_msgs::msg::Transform>(
         prefix + "/set_transformation", 10,
-        std::bind(&HapticDevice_nws_ros2::_setTransformationCallback, this, std::placeholders::_1));
+        std::bind(&HapticDevice_nws_ros2::setTransformationCallback, this, std::placeholders::_1));
 
     if (!m_setTransformation)
     {
@@ -119,7 +117,7 @@ void HapticDevice_nws_ros2::destroyRosHandlers()
 }
 
 // -----------------------------------------------------------------------------
-void HapticDevice_nws_ros2::_feedbackCallback(const sensor_msgs::msg::JointState::SharedPtr msg)
+void HapticDevice_nws_ros2::feedbackCallback(const sensor_msgs::msg::JointState::SharedPtr msg)
 {
     if (iHapticDevice != nullptr)
     {
@@ -138,7 +136,7 @@ void HapticDevice_nws_ros2::_feedbackCallback(const sensor_msgs::msg::JointState
     }
 }
 
-void HapticDevice_nws_ros2::_setTransformationCallback(const geometry_msgs::msg::Transform::SharedPtr msg)
+void HapticDevice_nws_ros2::setTransformationCallback(const geometry_msgs::msg::Transform::SharedPtr msg)
 {
     if (iHapticDevice == nullptr)
     {
@@ -150,22 +148,18 @@ void HapticDevice_nws_ros2::_setTransformationCallback(const geometry_msgs::msg:
     T.eye();
 
     const auto& q = msg->rotation;
-    
-    // Quaternion to rotation matrix
-    double qx = q.x, qy = q.y, qz = q.z, qw = q.w;
-    T(0, 0) = 1.0 - 2.0*(qy*qy + qz*qz);
-    T(0, 1) = 2.0*(qx*qy - qz*qw);
-    T(0, 2) = 2.0*(qx*qz + qy*qw);
-    T(1, 0) = 2.0*(qx*qy + qz*qw);
-    T(1, 1) = 1.0 - 2.0*(qx*qx + qz*qz);
-    T(1, 2) = 2.0*(qy*qz - qx*qw);
-    T(2, 0) = 2.0*(qx*qz - qy*qw);
-    T(2, 1) = 2.0*(qy*qz + qx*qw);
-    T(2, 2) = 1.0 - 2.0*(qx*qx + qy*qy);
+    const auto& t = msg->translation;
 
-    T(0, 3) = msg->translation.x;
-    T(1, 3) = msg->translation.y;
-    T(2, 3) = msg->translation.z;
+    // Quaternion to rotation matrix
+    yarp::math::Quaternion yarp_q;
+    yarp_q.x() = q.x;
+    yarp_q.y() = q.y;
+    yarp_q.z() = q.z;
+    yarp_q.w() = q.w;
+    T.setSubmatrix(yarp_q.toRotationMatrix3x3(), 0, 0);
+    T(0, 3) = t.x;
+    T(1, 3) = t.y;
+    T(2, 3) = t.z;
 
     if (!iHapticDevice->setTransformation(T))
     {
@@ -341,6 +335,8 @@ bool HapticDevice_nws_ros2::close()
         {
             m_spinner->stop();
         }
+        delete m_spinner;
+        m_spinner = nullptr;
     }
 
     if (PeriodicThread::isRunning())
@@ -359,60 +355,75 @@ void HapticDevice_nws_ros2::run()
     if (iHapticDevice != nullptr)
     {
         // Pose
-        yarp::sig::Vector pos, rpy;
-        iHapticDevice->getPosition(pos);
-        iHapticDevice->getOrientation(rpy);
+        yarp::sig::Vector pos;
+        yarp::sig::Vector rpy;
+        if (iHapticDevice->getPosition(pos) && pos.size() >= 3 &&
+            iHapticDevice->getOrientation(rpy) && rpy.size() >= 3)
+        {
+            geometry_msgs::msg::Pose pose_msg;
+            pose_msg.position.x = pos[0];
+            pose_msg.position.y = pos[1];
+            pose_msg.position.z = pos[2];
 
-        geometry_msgs::msg::Pose pose_msg;
-        pose_msg.position.x = pos[0];
-        pose_msg.position.y = pos[1];
-        pose_msg.position.z = pos[2];
-
-        const auto ori = KDL::Rotation::RPY(rpy[0], rpy[1], rpy[2]);
-        ori.GetQuaternion(pose_msg.orientation.x, pose_msg.orientation.y,
-                          pose_msg.orientation.z, pose_msg.orientation.w);
-        m_stat->publish(pose_msg);
+            yarp::sig::Matrix pose_matrix = yarp::math::rpy2dcm(rpy);
+            yarp::math::Quaternion pose_q;
+            pose_q.fromRotationMatrix(pose_matrix);
+            pose_msg.orientation.x = pose_q.x();
+            pose_msg.orientation.y = pose_q.y();
+            pose_msg.orientation.z = pose_q.z();
+            pose_msg.orientation.w = pose_q.w();
+            m_stat->publish(pose_msg);
+        }
 
         // Buttons
-        std_msgs::msg::Int32MultiArray btn_msg;
         yarp::sig::Vector buttons;
-        iHapticDevice->getButtons(buttons);
-        for (size_t i = 0; i < buttons.size(); ++i)
+        if (iHapticDevice->getButtons(buttons))
         {
-            btn_msg.data.push_back(static_cast<int>(buttons[i]));
+            std_msgs::msg::Int32MultiArray btn_msg;
+            for (size_t i = 0; i < buttons.size(); ++i)
+            {
+                btn_msg.data.push_back(static_cast<int>(buttons[i]));
+            }
+            m_buttons->publish(btn_msg);
         }
-        m_buttons->publish(btn_msg);
 
         // Force Feedback
         yarp::sig::Vector force;
-        iHapticDevice->getMaxFeedback(force);
-        geometry_msgs::msg::Wrench force_msg;
-        force_msg.force.x = force[0];
-        force_msg.force.y = force[1];
-        force_msg.force.z = force[2];
-        m_force->publish(force_msg);
+        if (iHapticDevice->getMaxFeedback(force) && force.size() >= 3)
+        {
+            geometry_msgs::msg::Wrench force_msg;
+            force_msg.force.x = force[0];
+            force_msg.force.y = force[1];
+            force_msg.force.z = force[2];
+            m_force->publish(force_msg);
+        }
 
         // Transform
         yarp::sig::Matrix trans;
-        iHapticDevice->getTransformation(trans);
-        geometry_msgs::msg::Transform trans_msg;
-        trans_msg.translation.x = trans(0, 3);
-        trans_msg.translation.y = trans(1, 3);
-        trans_msg.translation.z = trans(2, 3);
+        if (iHapticDevice->getTransformation(trans) && trans.rows() >= 3 && trans.cols() >= 4)
+        {
+            geometry_msgs::msg::Transform trans_msg;
+            trans_msg.translation.x = trans(0, 3);
+            trans_msg.translation.y = trans(1, 3);
+            trans_msg.translation.z = trans(2, 3);
 
-        KDL::Rotation rot(trans(0,0), trans(0,1), trans(0,2),
-                          trans(1,0), trans(1,1), trans(1,2),
-                          trans(2,0), trans(2,1), trans(2,2));
-        rot.GetQuaternion(trans_msg.rotation.x, trans_msg.rotation.y,
-                          trans_msg.rotation.z, trans_msg.rotation.w);
-
-        m_transform->publish(trans_msg);
+            yarp::math::Quaternion trans_q;
+            trans_q.fromRotationMatrix(trans);
+            trans_msg.rotation.x = trans_q.x();
+            trans_msg.rotation.y = trans_q.y();
+            trans_msg.rotation.z = trans_q.z();
+            trans_msg.rotation.w = trans_q.w();
+            m_transform->publish(trans_msg);
+        }
 
         // Force mode
         bool isForce = false;
-        iHapticDevice->isCartesianForceModeEnabled(isForce);
-        std_msgs::msg::Bool mode_msg;
-        mode_msg.data = isForce;
-        m_forceMode->publish(mode_msg);
+        if (iHapticDevice->isCartesianForceModeEnabled(isForce))
+        {
+            std_msgs::msg::Bool mode_msg;
+            mode_msg.data = isForce;
+            m_forceMode->publish(mode_msg);
+        }
+
     }
 }

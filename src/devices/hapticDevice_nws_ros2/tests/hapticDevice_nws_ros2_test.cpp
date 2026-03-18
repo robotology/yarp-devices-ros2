@@ -28,7 +28,7 @@ TEST_CASE("dev::hapticDevice_nws_ros2_test", "[yarp::dev]")
             Property pcfg;
             pcfg.put("device",     "hapticDevice_nws_ros2");
             pcfg.put("node_name",  "haptic_node");
-            pcfg.put("topic_name", "/hapticDevice_nws_ros2/haptic");
+            pcfg.put("topic_name", "hapticDevice_nws_ros2/haptic");
             REQUIRE(ddnws.open(pcfg));
         }
 
@@ -48,7 +48,7 @@ TEST_CASE("dev::hapticDevice_nws_ros2_test", "[yarp::dev]")
             Property pcfg;
             pcfg.put("device",    "hapticDevice_nws_ros2");
             pcfg.put("node_name", "haptic_node");
-            pcfg.put("topic_name", "/hapticDevice_nws_ros2/haptic");
+            pcfg.put("topic_name", "hapticDevice_nws_ros2/haptic");
             REQUIRE(ddnws.open(pcfg));
         }
 

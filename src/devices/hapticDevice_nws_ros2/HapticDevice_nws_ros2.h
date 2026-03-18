@@ -73,8 +73,8 @@ private:
     void destroyRosHandlers();
 
     // Callbacks
-    void _feedbackCallback(const sensor_msgs::msg::JointState::SharedPtr msg);
-    void _setTransformationCallback(const geometry_msgs::msg::Transform::SharedPtr msg);
+    void feedbackCallback(const sensor_msgs::msg::JointState::SharedPtr msg);
+    void setTransformationCallback(const geometry_msgs::msg::Transform::SharedPtr msg);
     void setForceModeCallback(
         const std::shared_ptr<std_srvs::srv::SetBool::Request> request,
         std::shared_ptr<std_srvs::srv::SetBool::Response> response);
