@@ -1,0 +1,5 @@
+# srv/GetValue.srv
+---
+geometry_msgs/Wrench max_feedback
+string response "NOT_SPECIFIED"
+bool success 

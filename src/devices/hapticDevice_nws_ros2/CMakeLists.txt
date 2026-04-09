@@ -46,6 +46,7 @@ if(NOT SKIP_hapticDevice_nws_ros2)
       std_msgs::std_msgs__rosidl_typesupport_cpp
       std_srvs::std_srvs__rosidl_typesupport_cpp
       geometry_msgs::geometry_msgs__rosidl_typesupport_cpp
+      yarp_control_msgs::yarp_control_msgs__rosidl_typesupport_cpp
       Ros2Utils
       YARP::YARP_math
   )
