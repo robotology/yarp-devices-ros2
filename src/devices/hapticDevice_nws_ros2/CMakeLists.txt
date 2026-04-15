@@ -39,10 +39,8 @@ if(NOT SKIP_hapticDevice_nws_ros2)
   target_link_libraries(yarp_hapticDevice_nws_ros2
     PRIVATE
       YARP::YARP_os
-      YARP::YARP_sig
       YARP::YARP_dev
       rclcpp::rclcpp
-      sensor_msgs::sensor_msgs__rosidl_typesupport_cpp
       std_msgs::std_msgs__rosidl_typesupport_cpp
       std_srvs::std_srvs__rosidl_typesupport_cpp
       geometry_msgs::geometry_msgs__rosidl_typesupport_cpp

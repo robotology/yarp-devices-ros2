@@ -24,7 +24,6 @@ bool HapticDevice_nws_ros2::publisherConfigureRosHandlers()
     m_buttons = m_node->create_publisher<std_msgs::msg::Int32MultiArray>(
         prefix + "/state/buttons", 10);
 
-
     return true;
 }
 
@@ -32,7 +31,7 @@ bool HapticDevice_nws_ros2::subscriberConfigureRosHandlers()
 {
     const auto prefix = "/" + m_topic_name;
 
-    m_feedback = m_node->create_subscription<sensor_msgs::msg::JointState>(
+    m_feedback = m_node->create_subscription<geometry_msgs::msg::Vector3>(
         prefix + "/feedback", 10,
         std::bind(&HapticDevice_nws_ros2::feedbackCallback, this, std::placeholders::_1));
 
@@ -45,22 +44,32 @@ bool HapticDevice_nws_ros2::subscriberConfigureRosHandlers()
     return true;
 }
 
+bool HapticDevice_nws_ros2::configureRosParameters()
+{
+    std::map<int, double> params;
+    constexpr const char* DEFAULT_MODE_FEEDBACK = "cartesian";
+
+    // Declare node Parameters
+    rcl_interfaces::msg::ParameterDescriptor descriptor_msg;
+    descriptor_msg.name = "mode_feedback";
+    descriptor_msg.description = "Defines the type of the feedback, cartesian or joint.";
+    descriptor_msg.read_only = false;
+    descriptor_msg.additional_constraints = "Only 'cartesian' or 'joint' are allowed.";
+    descriptor_msg.set__type(rcl_interfaces::msg::ParameterType::PARAMETER_STRING);
+
+    m_node->declare_parameter<std::string>("mode_feedback", DEFAULT_MODE_FEEDBACK, descriptor_msg);
+    m_node->get_parameter("mode_feedback", mode_feedback);
+
+    m_params = m_node->add_on_set_parameters_callback([this](const auto & parameters) {
+        return parameter_callback(parameters);
+    });
+
+    return true;
+}
+
 bool HapticDevice_nws_ros2::servicesConfigureRosHandlers()
 {
     const auto prefix = "/" + m_topic_name;
-
-    m_setForceModeService = m_node->create_service<std_srvs::srv::SetBool>(
-        prefix + "/set_force_mode",
-        std::bind(&HapticDevice_nws_ros2::setForceModeCallback,
-                  this,
-                  std::placeholders::_1,
-                  std::placeholders::_2));
-
-    if (!m_setForceModeService)
-    {
-        yCError(HAPTICDEVICE_NWS_ROS2) << "Could not initialize the SetForceMode service";
-        return false;
-    }
 
     m_stopFeedbackService = m_node->create_service<std_srvs::srv::Trigger>(
         prefix + "/stop_feedback",
@@ -75,30 +84,15 @@ bool HapticDevice_nws_ros2::servicesConfigureRosHandlers()
         return false;
     }
 
-    m_forceMode = m_node->create_service<std_srvs::srv::Trigger>(
-        prefix + "/state/force_mode",
-        std::bind(&HapticDevice_nws_ros2::forceModeCallback,
-            this,
-            std::placeholders::_1,
-            std::placeholders::_2
-        )
-    );
-
-    if (!m_forceMode)
-    {
-        yCError(HAPTICDEVICE_NWS_ROS2) << "Could not initialize the forceMode service";
-        return false;
-    }
-
     m_maxForce = m_node->create_service<yarp_control_msgs::srv::GetMaxFeedback>(
-        prefix + "/state/max_force_feedback", 
-        std::bind(&HapticDevice_nws_ros2::maxForceFeedbackCallback,
+        prefix + "/get_max_feedback",
+        std::bind(&HapticDevice_nws_ros2::maxFeedbackCallback,
             this,
             std::placeholders::_1,
             std::placeholders::_2
         )
     );
-    
+
     if (!m_maxForce)
     {
         yCError(HAPTICDEVICE_NWS_ROS2) << "Could not initialize the MaxForceFeedback service";
@@ -106,15 +100,21 @@ bool HapticDevice_nws_ros2::servicesConfigureRosHandlers()
     }
 
     m_getTransformation = m_node->create_service<yarp_control_msgs::srv::GetTransformation>(
-        prefix + "/state/transform",
+        prefix + "/get_transform",
         std::bind(&HapticDevice_nws_ros2::getTransformationCallback,
             this,
             std::placeholders::_1,
             std::placeholders::_2
         ));
-     
+
+    if (!m_getTransformation)
+    {
+        yCError(HAPTICDEVICE_NWS_ROS2) << "Could not initialize the get_transformation service";
+        return false;
+    }
+
     m_setTransformation = m_node->create_service<yarp_control_msgs::srv::SetTransformation>(
-        prefix + "/set_transformation",
+        prefix + "/set_transform",
         std::bind(&HapticDevice_nws_ros2::setTransformationCallback,
             this,
             std::placeholders::_1,
@@ -141,24 +141,25 @@ void HapticDevice_nws_ros2::destroyRosHandlers()
     m_feedback.reset();
 
     // Services
-    m_setForceModeService.reset();
     m_stopFeedbackService.reset();
     m_maxForce.reset();
     m_getTransformation.reset();
     m_setTransformation.reset();
-    m_forceMode.reset();
+
+    // Parameters
+    m_params.reset();
 }
 // -----------------------------------------------------------------------------
-void HapticDevice_nws_ros2::feedbackCallback(const sensor_msgs::msg::JointState::SharedPtr msg)
+void HapticDevice_nws_ros2::feedbackCallback(const geometry_msgs::msg::Vector3::SharedPtr msg)
 {
     if (iHapticDevice != nullptr)
     {
         yarp::sig::Vector force(3, 0.0);
-        if (msg->effort.size() >= 3)
+        if (msg->x != 0.0 || msg->y != 0.0 || msg->z != 0.0)
         {
-            force[0] = msg->effort[0];
-            force[1] = msg->effort[1];
-            force[2] = msg->effort[2];
+            force[0] = msg->x;
+            force[1] = msg->y;
+            force[2] = msg->z;
         }
         iHapticDevice->setFeedback(force);
     }
@@ -166,6 +167,45 @@ void HapticDevice_nws_ros2::feedbackCallback(const sensor_msgs::msg::JointState:
     {
         yCError(HAPTICDEVICE_NWS_ROS2) << "IHapticDevice interface not available in feedback callback";
     }
+}
+
+// -----------------------------------------------------------------------------
+void HapticDevice_nws_ros2::getTransformationCallback(
+    const std::shared_ptr<yarp_control_msgs::srv::GetTransformation::Request> request,
+    std::shared_ptr<yarp_control_msgs::srv::GetTransformation::Response> response)
+{
+    if (!iHapticDevice)
+    {
+        yCError(HAPTICDEVICE_NWS_ROS2) << "IHapticDevice interface not available";
+        response->success = false;
+        response->response = "IHapticDevice interface not available";
+        return;
+    }
+    // Transform
+    yarp::sig::Matrix trans;
+    if (!iHapticDevice->getTransformation(trans) || trans.rows() < 3 || trans.cols() < 4)
+    {
+        yCError(HAPTICDEVICE_NWS_ROS2) << "Failed to get transformation";
+        response->success = false;
+        response->response = "Failed to get transformation";
+        return;
+    }
+
+    geometry_msgs::msg::Transform trans_msg;
+    trans_msg.translation.x = trans(0, 3);
+    trans_msg.translation.y = trans(1, 3);
+    trans_msg.translation.z = trans(2, 3);
+
+    yarp::math::Quaternion trans_q;
+    yarp::sig::Matrix R = trans.submatrix(0,2,0,2);
+    trans_q.fromRotationMatrix(R);
+    trans_msg.rotation.x = trans_q.x();
+    trans_msg.rotation.y = trans_q.y();
+    trans_msg.rotation.z = trans_q.z();
+    trans_msg.rotation.w = trans_q.w();
+
+    response->transform = trans_msg;
+    response->success = true;
 }
 
 void HapticDevice_nws_ros2::setTransformationCallback(
@@ -210,79 +250,8 @@ void HapticDevice_nws_ros2::setTransformationCallback(
         response->success = false;
         return;
     }
-    
+
     response->success = true;
-}
-
-void HapticDevice_nws_ros2::getTransformationCallback(
-    const std::shared_ptr<yarp_control_msgs::srv::GetTransformation::Request> request,
-    std::shared_ptr<yarp_control_msgs::srv::GetTransformation::Response> response)
-{
-    if (!iHapticDevice)
-    {
-        yCError(HAPTICDEVICE_NWS_ROS2) << "IHapticDevice interface not available";
-        response->success = false;
-        response->response = "IHapticDevice interface not available";
-        return;
-    }
-    // Transform
-    yarp::sig::Matrix trans;
-    if (!iHapticDevice->getTransformation(trans) || trans.rows() < 3 || trans.cols() < 4)
-    {
-        yCError(HAPTICDEVICE_NWS_ROS2) << "Failed to get transformation";
-        response->success = false;
-        response->response = "Failed to get transformation";
-        return;
-    }
-
-    geometry_msgs::msg::Transform trans_msg;
-    trans_msg.translation.x = trans(0, 3);
-    trans_msg.translation.y = trans(1, 3);
-    trans_msg.translation.z = trans(2, 3);
-
-    yarp::math::Quaternion trans_q;
-    yarp::sig::Matrix R = trans.submatrix(0,2,0,2);
-    trans_q.fromRotationMatrix(R);
-    trans_msg.rotation.x = trans_q.x();
-    trans_msg.rotation.y = trans_q.y();
-    trans_msg.rotation.z = trans_q.z();
-    trans_msg.rotation.w = trans_q.w();
-
-    response->transform = trans_msg;
-    response->success = true;
-}
-
-void HapticDevice_nws_ros2::setForceModeCallback(
-    const std::shared_ptr<std_srvs::srv::SetBool::Request> request,
-    std::shared_ptr<std_srvs::srv::SetBool::Response> response)
-{
-    if (!iHapticDevice)
-    {
-        yCError(HAPTICDEVICE_NWS_ROS2) << "IHapticDevice interface not available";
-        response->success = false;
-        response->message = "IHapticDevice interface not available";
-        return;
-    }
-
-    bool result = request->data ?
-                  iHapticDevice->setCartesianForceMode() :
-                  iHapticDevice->setJointTorqueMode();
-
-    response->message = request->data ?
-                          "Cartesian Force mode enabled" :
-                          "Joint Torque mode enabled";
-
-    if (result)
-    {
-        yCInfo(HAPTICDEVICE_NWS_ROS2) << response->message;
-        response->success = true;
-    }
-    else
-    {
-        yCError(HAPTICDEVICE_NWS_ROS2) << "Failed to set haptic mode";
-        response->success = false;
-        response->message = "Failed to set haptic mode";
-    }
 }
 
 void HapticDevice_nws_ros2::stopFeedbackCallback(
@@ -311,33 +280,7 @@ void HapticDevice_nws_ros2::stopFeedbackCallback(
     }
 }
 
-void HapticDevice_nws_ros2::forceModeCallback(
-    const std::shared_ptr<std_srvs::srv::Trigger::Request> request,
-    std::shared_ptr<std_srvs::srv::Trigger::Response> response)
-{
-    if (!iHapticDevice)
-    {
-        yCError(HAPTICDEVICE_NWS_ROS2) << "IHapticDevice interface not available";
-        response->success = false;
-        response->message = "IHapticDevice interface not available";
-        return;
-    }
-
-
-    bool is_force_mode;
-    if (!iHapticDevice->isCartesianForceModeEnabled(is_force_mode))
-    {
-        yCError(HAPTICDEVICE_NWS_ROS2) << "Failed to get haptic mode";
-        response->success = false;
-        response->message = "Failed to get haptic mode";
-        return;
-    }
-
-    response->success = true;
-    response->message = is_force_mode ? "Currently in Cartesian Force mode" : "Currently in Joint Torque mode";
-}
-
-void HapticDevice_nws_ros2::maxForceFeedbackCallback(
+void HapticDevice_nws_ros2::maxFeedbackCallback(
     const std::shared_ptr<yarp_control_msgs::srv::GetMaxFeedback::Request> request,
     std::shared_ptr<yarp_control_msgs::srv::GetMaxFeedback::Response> response)
 {
@@ -357,13 +300,91 @@ void HapticDevice_nws_ros2::maxForceFeedbackCallback(
         return;
     }
 
-    geometry_msgs::msg::Wrench force_msg;
-    force_msg.force.x = force[0];
-    force_msg.force.y = force[1];
-    force_msg.force.z = force[2];
+    geometry_msgs::msg::Vector3 force_msg;
+    force_msg.x = force[0];
+    force_msg.y = force[1];
+    force_msg.z = force[2];
 
     response->max_feedback = force_msg;
     response->success = true;
+}
+
+// -----------------------------------------------------------------------------
+rcl_interfaces::msg::SetParametersResult HapticDevice_nws_ros2::parameter_callback(
+    const std::vector<rclcpp::Parameter> &parameters)
+{
+    rcl_interfaces::msg::SetParametersResult result;
+    result.successful = true;
+
+    for (const auto & param : parameters)
+    {
+        if (param.get_name() == "mode_feedback")
+        {
+            std::string new_mode = param.value_to_string();
+            if (mode_feedback != new_mode)
+            {
+                bool success = forceModeCallback(new_mode);
+                if (success)
+                {
+                    mode_feedback = new_mode;
+                }
+                else
+                {
+                    result.successful = false;
+                    result.reason = "Failed to set mode_feedback to " + new_mode;
+                    yCError(HAPTICDEVICE_NWS_ROS2) << result.reason;
+                }
+            }
+        }
+        else
+        {
+            yCWarning(HAPTICDEVICE_NWS_ROS2, "Parameter '%s' is not recognized. Ignoring.", param.get_name().c_str());
+        }
+    }
+
+    return result;
+}
+
+bool HapticDevice_nws_ros2::forceModeCallback(const std::string& mode)
+{
+    if (!iHapticDevice)
+    {
+        yCError(HAPTICDEVICE_NWS_ROS2) << "IHapticDevice interface not available";
+        return false;
+    }
+
+    if (mode != "cartesian" && mode != "joint")
+    {
+        yCError(HAPTICDEVICE_NWS_ROS2, "Invalid value for mode_feedback: %s. Allowed values are 'cartesian' or 'joint'", mode.c_str());
+        return false;
+    }
+
+    bool success = (mode == "cartesian")
+        ? iHapticDevice->setCartesianForceMode()
+        : iHapticDevice->setJointTorqueMode();
+
+    if (!success)
+    {
+        yCError(HAPTICDEVICE_NWS_ROS2) << "Failed to set haptic mode";
+        return false;
+    }
+
+    bool is_force_mode;
+    if (!iHapticDevice->isCartesianForceModeEnabled(is_force_mode))
+    {
+        yCError(HAPTICDEVICE_NWS_ROS2) << "Failed to get haptic mode";
+        return false;
+    }
+
+    bool expected_force_mode = (mode == "cartesian");
+    if (is_force_mode != expected_force_mode)
+    {
+        yCError(HAPTICDEVICE_NWS_ROS2) << "Switched to" << mode << "mode failed";
+        return false;
+    }
+
+    yCInfo(HAPTICDEVICE_NWS_ROS2) << "Switched to" << mode << "mode successfully";
+    return true;
 }
 
 // -----------------------------------------------------------------------------
@@ -387,7 +408,8 @@ bool HapticDevice_nws_ros2::attach(yarp::dev::PolyDriver * poly)
         return false;
     }
 
-    if (!publisherConfigureRosHandlers() || !subscriberConfigureRosHandlers() || !servicesConfigureRosHandlers())
+    if (!publisherConfigureRosHandlers() || !subscriberConfigureRosHandlers()
+        || !servicesConfigureRosHandlers() || !configureRosParameters())
     {
         yCError(HAPTICDEVICE_NWS_ROS2) << "Failed to configure ROS handlers";
         destroyRosHandlers();
@@ -413,17 +435,13 @@ bool HapticDevice_nws_ros2::attach(yarp::dev::PolyDriver * poly)
     return true;
 }
 
-bool HapticDevice_nws_ros2::threadInit()
-{
-    return true;
-}
-
 // -----------------------------------------------------------------------------
+
 bool HapticDevice_nws_ros2::detach()
 {
-    if (PeriodicThread::isRunning())
+    if (yarp::os::PeriodicThread::isRunning())
     {
-        PeriodicThread::stop();
+        yarp::os::PeriodicThread::stop();
     }
     destroyRosHandlers();
     iHapticDevice = nullptr;
@@ -434,7 +452,11 @@ bool HapticDevice_nws_ros2::detach()
 
 bool HapticDevice_nws_ros2::open(yarp::os::Searchable & config)
 {
-    parseParams(config);
+    if (!parseParams(config))
+    {
+        yCError(HAPTICDEVICE_NWS_ROS2) << "Failed to parse parameters";
+        return false;
+    }
 
     if (m_namespace.empty())
     {
@@ -447,7 +469,7 @@ bool HapticDevice_nws_ros2::open(yarp::os::Searchable & config)
 
     if (m_node == nullptr)
     {
-        yCError(HAPTICDEVICE_NWS_ROS2) << "Opening" << m_node_name << "Node failed, check your yarp-ROS2 network configuration";
+        yCError(HAPTICDEVICE_NWS_ROS2) << "Opening" << m_node_name << "node failed, check your YARP-ROS2 network configuration";
         return false;
     }
 
@@ -458,11 +480,8 @@ bool HapticDevice_nws_ros2::open(yarp::os::Searchable & config)
         return false;
     }
 
+    yCInfo(HAPTICDEVICE_NWS_ROS2) << "Node" << m_node_name << "launched successfully";
     return true;
-}
-
-void HapticDevice_nws_ros2::threadRelease()
-{
 }
 
 // -----------------------------------------------------------------------------
@@ -484,9 +503,7 @@ bool HapticDevice_nws_ros2::close()
         PeriodicThread::stop();
     }
 
-    detach();
-
-    return true;
+    return detach();
 }
 
 // -----------------------------------------------------------------------------
@@ -505,9 +522,9 @@ void HapticDevice_nws_ros2::run()
             pose_msg.position.y = pos[1];
             pose_msg.position.z = pos[2];
 
-            yarp::sig::Matrix pose_matrix = yarp::math::rpy2dcm(rpy);
+            yarp::sig::Matrix dcm = yarp::math::rpy2dcm(rpy);
             yarp::math::Quaternion pose_q;
-            pose_q.fromRotationMatrix(pose_matrix);
+            pose_q.fromRotationMatrix(dcm);
             pose_msg.orientation.x = pose_q.x();
             pose_msg.orientation.y = pose_q.y();
             pose_msg.orientation.z = pose_q.z();
@@ -517,7 +534,7 @@ void HapticDevice_nws_ros2::run()
 
         // Buttons
         yarp::sig::Vector buttons;
-        if (iHapticDevice->getButtons(buttons))
+        if (iHapticDevice->getButtons(buttons) && buttons.size() >= 1)
         {
             std_msgs::msg::Int32MultiArray btn_msg;
             for (size_t i = 0; i < buttons.size(); ++i)

@@ -7,25 +7,20 @@
 #define YARP_DEV_HAPTICDEVICE_NWS_ROS2_H
 
 #include <string>
+#include <vector>
 
 #include <yarp/dev/DeviceDriver.h>
 #include <yarp/dev/WrapperSingle.h>
 #include <yarp/dev/IHapticDevice.h>
 #include <yarp/os/PeriodicThread.h>
-#include <yarp/sig/Vector.h>
-#include <yarp/sig/Matrix.h>
 
 #include <Ros2Spinner.h>
 
 #include <rclcpp/rclcpp.hpp>
 #include <geometry_msgs/msg/pose.hpp>
-#include <geometry_msgs/msg/wrench.hpp>
-#include <geometry_msgs/msg/transform.hpp>
-#include <std_msgs/msg/bool.hpp>
+#include <geometry_msgs/msg/vector3.hpp>
 #include <std_msgs/msg/int32_multi_array.hpp>
-#include <std_srvs/srv/set_bool.hpp>
 #include <std_srvs/srv/trigger.hpp>
-#include <sensor_msgs/msg/joint_state.hpp>
 #include <yarp_control_msgs/srv/get_max_feedback.hpp>
 #include <yarp_control_msgs/srv/get_transformation.hpp>
 #include <yarp_control_msgs/srv/set_transformation.hpp>
@@ -64,8 +59,6 @@ public:
     bool detach() override;
 
     // yarp::os::PeriodicThread
-    bool threadInit() override;
-    void threadRelease() override;
     void run() override;
 
 private:
@@ -75,15 +68,14 @@ private:
     bool servicesConfigureRosHandlers();
     void destroyRosHandlers();
 
-    // Callbacks
-    void feedbackCallback(const sensor_msgs::msg::JointState::SharedPtr msg);
-    void setForceModeCallback(
-        const std::shared_ptr<std_srvs::srv::SetBool::Request> request,
-        std::shared_ptr<std_srvs::srv::SetBool::Response> response);
+    // Callbacks subscribed
+    void feedbackCallback(const geometry_msgs::msg::Vector3::SharedPtr msg);
+
+    // Callbacks for services
     void stopFeedbackCallback(
         const std::shared_ptr<std_srvs::srv::Trigger::Request> request,
         std::shared_ptr<std_srvs::srv::Trigger::Response> response);
-    void maxForceFeedbackCallback(
+    void maxFeedbackCallback(
         const std::shared_ptr<yarp_control_msgs::srv::GetMaxFeedback::Request> request,
         std::shared_ptr<yarp_control_msgs::srv::GetMaxFeedback::Response> response);
     void getTransformationCallback(
@@ -92,29 +84,34 @@ private:
     void setTransformationCallback(
         const std::shared_ptr<yarp_control_msgs::srv::SetTransformation::Request> request,
         std::shared_ptr<yarp_control_msgs::srv::SetTransformation::Response> response);
-    void forceModeCallback(
-        const std::shared_ptr<std_srvs::srv::Trigger::Request> request,
-        std::shared_ptr<std_srvs::srv::Trigger::Response> response);
-     
+
+    // Callbacks for parameters
+    bool configureRosParameters();
+    bool forceModeCallback(const std::string& mode);
+    rcl_interfaces::msg::SetParametersResult parameter_callback(
+        const std::vector<rclcpp::Parameter> & parameters);
+
     // ROS2 node and spinner
     rclcpp::Node::SharedPtr m_node;
     Ros2Spinner*            m_spinner {nullptr};
+    rclcpp::Node::OnSetParametersCallbackHandle::SharedPtr m_params;
 
     // Publishers
-    rclcpp::Publisher<geometry_msgs::msg::Pose>::SharedPtr                          m_stat;
-    rclcpp::Publisher<std_msgs::msg::Int32MultiArray>::SharedPtr                    m_buttons;
+    rclcpp::Publisher<geometry_msgs::msg::Pose>::SharedPtr                m_stat;
+    rclcpp::Publisher<std_msgs::msg::Int32MultiArray>::SharedPtr          m_buttons;
 
     // Subscribers
-    rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr                   m_feedback;
+    rclcpp::Subscription<geometry_msgs::msg::Vector3>::SharedPtr          m_feedback;
 
     // Services
-    rclcpp::Service<std_srvs::srv::SetBool>::SharedPtr                              m_setForceModeService;
-    rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr                              m_stopFeedbackService;
-    rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr                               m_forceMode;
-    rclcpp::Service<yarp_control_msgs::srv::GetMaxFeedback>::SharedPtr              m_maxForce;
-    rclcpp::Service<yarp_control_msgs::srv::GetTransformation>::SharedPtr           m_getTransformation;
-    rclcpp::Service<yarp_control_msgs::srv::SetTransformation>::SharedPtr           m_setTransformation;
-    
+    rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr                    m_stopFeedbackService;
+    rclcpp::Service<yarp_control_msgs::srv::GetMaxFeedback>::SharedPtr    m_maxForce;
+    rclcpp::Service<yarp_control_msgs::srv::GetTransformation>::SharedPtr m_getTransformation;
+    rclcpp::Service<yarp_control_msgs::srv::SetTransformation>::SharedPtr m_setTransformation;
+
+    // Parameters
+    std::string mode_feedback;
+
     // Device interface
     yarp::dev::IHapticDevice* iHapticDevice {nullptr};
 };
