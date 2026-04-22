@@ -8,7 +8,7 @@
 // This is an automatically generated file. Please do not edit it.
 // It will be re-generated if the cmake flag ALLOW_DEVICE_PARAM_PARSER_GERNERATION is ON.
 
-// Generated on: Thu Mar 12 20:45:30 2026
+// Generated on: Wed Apr 22 17:50:17 2026
 
 
 #ifndef HAPTICDEVICE_NWS_ROS2_PARAMSPARSER_H
@@ -23,16 +23,16 @@
 * This class is the parameters parser for class HapticDevice_nws_ros2.
 *
 * These are the used parameters:
-* | Group name | Parameter name | Type   | Units | Default Value      | Required | Description                        | Notes |
-* |:----------:|:--------------:|:------:|:-----:|:------------------:|:--------:|:----------------------------------:|:-----:|
-* | -          | period         | double | s     | 0.02               | 0        | refresh period                     | -     |
-* | -          | node_name      | string | -     | haptic_device_ros2 | 0        | name of node                       | -     |
-* | -          | namespace      | string | -     | haptic_device_ros2 | 0        | optional namespace for ros2 node   | -     |
-* | -          | topic_name     | string | -     | haptic_device_ros2 | 0        | topic name where publish (not '/') | -     |
+* | Group name | Parameter name | Type   | Units | Default Value         | Required | Description                        | Notes |
+* |:----------:|:--------------:|:------:|:-----:|:---------------------:|:--------:|:----------------------------------:|:-----:|
+* | -          | period         | double | s     | 0.02                  | 0        | refresh period                     | -     |
+* | -          | node_name      | string | -     | hapticDevice_nws_ros2 | 0        | name of node                       | -     |
+* | -          | namespace      | string | -     | -                     | 0        | optional namespace for ros2 node   | -     |
+* | -          | topic_name     | string | -     | -                     | 0        | topic name where publish (not '/') | -     |
 *
 * The device can be launched by yarpdev using one of the following examples (with and without all optional parameters):
 * \code{.unparsed}
-* yarpdev --device hapticDevice_nws_ros2 --period 0.02 --node_name haptic_device_ros2 --namespace haptic_device_ros2 --topic_name haptic_device_ros2
+* yarpdev --device hapticDevice_nws_ros2 --period 0.02 --node_name hapticDevice_nws_ros2 --namespace <optional_value> --topic_name <optional_value>
 * \endcode
 *
 * \code{.unparsed}
@@ -61,14 +61,14 @@ public:
     std::string m_provided_configuration;
 
     const std::string m_period_defaultValue = {"0.02"};
-    const std::string m_node_name_defaultValue = {"haptic_device_ros2"};
-    const std::string m_namespace_defaultValue = {"haptic_device_ros2"};
-    const std::string m_topic_name_defaultValue = {"haptic_device_ros2"};
+    const std::string m_node_name_defaultValue = {"hapticDevice_nws_ros2"};
+    const std::string m_namespace_defaultValue = {""};
+    const std::string m_topic_name_defaultValue = {""};
 
     double m_period = {0.02};
-    std::string m_node_name = {"haptic_device_ros2"};
-    std::string m_namespace = {"haptic_device_ros2"};
-    std::string m_topic_name = {"haptic_device_ros2"};
+    std::string m_node_name = {"hapticDevice_nws_ros2"};
+    std::string m_namespace = {}; //This default value of this string is an empty string. It is highly recommended to provide a suggested value also for optional string parameters.
+    std::string m_topic_name = {}; //This default value of this string is an empty string. It is highly recommended to provide a suggested value also for optional string parameters.
 
     bool          parseParams(const yarp::os::Searchable & config) override;
     std::string   getDeviceClassName() const override { return m_device_classname; }

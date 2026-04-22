@@ -16,7 +16,7 @@ HapticDevice_nws_ros2::HapticDevice_nws_ros2() : yarp::os::PeriodicThread(m_peri
 // -----------------------------------------------------------------------------
 bool HapticDevice_nws_ros2::publisherConfigureRosHandlers()
 {
-    const auto prefix = "/" + m_topic_name;
+    const auto prefix = m_topic_name.empty() ? "" : ("/" + m_topic_name);
 
     m_stat = m_node->create_publisher<geometry_msgs::msg::Pose>(
         prefix + "/state/pose", 10);
@@ -29,7 +29,7 @@ bool HapticDevice_nws_ros2::publisherConfigureRosHandlers()
 
 bool HapticDevice_nws_ros2::subscriberConfigureRosHandlers()
 {
-    const auto prefix = "/" + m_topic_name;
+    const auto prefix = m_topic_name.empty() ? "" : ("/" + m_topic_name);
 
     m_feedback = m_node->create_subscription<geometry_msgs::msg::Vector3>(
         prefix + "/feedback", 10,
@@ -69,7 +69,7 @@ bool HapticDevice_nws_ros2::configureRosParameters()
 
 bool HapticDevice_nws_ros2::servicesConfigureRosHandlers()
 {
-    const auto prefix = "/" + m_topic_name;
+    const auto prefix = m_topic_name.empty() ? "" : ("/" + m_topic_name);
 
     m_stopFeedbackService = m_node->create_service<std_srvs::srv::Trigger>(
         prefix + "/stop_feedback",

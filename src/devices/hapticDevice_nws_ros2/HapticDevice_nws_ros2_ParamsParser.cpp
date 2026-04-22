@@ -8,7 +8,7 @@
 // This is an automatically generated file. Please do not edit it.
 // It will be re-generated if the cmake flag ALLOW_DEVICE_PARAM_PARSER_GERNERATION is ON.
 
-// Generated on: Thu Mar 12 20:45:30 2026
+// Generated on: Wed Apr 22 17:50:17 2026
 
 
 #include "HapticDevice_nws_ros2_ParamsParser.h"
@@ -183,7 +183,7 @@ std::string      HapticDevice_nws_ros2_ParamsParser::getDocumentationOfDevicePar
     doc = doc + std::string("'topic_name': topic name where publish (not '/')\n");
     doc = doc + std::string("\n");
     doc = doc + std::string("Here are some examples of invocation command with yarpdev, with all params:\n");
-    doc = doc + " yarpdev --device hapticDevice_nws_ros2 --period 0.02 --node_name haptic_device_ros2 --namespace haptic_device_ros2 --topic_name haptic_device_ros2\n";
+    doc = doc + " yarpdev --device hapticDevice_nws_ros2 --period 0.02 --node_name hapticDevice_nws_ros2 --namespace <optional_value> --topic_name <optional_value>\n";
     doc = doc + std::string("Using only mandatory params:\n");
     doc = doc + " yarpdev --device hapticDevice_nws_ros2\n";
     doc = doc + std::string("=============================================\n\n");    return doc;
