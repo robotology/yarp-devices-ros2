@@ -3,6 +3,10 @@
 
 find_package(YARP_math)
 
+if(YARP_ROS2_USE_SYSTEM_yarp_control_msgs)
+  find_package(yarp_control_msgs REQUIRED)
+endif()
+
 yarp_prepare_plugin(
   hapticDevice_nws_ros2
   CATEGORY device
