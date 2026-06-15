@@ -30,7 +30,16 @@ namespace {
 bool MobileBaseVelocityControl_nws_ros2::open(yarp::os::Searchable& config)
 {
     parseParams(config);
-    m_node = NodeCreator::createNode(m_node_name);
+    if(m_namespace.empty()) {
+        m_node = NodeCreator::createNode(m_node_name);
+    } else {
+        m_node = NodeCreator::createNode(m_node_name, m_namespace);
+    }
+    if (m_node == nullptr) {
+        yCError(MOBVEL_NWS_ROS2) << " opening " << m_node_name << " Node, check your yarp-ROS2 network configuration\n";
+        return false;
+    }
+
     m_ros2_subscriber = m_node->create_subscription<geometry_msgs::msg::Twist>(m_topic_name,
                                                                                 10,
                                                                                 std::bind(&MobileBaseVelocityControl_nws_ros2::twist_callback, this, _1));

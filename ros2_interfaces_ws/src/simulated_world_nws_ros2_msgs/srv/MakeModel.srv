@@ -1,0 +1,8 @@
+string id
+string filename
+simulated_world_nws_ros2_msgs/Pose6D pose
+string frame_name
+bool gravity_enable
+bool collision_enable
+---
+bool success

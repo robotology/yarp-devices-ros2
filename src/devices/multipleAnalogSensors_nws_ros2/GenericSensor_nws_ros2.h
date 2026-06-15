@@ -99,7 +99,15 @@ bool GenericSensor_nws_ros2<ROS_MSG>::open(yarp::os::Searchable & config)
         return false;
     }
 
-    m_node = NodeCreator::createNode(m_node_name); // add a ROS node
+    if(m_namespace.empty()) {
+        m_node = NodeCreator::createNode(m_node_name);
+    } else {
+        m_node = NodeCreator::createNode(m_node_name, m_namespace);
+    }
+    if( m_node == nullptr) {
+        yCError(GENERICSENSOR_NWS_ROS2) << "Opening " << m_node_name << " Node creation failed, check your yarp-ROS network configuration\n";
+        return false;
+    }
     m_publisher = m_node->create_publisher<ROS_MSG>(m_topic_name,rclcpp::QoS(10));
 
     if (m_node == nullptr) {

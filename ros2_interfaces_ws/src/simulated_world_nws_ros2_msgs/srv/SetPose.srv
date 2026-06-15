@@ -1,0 +1,5 @@
+string id
+simulated_world_nws_ros2_msgs/Pose6D pose
+string frame_name
+---
+bool success

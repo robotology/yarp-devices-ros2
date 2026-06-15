@@ -77,7 +77,11 @@ bool Odometry2D_nws_ros2::open(yarp::os::Searchable &config)
     rclcpp::NodeOptions node_options;
     node_options.allow_undeclared_parameters(true);
     node_options.automatically_declare_parameters_from_overrides(true);
-    m_node = NodeCreator::createNode(m_node_name, node_options);
+    if(m_namespace.empty()) {
+        m_node = NodeCreator::createNode(m_node_name, node_options);
+    } else {
+        m_node = NodeCreator::createNode(m_node_name, m_namespace, node_options);
+    }
     if (m_node == nullptr) {
         yCError(ODOMETRY2D_NWS_ROS2) << " opening " << m_node_name << " Node, check your yarp-ROS2 network configuration\n";
         return false;
@@ -172,8 +176,8 @@ void Odometry2D_nws_ros2::run()
             yCWarning(ODOMETRY2D_NWS_ROS2) << "Size of /tf topic should be 1, instead it is:" << rosData.transforms.size();
         }
 
-
-        m_ros2Publisher_odometry->publish(odometryMsg);
+        if(m_ros2Publisher_odometry->get_subscription_count() > 0)
+            m_ros2Publisher_odometry->publish(odometryMsg);
 
         m_publisher_tf->publish(rosData);
 

@@ -4,3 +4,4 @@
 | | roscmdparser  | string  | -  | rosCmdParser          | No          | The "BasicTypes" ROS service name                             |             This is used to send commands to the nws via ros2 BasicTypes service                |
 | | markers_pub   | string  | -  | locationServerMarkers | No          | The visual markers array publisher name                       |                                                                                                 |
 | | node_name     | string  | -  | map2D_nws_ros2        | No          | The ROS2 node name. If absent, the device name will be used   |                                                                                                 |
+| | namespace     | string  | -  |   -                   | No          | optional namespace for ros2 node                               |                                  |

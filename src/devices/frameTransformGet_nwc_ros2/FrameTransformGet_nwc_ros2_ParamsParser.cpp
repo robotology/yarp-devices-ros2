@@ -8,7 +8,7 @@
 // This is an automatically generated file. Please do not edit it.
 // It will be re-generated if the cmake flag ALLOW_DEVICE_PARAM_PARSER_GERNERATION is ON.
 
-// Generated on: Mon May 26 22:00:40 2025
+// Generated on: Thu Jan 29 14:11:54 2026
 
 
 #include "FrameTransformGet_nwc_ros2_ParamsParser.h"
@@ -30,6 +30,7 @@ std::vector<std::string> FrameTransformGet_nwc_ros2_ParamsParser::getListOfParam
     std::vector<std::string> params;
     params.push_back("GENERAL::refresh_interval");
     params.push_back("ROS2::ft_node");
+    params.push_back("ROS2::namespace");
     params.push_back("ROS2::ft_topic");
     params.push_back("ROS2::ft_topic_static");
     return params;
@@ -46,6 +47,11 @@ bool FrameTransformGet_nwc_ros2_ParamsParser::getParamValue(const std::string& p
     if (paramName =="ROS2::ft_node")
     {
         paramValue = m_ROS2_ft_node;
+        return true;
+    }
+    if (paramName =="ROS2::namespace")
+    {
+        paramValue = m_ROS2_namespace;
         return true;
     }
     if (paramName =="ROS2::ft_topic")
@@ -115,6 +121,22 @@ bool      FrameTransformGet_nwc_ros2_ParamsParser::parseParams(const yarp::os::S
             yCInfo(FrameTransformGet_nwc_ros2ParamsCOMPONENT) << "Parameter 'ROS2::ft_node' using DEFAULT value:" << m_ROS2_ft_node;
         }
         prop_check.unput("ROS2::ft_node");
+    }
+
+    //Parser of parameter ROS2::namespace
+    {
+        yarp::os::Bottle sectionp;
+        sectionp = config.findGroup("ROS2");
+        if (sectionp.check("namespace"))
+        {
+            m_ROS2_namespace = sectionp.find("namespace").asString();
+            yCInfo(FrameTransformGet_nwc_ros2ParamsCOMPONENT) << "Parameter 'ROS2::namespace' using value:" << m_ROS2_namespace;
+        }
+        else
+        {
+            yCInfo(FrameTransformGet_nwc_ros2ParamsCOMPONENT) << "Parameter 'ROS2::namespace' using DEFAULT value:" << m_ROS2_namespace;
+        }
+        prop_check.unput("ROS2::namespace");
     }
 
     //Parser of parameter ROS2::ft_topic
@@ -187,11 +209,12 @@ std::string      FrameTransformGet_nwc_ros2_ParamsParser::getDocumentationOfDevi
     doc = doc + std::string("This is the list of the parameters accepted by the device:\n");
     doc = doc + std::string("'GENERAL::refresh_interval': The time interval outside which timed ft will be deleted\n");
     doc = doc + std::string("'ROS2::ft_node': The name of the ROS2 node\n");
+    doc = doc + std::string("'ROS2::namespace': optional namespace for ros2 node\n");
     doc = doc + std::string("'ROS2::ft_topic': The name of the ROS2 topic from which fts will be received\n");
     doc = doc + std::string("'ROS2::ft_topic_static': The name of the ROS2 topic from which static fts will be received\n");
     doc = doc + std::string("\n");
     doc = doc + std::string("Here are some examples of invocation command with yarpdev, with all params:\n");
-    doc = doc + " yarpdev --device frameTransformGet_nwc_ros2 --GENERAL::refresh_interval 0.1 --ROS2::ft_node tfNodeGet --ROS2::ft_topic /tf --ROS2::ft_topic_static /tf_static\n";
+    doc = doc + " yarpdev --device frameTransformGet_nwc_ros2 --GENERAL::refresh_interval 0.1 --ROS2::ft_node tfNodeGet --ROS2::namespace <optional_value> --ROS2::ft_topic /tf --ROS2::ft_topic_static /tf_static\n";
     doc = doc + std::string("Using only mandatory params:\n");
     doc = doc + " yarpdev --device frameTransformGet_nwc_ros2\n";
     doc = doc + std::string("=============================================\n\n");    return doc;

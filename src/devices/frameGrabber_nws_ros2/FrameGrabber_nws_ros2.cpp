@@ -89,7 +89,18 @@ bool FrameGrabber_nws_ros2::open(yarp::os::Searchable& config)
     }
     parseParams(config);
 
-    m_node = NodeCreator::createNode(m_node_name);
+    if(m_namespace.empty())
+    {
+        m_node = NodeCreator::createNode(m_node_name);
+    } else {
+        m_node = NodeCreator::createNode(m_node_name, m_namespace);
+    }
+
+    if(m_node == nullptr) {
+        yCError(FRAMEGRABBER_NWS_ROS2) << " opening " << m_node_name << " Node, check your yarp-ROS2 network configuration\n";
+        return false;
+    }
+
     publisher_image = m_node->create_publisher<sensor_msgs::msg::Image>(m_topic_name, 10);
 
 
@@ -172,24 +183,26 @@ void FrameGrabber_nws_ros2::run()
 
     if (iFrameGrabberImage)
     {
-        if (iFrameGrabberImage->getImage(*yarpimg))
-        {
-            sensor_msgs::msg::Image rosimg;
-            rosimg.data.resize(yarpimg->getRawImageSize());
-            rosimg.width = yarpimg->width();
-            rosimg.height = yarpimg->height();
-            rosimg.encoding = yarp2RosPixelCode(yarpimg->getPixelCode());
-            rosimg.step = yarpimg->getRowSize();
-            rosimg.header.frame_id = m_frame_id;
-    //         rosimg.header.stamp.sec = static_cast<int>(m_stamp.getTime()); // FIXME
-    //         rosimg.header.stamp.nanosec = static_cast<int>(1000000000UL * (m_stamp.getTime() - int(m_stamp.getTime()))); // FIXME
-            rosimg.is_bigendian = 0;
-            memcpy(rosimg.data.data(), yarpimg->getRawImage(), yarpimg->getRawImageSize());
-            publisher_image->publish(rosimg);
-        }
-        else
-        {
-            yCError(FRAMEGRABBER_NWS_ROS2) << "Image not captured (getImage failed). Check hardware configuration.";
+        if(publisher_image->get_subscription_count()>0){
+            if (iFrameGrabberImage->getImage(*yarpimg))
+            {
+                sensor_msgs::msg::Image rosimg;
+                rosimg.data.resize(yarpimg->getRawImageSize());
+                rosimg.width = yarpimg->width();
+                rosimg.height = yarpimg->height();
+                rosimg.encoding = yarp2RosPixelCode(yarpimg->getPixelCode());
+                rosimg.step = yarpimg->getRowSize();
+                rosimg.header.frame_id = m_frame_id;
+        //         rosimg.header.stamp.sec = static_cast<int>(m_stamp.getTime()); // FIXME
+        //         rosimg.header.stamp.nanosec = static_cast<int>(1000000000UL * (m_stamp.getTime() - int(m_stamp.getTime()))); // FIXME
+                rosimg.is_bigendian = 0;
+                    memcpy(rosimg.data.data(), yarpimg->getRawImage(), yarpimg->getRawImageSize());
+                    publisher_image->publish(rosimg);
+            }
+            else
+            {
+                yCError(FRAMEGRABBER_NWS_ROS2) << "Image not captured (getImage failed). Check hardware configuration.";
+            }
         }
     }
     else
@@ -197,10 +210,11 @@ void FrameGrabber_nws_ros2::run()
         yCError(FRAMEGRABBER_NWS_ROS2) << "Invalid call to interface iFrameGrabberImage";
     }
 
-    if (iRgbVisualParams)
+    if (iRgbVisualParams && publisher_cameraInfo->get_subscription_count()>0)
     {
         sensor_msgs::msg::CameraInfo cameraInfo;
         if (setCamInfo(cameraInfo)) {
+
             publisher_cameraInfo->publish(cameraInfo);
         }
     }

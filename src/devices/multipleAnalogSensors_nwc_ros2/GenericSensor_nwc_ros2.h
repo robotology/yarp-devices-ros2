@@ -93,7 +93,15 @@ bool GenericSensor_nwc_ros2<ROS_MSG>::open(yarp::os::Searchable & config)
 
     m_sensor_name = config.find("sensor_name").asString();
 
-    m_node = NodeCreator::createNode(m_node_name);
+    if(m_namespace.empty()) {
+        m_node = NodeCreator::createNode(m_node_name);
+    } else {
+        m_node = NodeCreator::createNode(m_node_name, m_namespace);
+    }
+    if (m_node == nullptr) {
+        yCError(GENERICSENSOR_NWC_ROS2) << "Opening " << m_node_name << " Node creation failed, check your yarp-ROS network configuration\n";
+        return false;
+    }
     m_subscription = m_node->create_subscription<ROS_MSG>(m_topic_name, rclcpp::QoS(10),
                                                           std::bind(&GenericSensor_nwc_ros2<ROS_MSG>::subscription_callback,
                                                           this, std::placeholders::_1));

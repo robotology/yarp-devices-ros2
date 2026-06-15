@@ -8,7 +8,7 @@
 // This is an automatically generated file. Please do not edit it.
 // It will be re-generated if the cmake flag ALLOW_DEVICE_PARAM_PARSER_GERNERATION is ON.
 
-// Generated on: Mon May 26 22:00:40 2025
+// Generated on: Thu Jan 29 14:11:54 2026
 
 
 #include "Map2D_nws_ros2_ParamsParser.h"
@@ -34,6 +34,7 @@ std::vector<std::string> Map2D_nws_ros2_ParamsParser::getListOfParams() const
     params.push_back("roscmdparser");
     params.push_back("markers_pub");
     params.push_back("node_name");
+    params.push_back("namespace");
     return params;
 }
 
@@ -68,6 +69,11 @@ bool Map2D_nws_ros2_ParamsParser::getParamValue(const std::string& paramName, st
     if (paramName =="node_name")
     {
         paramValue = m_node_name;
+        return true;
+    }
+    if (paramName =="namespace")
+    {
+        paramValue = m_namespace;
         return true;
     }
 
@@ -181,6 +187,20 @@ bool      Map2D_nws_ros2_ParamsParser::parseParams(const yarp::os::Searchable & 
         prop_check.unput("node_name");
     }
 
+    //Parser of parameter namespace
+    {
+        if (config.check("namespace"))
+        {
+            m_namespace = config.find("namespace").asString();
+            yCInfo(Map2D_nws_ros2ParamsCOMPONENT) << "Parameter 'namespace' using value:" << m_namespace;
+        }
+        else
+        {
+            yCInfo(Map2D_nws_ros2ParamsCOMPONENT) << "Parameter 'namespace' using DEFAULT value:" << m_namespace;
+        }
+        prop_check.unput("namespace");
+    }
+
     /*
     //This code check if the user set some parameter which are not check by the parser
     //If the parser is set in strict mode, this will generate an error
@@ -223,9 +243,10 @@ std::string      Map2D_nws_ros2_ParamsParser::getDocumentationOfDeviceParams() c
     doc = doc + std::string("'roscmdparser': The \"BasicTypes\" ROS service name\n");
     doc = doc + std::string("'markers_pub': The visual markers array publisher name\n");
     doc = doc + std::string("'node_name': The ROS2 node name. If absent, the device name will be used\n");
+    doc = doc + std::string("'namespace': optional namespace for ros2 node\n");
     doc = doc + std::string("\n");
     doc = doc + std::string("Here are some examples of invocation command with yarpdev, with all params:\n");
-    doc = doc + " yarpdev --device map2D_nws_ros2 --name map2D_nws_ros2 --getmap getMap --getmapbyname getMapByName --roscmdparser rosCmdParser --markers_pub locationServerMarkers --node_name map2D_nws_ros2\n";
+    doc = doc + " yarpdev --device map2D_nws_ros2 --name map2D_nws_ros2 --getmap getMap --getmapbyname getMapByName --roscmdparser rosCmdParser --markers_pub locationServerMarkers --node_name map2D_nws_ros2 --namespace <optional_value>\n";
     doc = doc + std::string("Using only mandatory params:\n");
     doc = doc + " yarpdev --device map2D_nws_ros2\n";
     doc = doc + std::string("=============================================\n\n");    return doc;

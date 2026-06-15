@@ -17,7 +17,7 @@ bool WrenchStamped_nws_ros2::viewInterfaces()
 
 void WrenchStamped_nws_ros2::run()
 {
-    if (m_publisher)
+    if (m_publisher && m_publisher->get_subscription_count() > 0)
     {
         yarp::sig::Vector vecwrench(6);
         geometry_msgs::msg::WrenchStamped wrench_ros_data;

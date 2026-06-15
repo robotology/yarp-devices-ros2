@@ -47,6 +47,7 @@ endif()
 
 option(YARP_ROS2_USE_SYSTEM_map2d_nws_ros2_msgs "If ON, use map2d_nws_ros2_msgs found in the system, otherwise build it with this project." OFF)
 option(YARP_ROS2_USE_SYSTEM_yarp_control_msgs "If ON, use yarp_control_msgs found in the system, otherwise build it with this project." OFF)
+option(YARP_ROS2_USE_SYSTEM_simulated_world_nws_ros2_msgs "If ON, use simulated_world_nws_ros2_msgs found in the system, otherwise build it with this project." OFF)
 
 include(YarpValgrindOptions)
 
@@ -91,6 +92,12 @@ if(YARP_ROS2_USE_SYSTEM_map2d_nws_ros2_msgs)
   find_package(map2d_nws_ros2_msgs REQUIRED)
 else()
   add_subdirectory(ros2_interfaces_ws/src/map2d_nws_ros2_msgs)
+endif()
+
+if(YARP_ROS2_USE_SYSTEM_simulated_world_nws_ros2_msgs)
+  find_package(simulated_world_nws_ros2_msgs REQUIRED)
+else()
+  add_subdirectory(ros2_interfaces_ws/src/simulated_world_nws_ros2_msgs)
 endif()
 
 if(YARP_ROS2_USE_SYSTEM_yarp_control_msgs)

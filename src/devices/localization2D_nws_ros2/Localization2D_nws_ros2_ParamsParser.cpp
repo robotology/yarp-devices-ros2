@@ -8,7 +8,7 @@
 // This is an automatically generated file. Please do not edit it.
 // It will be re-generated if the cmake flag ALLOW_DEVICE_PARAM_PARSER_GERNERATION is ON.
 
-// Generated on: Mon May 26 22:00:40 2025
+// Generated on: Thu Jan 29 14:11:54 2026
 
 
 #include "Localization2D_nws_ros2_ParamsParser.h"
@@ -30,6 +30,7 @@ std::vector<std::string> Localization2D_nws_ros2_ParamsParser::getListOfParams()
     std::vector<std::string> params;
     params.push_back("period");
     params.push_back("node_name");
+    params.push_back("namespace");
     params.push_back("ROS::parent_frame_id");
     params.push_back("ROS::child_frame_id");
     return params;
@@ -46,6 +47,11 @@ bool Localization2D_nws_ros2_ParamsParser::getParamValue(const std::string& para
     if (paramName =="node_name")
     {
         paramValue = m_node_name;
+        return true;
+    }
+    if (paramName =="namespace")
+    {
+        paramValue = m_namespace;
         return true;
     }
     if (paramName =="ROS::parent_frame_id")
@@ -113,6 +119,20 @@ bool      Localization2D_nws_ros2_ParamsParser::parseParams(const yarp::os::Sear
             return false;
         }
         prop_check.unput("node_name");
+    }
+
+    //Parser of parameter namespace
+    {
+        if (config.check("namespace"))
+        {
+            m_namespace = config.find("namespace").asString();
+            yCInfo(Localization2D_nws_ros2ParamsCOMPONENT) << "Parameter 'namespace' using value:" << m_namespace;
+        }
+        else
+        {
+            yCInfo(Localization2D_nws_ros2ParamsCOMPONENT) << "Parameter 'namespace' using DEFAULT value:" << m_namespace;
+        }
+        prop_check.unput("namespace");
     }
 
     //Parser of parameter ROS::parent_frame_id
@@ -189,11 +209,12 @@ std::string      Localization2D_nws_ros2_ParamsParser::getDocumentationOfDeviceP
     doc = doc + std::string("This is the list of the parameters accepted by the device:\n");
     doc = doc + std::string("'period': The PeriodicThread period in seconds\n");
     doc = doc + std::string("'node_name': The name of the ROS2 node\n");
+    doc = doc + std::string("'namespace': optional namespace for ros2 node\n");
     doc = doc + std::string("'ROS::parent_frame_id': The name of the odom data parent frame\n");
     doc = doc + std::string("'ROS::child_frame_id': The name of the odom data child frame\n");
     doc = doc + std::string("\n");
     doc = doc + std::string("Here are some examples of invocation command with yarpdev, with all params:\n");
-    doc = doc + " yarpdev --device localization2D_nws_ros2 --period 0.01 --node_name <mandatory_value> --ROS::parent_frame_id <mandatory_value> --ROS::child_frame_id <mandatory_value>\n";
+    doc = doc + " yarpdev --device localization2D_nws_ros2 --period 0.01 --node_name <mandatory_value> --namespace <optional_value> --ROS::parent_frame_id <mandatory_value> --ROS::child_frame_id <mandatory_value>\n";
     doc = doc + std::string("Using only mandatory params:\n");
     doc = doc + " yarpdev --device localization2D_nws_ros2 --node_name <mandatory_value> --ROS::parent_frame_id <mandatory_value> --ROS::child_frame_id <mandatory_value>\n";
     doc = doc + std::string("=============================================\n\n");    return doc;

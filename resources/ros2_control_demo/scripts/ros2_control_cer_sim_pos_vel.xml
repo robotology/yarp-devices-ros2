@@ -1,0 +1,27 @@
+<application>
+   <name>ros2_control_demo_SIM_CER_ROBOT_pos_vel</name>
+   <dependencies>
+   </dependencies>
+
+   <!-- modules -->
+
+   <module>
+      <name>ros2</name>
+      <parameters>launch cer_ros2_control cer_sim_neck_pos_vel.launch.py</parameters>
+      <node>console</node>
+   </module>
+
+   <module>
+      <name>yarpmotorgui</name>
+      <parameters></parameters>
+      <workdir>/home/user1/robotology/robots-configuration/R1SN003/</workdir>
+      <node>console</node>
+   </module>
+
+   <module>
+      <name>rviz2</name>
+      <parameters>-d cer_config.rviz</parameters>
+      <workdir>/home/user1/robotology/cer-sim/colcon_ws/src/cer_rviz2/rviz2</workdir>
+      <node>console</node>
+   </module>
+</application>

@@ -93,6 +93,7 @@ public:
                          const std::shared_ptr<test_msgs::srv::BasicTypes::Request> request,
                          std::shared_ptr<test_msgs::srv::BasicTypes::Response> response);
     bool updateVizMarkers();
+    nav_msgs::msg::OccupancyGrid publishMap(std::string mapname);
 
     void run() override;
 

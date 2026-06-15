@@ -35,7 +35,15 @@ bool Rangefinder2D_nwc_ros2::open(yarp::os::Searchable &config)
     parseParams(config);
     m_verbose = m_verbose_on == 1;
 
-    m_node = NodeCreator::createNode(m_node_name);
+    if(m_namespace.empty()) {
+        m_node = NodeCreator::createNode(m_node_name);
+    } else {
+        m_node = NodeCreator::createNode(m_node_name, m_namespace);
+    }
+    if( m_node == nullptr) {
+        yCError(RANGEFINDER2D_NWC_ROS2, "Could not create node %s", m_node_name.c_str());
+        return false;
+    }
     m_subscriber= new Ros2Subscriber<Rangefinder2D_nwc_ros2, sensor_msgs::msg::LaserScan>(m_node, this);
     m_subscriber->subscribe_to_topic(m_topic_name);
 

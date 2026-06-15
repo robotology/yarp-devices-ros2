@@ -61,7 +61,16 @@ bool RgbdToPointCloudSensor_nws_ros2::fromConfig(yarp::os::Searchable &config)
 bool RgbdToPointCloudSensor_nws_ros2::initialize_ROS2(yarp::os::Searchable &params)
 {
 
-    m_node = NodeCreator::createNode(m_node_name);
+    if(m_namespace.empty()) {
+        m_node = NodeCreator::createNode(m_node_name);
+    }
+    else {
+        m_node = NodeCreator::createNode(m_node_name, m_namespace);
+    }
+    if(!m_node) {
+        yCError(RGBDTOPOINTCLOUDSENSOR_NWS_ROS2) << "Failed to create node";
+        return false;
+    }
     m_rosPublisher_pointCloud2 = m_node->create_publisher<sensor_msgs::msg::PointCloud2>(m_topic_name, 10);
     return true;
 }
@@ -178,7 +187,7 @@ bool RgbdToPointCloudSensor_nws_ros2::writeData()
 
 
     // TBD: We should check here somehow if the timestamp was correctly updated and, if not, update it ourselves.
-    if (rgb_data_ok) {
+    if (rgb_data_ok && m_rosPublisher_pointCloud2->get_subscription_count() > 0) {
         if (depth_data_ok) {
             if (intrinsic_ok) {
                 yarp::sig::IntrinsicParams intrinsics(propIntrinsic);

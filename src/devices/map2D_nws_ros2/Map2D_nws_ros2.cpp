@@ -57,6 +57,12 @@ bool Map2D_nws_ros2::attach(yarp::dev::PolyDriver* driver)
         return false;
     }
 
+    //updateRvizMarkers on startup
+    if (1)
+    {
+        updateVizMarkers();
+    }
+
     return true;
 }
 
@@ -90,7 +96,15 @@ bool Map2D_nws_ros2::open(yarp::os::Searchable &config)
         yCError(MAP2D_NWS_ROS2) << "node_name cannot begin with an initial /";
         return false;
     }
-    m_node = NodeCreator::createNode(m_node_name);
+    if(m_namespace.empty()) {
+        m_node = NodeCreator::createNode(m_node_name);
+    } else {
+        m_node = NodeCreator::createNode(m_node_name, m_namespace);
+    }
+    if (m_node == nullptr) {
+        yCError(MAP2D_NWS_ROS2) << " opening " << m_node_name << " Node, check your yarp-ROS2 network configuration\n";
+        return false;
+    }
     rmw_qos_profile_t qos_rmw;
     qos_rmw.history = RMW_QOS_POLICY_HISTORY_SYSTEM_DEFAULT;
     qos_rmw.depth=10;
@@ -144,8 +158,6 @@ bool Map2D_nws_ros2::close()
 
 bool Map2D_nws_ros2::read(yarp::os::ConnectionReader& connection)
 {
-    yCWarning(MAP2D_NWS_ROS2) << "not yet implemented";
-
     std::lock_guard<std::mutex> lock(m_mutex);
     yarp::os::Bottle in;
     yarp::os::Bottle out;
@@ -155,12 +167,25 @@ bool Map2D_nws_ros2::read(yarp::os::ConnectionReader& connection)
     //parse string command
     if(in.get(0).isString())
     {
-      //  parse_string_command(in, out);
-    }
-    // parse vocab command
-    else if(in.get(0).isVocab32())
-    {
-   //     parse_vocab_command(in, out);
+         std::string ss = in.get(0).asString();
+         if (ss == "help")
+         {
+             yInfo("updateMarkers");
+             yInfo("publishMap <name>");
+             out.addString("updateMarkers");
+             out.addString("publishMap");
+         }
+         else if (ss == "updateMarkers")
+         {
+             updateVizMarkers();
+             out.addString("ok");
+         }
+         else if (ss == "publishMap")
+         {
+             std::string mapname = in.get(1).asString();
+             publishMap(mapname);
+             out.addString("ok");
+         }
     }
 
     yarp::os::ConnectionWriter *returnToSender = connection.getWriter();
@@ -177,6 +202,7 @@ bool Map2D_nws_ros2::read(yarp::os::ConnectionReader& connection)
 
 bool Map2D_nws_ros2::updateVizMarkers()
 {
+    yCInfo(MAP2D_NWS_ROS2) << "Updating rviz markers. Current map is: " << m_currentMapName;
     if (!m_ros2Publisher_markers)
     {
         m_ros2Publisher_markers = m_node->create_publisher<visualization_msgs::msg::MarkerArray>(m_markers_pub, 10);
@@ -201,8 +227,10 @@ bool Map2D_nws_ros2::updateVizMarkers()
     visualization_msgs::msg::MarkerArray markers;
 
     std::vector<std::string> locations;
+    std::vector<std::string> objects;
     int count = 1;
     m_iMap2D->getLocationsList(locations);
+    m_iMap2D->getObjectsList(objects);
     for (auto it : locations)
     {
         yarp::dev::Nav2D::Map2DLocation loc;
@@ -220,12 +248,12 @@ bool Map2D_nws_ros2::updateVizMarkers()
         q.fromRotationMatrix(m);
 
         marker.header.frame_id    = "map";
-        tt.sec                    = (yarp::os::NetUint32) sec_part;;
+        tt.sec                    = (yarp::os::NetUint32) sec_part;
         marker.header.stamp       = tt;
         marker.ns                 = m_markers_pub+"_ns";
         marker.id                 = count;
-        marker.type               = visualization_msgs::msg::Marker::ARROW;//yarp::rosmsg::visualization_msgs::Marker::ARROW;
-        marker.action             = visualization_msgs::msg::Marker::ADD;//yarp::rosmsg::visualization_msgs::Marker::ADD;
+        marker.type               = visualization_msgs::msg::Marker::ARROW;
+        marker.action             = visualization_msgs::msg::Marker::ADD;
         marker.pose.position.x    = loc.x;
         marker.pose.position.y    = loc.y;
         marker.pose.position.z    = 0;
@@ -240,6 +268,48 @@ bool Map2D_nws_ros2::updateVizMarkers()
         marker.color.r            = 0.0;
         marker.color.g            = 1.0;
         marker.color.b            = 0.0;
+        marker.lifetime           = dur;
+        marker.text               = it;
+        markers.markers.push_back(marker);
+        count++;
+    }
+    for (auto it : objects)
+    {
+        yarp::dev::Nav2D::Map2DObject obj;
+        m_iMap2D->getObject(it, obj);
+
+        if(obj.map_id != m_currentMapName && m_currentMapName != "none")
+        {
+            continue;
+        }
+
+        rpy[0] = obj.roll / 180.0 * M_PI; //x
+        rpy[1] = obj.pitch / 180.0 * M_PI; //y
+        rpy[2] = obj.yaw / 180.0 * M_PI; //z
+        yarp::sig::Matrix m = yarp::math::rpy2dcm(rpy);
+        q.fromRotationMatrix(m);
+
+        marker.header.frame_id    = "map";
+        tt.sec                    = (yarp::os::NetUint32) sec_part;
+        marker.header.stamp       = tt;
+        marker.ns                 = m_markers_pub+"_ns";
+        marker.id                 = count;
+        marker.type               = visualization_msgs::msg::Marker::ARROW;
+        marker.action             = visualization_msgs::msg::Marker::ADD;
+        marker.pose.position.x    = obj.x;
+        marker.pose.position.y    = obj.y;
+        marker.pose.position.z    = obj.z;
+        marker.pose.orientation.x = q.x();
+        marker.pose.orientation.y = q.y();
+        marker.pose.orientation.z = q.z();
+        marker.pose.orientation.w = q.w();
+        marker.scale.x            = 1;
+        marker.scale.y            = 0.1;
+        marker.scale.z            = 0.1;
+        marker.color.a            = 1.0;
+        marker.color.r            = 0.0;
+        marker.color.g            = 0.0;
+        marker.color.b            = 1.0;
         marker.lifetime           = dur;
         marker.text               = it;
         markers.markers.push_back(marker);
@@ -277,10 +347,7 @@ void Map2D_nws_ros2::rosCmdParserCallback(const std::shared_ptr<rmw_request_id_t
     }
 }
 
-//void Map2D_nws_ros2::prepareMapMsg(MapGrid2D inputMap, nav_msgs::msg::OccupancyGrid &outputMsg)
-void Map2D_nws_ros2::getMapByNameCallback(const std::shared_ptr<rmw_request_id_t> request_header,
-                                          const std::shared_ptr<map2d_nws_ros2_msgs::srv::GetMapByName::Request> request,
-                                          std::shared_ptr<map2d_nws_ros2_msgs::srv::GetMapByName::Response> response)
+nav_msgs::msg::OccupancyGrid Map2D_nws_ros2::publishMap(std::string mapname)
 {
     if (!m_ros2Publisher_map)
     {
@@ -290,11 +357,10 @@ void Map2D_nws_ros2::getMapByNameCallback(const std::shared_ptr<rmw_request_id_t
     nav_msgs::msg::MapMetaData metaToGo;
     mapToGo.header.frame_id = "map";
     MapGrid2D theMap;
-    if(!m_iMap2D->get_map(request->name,theMap))
+    if(!m_iMap2D->get_map(mapname,theMap))
     {
         mapToGo.header.frame_id = "invalid_frame";
-        response->map = mapToGo;
-        return;
+        return mapToGo;
     }
     mapToGo.info.map_load_time = m_node->get_clock()->now();
     mapToGo.header.stamp = m_node->get_clock()->now();
@@ -329,9 +395,6 @@ void Map2D_nws_ros2::getMapByNameCallback(const std::shared_ptr<rmw_request_id_t
       }
     }
 
-    response->map = mapToGo;
-    m_currentMapName = request->name;
-
     metaToGo.map_load_time = mapToGo.info.map_load_time;
     metaToGo.height = theMap.height();
     metaToGo.width = theMap.width();
@@ -342,4 +405,16 @@ void Map2D_nws_ros2::getMapByNameCallback(const std::shared_ptr<rmw_request_id_t
     {
         m_ros2Publisher_map->publish(mapToGo);
     }
+
+    return mapToGo;
+}
+
+//void Map2D_nws_ros2::prepareMapMsg(MapGrid2D inputMap, nav_msgs::msg::OccupancyGrid &outputMsg)
+void Map2D_nws_ros2::getMapByNameCallback(const std::shared_ptr<rmw_request_id_t> request_header,
+                                          const std::shared_ptr<map2d_nws_ros2_msgs::srv::GetMapByName::Request> request,
+                                          std::shared_ptr<map2d_nws_ros2_msgs::srv::GetMapByName::Response> response)
+{
+    m_currentMapName = request->name;
+    auto rmap = publishMap(request->name);
+    response->map = rmap;
 }

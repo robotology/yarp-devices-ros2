@@ -8,7 +8,7 @@
 // This is an automatically generated file. Please do not edit it.
 // It will be re-generated if the cmake flag ALLOW_DEVICE_PARAM_PARSER_GERNERATION is ON.
 
-// Generated on: Mon May 26 22:00:40 2025
+// Generated on: Thu Jan 29 14:11:54 2026
 
 
 #ifndef FRAMETRANSFORMGET_NWC_ROS2_PARAMSPARSER_H
@@ -27,12 +27,13 @@
 * |:----------:|:----------------:|:------:|:-------:|:-------------:|:--------:|:-----------------------------------------------------------------:|:-----:|
 * | GENERAL    | refresh_interval | double | seconds | 0.1           | 0        | The time interval outside which timed ft will be deleted          | -     |
 * | ROS2       | ft_node          | string | -       | tfNodeGet     | 0        | The name of the ROS2 node                                         | -     |
+* | ROS2       | namespace        | string | -       | -             | 0        | optional namespace for ros2 node                                  | -     |
 * | ROS2       | ft_topic         | string | -       | /tf           | 0        | The name of the ROS2 topic from which fts will be received        | -     |
 * | ROS2       | ft_topic_static  | string | -       | /tf_static    | 0        | The name of the ROS2 topic from which static fts will be received | -     |
 *
 * The device can be launched by yarpdev using one of the following examples (with and without all optional parameters):
 * \code{.unparsed}
-* yarpdev --device frameTransformGet_nwc_ros2 --GENERAL::refresh_interval 0.1 --ROS2::ft_node tfNodeGet --ROS2::ft_topic /tf --ROS2::ft_topic_static /tf_static
+* yarpdev --device frameTransformGet_nwc_ros2 --GENERAL::refresh_interval 0.1 --ROS2::ft_node tfNodeGet --ROS2::namespace <optional_value> --ROS2::ft_topic /tf --ROS2::ft_topic_static /tf_static
 * \endcode
 *
 * \code{.unparsed}
@@ -62,11 +63,13 @@ public:
 
     const std::string m_GENERAL_refresh_interval_defaultValue = {"0.1"};
     const std::string m_ROS2_ft_node_defaultValue = {"tfNodeGet"};
+    const std::string m_ROS2_namespace_defaultValue = {""};
     const std::string m_ROS2_ft_topic_defaultValue = {"/tf"};
     const std::string m_ROS2_ft_topic_static_defaultValue = {"/tf_static"};
 
     double m_GENERAL_refresh_interval = {0.1};
     std::string m_ROS2_ft_node = {"tfNodeGet"};
+    std::string m_ROS2_namespace = {}; //This default value of this string is an empty string. It is highly recommended to provide a suggested value also for optional string parameters.
     std::string m_ROS2_ft_topic = {"/tf"};
     std::string m_ROS2_ft_topic_static = {"/tf_static"};
 

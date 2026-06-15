@@ -13,7 +13,9 @@ class NodeCreator
 {
 public:
     static rclcpp::Node::SharedPtr createNode(std::string name);
+    static rclcpp::Node::SharedPtr createNode(std::string name, std::string name_space);
     static rclcpp::Node::SharedPtr createNode(std::string name, rclcpp::NodeOptions& node_options);
+    static rclcpp::Node::SharedPtr createNode(std::string name, std::string name_space, rclcpp::NodeOptions& node_options);
 };
 
 

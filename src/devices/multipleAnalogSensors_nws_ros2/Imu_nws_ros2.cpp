@@ -48,7 +48,7 @@ bool Imu_nws_ros2::viewInterfaces()
 
 void Imu_nws_ros2::run()
 {
-    if (m_publisher)
+    if (m_publisher && m_publisher->get_subscription_count() > 0)
     {
         yarp::sig::Vector vecgyr(3);
         yarp::sig::Vector vecacc(3);

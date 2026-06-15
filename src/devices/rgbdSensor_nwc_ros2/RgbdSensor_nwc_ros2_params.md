@@ -1,4 +1,5 @@
 | | node_name         | string  | -              |   -           | Yes                            | name of the ros2 node                                                      |                               |
+| | namespace         | string  | -              |   -           | No                             | optional namespace for ros2 node                                           |                               |
 | | color_topic_name  | string  |  -             |   -           | Yes                            | ros rgb topic (it's also the base name for the rgb camera_info topic)      | must start with a leading '/' |
 | | depth_topic_name  | string  |  -             |   -           | Yes                            | ros depth topic (it's also the base name for the depth camera_info topic)  | must start with a leading '/' |
 | | verbose_on        | int     | -              |   0           | No                             | if 1, it enables the verbose mode of the device                            |                               |

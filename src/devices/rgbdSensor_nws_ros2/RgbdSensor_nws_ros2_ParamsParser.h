@@ -8,7 +8,7 @@
 // This is an automatically generated file. Please do not edit it.
 // It will be re-generated if the cmake flag ALLOW_DEVICE_PARAM_PARSER_GERNERATION is ON.
 
-// Generated on: Mon May 26 22:00:40 2025
+// Generated on: Thu Jan 29 14:11:54 2026
 
 
 #ifndef RGBDSENSOR_NWS_ROS2_PARAMSPARSER_H
@@ -23,19 +23,21 @@
 * This class is the parameters parser for class RgbdSensor_nws_ros2.
 *
 * These are the used parameters:
-* | Group name | Parameter name   | Type   | Units | Default Value | Required | Description                                                               | Notes                         |
-* |:----------:|:----------------:|:------:|:-----:|:-------------:|:--------:|:-------------------------------------------------------------------------:|:-----------------------------:|
-* | -          | period           | double | s     | 0.02          | 0        | refresh period of the broadcasted values in s                             | -                             |
-* | -          | node_name        | string | -     | -             | 1        | name of the ros2 node                                                     | -                             |
-* | -          | color_topic_name | string | -     | -             | 1        | ros rgb topic (it's also the base name for the rgb camera_info topic)     | must start with a leading '/' |
-* | -          | depth_topic_name | string | -     | -             | 1        | ros depth topic (it's also the base name for the depth camera_info topic) | must start with a leading '/' |
-* | -          | force_info_synch | int    | -     | 0             | 0        | if 1, it forces synching images time stamp with and cameras time stamp    | -                             |
-* | -          | depth_frame_id   | string | -     | -             | 1        | The depth image frame                                                     | -                             |
-* | -          | color_frame_id   | string | -     | -             | 1        | The color image frame                                                     | -                             |
+* | Group name | Parameter name   | Type   | Units | Default Value | Required | Description                                                                                                                                                                         | Notes                         |
+* |:----------:|:----------------:|:------:|:-----:|:-------------:|:--------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-----------------------------:|
+* | -          | period           | double | s     | 0.02          | 0        | refresh period of the broadcasted values in s                                                                                                                                       | -                             |
+* | -          | node_name        | string | -     | -             | 1        | name of the ros2 node                                                                                                                                                               | -                             |
+* | -          | namespace        | string | -     | -             | 0        | optional namespace for ros2 node                                                                                                                                                    | -                             |
+* | -          | color_topic_name | string | -     | -             | 1        | ros rgb topic (it's also the base name for the rgb camera_info topic)                                                                                                               | must start with a leading '/' |
+* | -          | depth_topic_name | string | -     | -             | 1        | ros depth topic (it's also the base name for the depth camera_info topic)                                                                                                           | must start with a leading '/' |
+* | -          | force_info_synch | int    | -     | 0             | 0        | if 1, it forces synching images time stamp with and cameras time stamp                                                                                                              | -                             |
+* | -          | depth_frame_id   | string | -     | -             | 1        | The depth image frame                                                                                                                                                               | -                             |
+* | -          | color_frame_id   | string | -     | -             | 1        | The color image frame                                                                                                                                                               | -                             |
+* | -          | pub_status_topic | int    | -     | 0             | 0        | If 1 a topic publishing 0 if no image has been published on ros2 topic, 1 if only the RGB image is bein published, 2 for only the depth image, and 3 for both images will be opened | -                             |
 *
 * The device can be launched by yarpdev using one of the following examples (with and without all optional parameters):
 * \code{.unparsed}
-* yarpdev --device rgbdSensor_nws_ros2 --period 0.02 --node_name <mandatory_value> --color_topic_name <mandatory_value> --depth_topic_name <mandatory_value> --force_info_synch 0 --depth_frame_id <mandatory_value> --color_frame_id <mandatory_value>
+* yarpdev --device rgbdSensor_nws_ros2 --period 0.02 --node_name <mandatory_value> --namespace <optional_value> --color_topic_name <mandatory_value> --depth_topic_name <mandatory_value> --force_info_synch 0 --depth_frame_id <mandatory_value> --color_frame_id <mandatory_value> --pub_status_topic 0
 * \endcode
 *
 * \code{.unparsed}
@@ -65,19 +67,23 @@ public:
 
     const std::string m_period_defaultValue = {"0.02"};
     const std::string m_node_name_defaultValue = {""};
+    const std::string m_namespace_defaultValue = {""};
     const std::string m_color_topic_name_defaultValue = {""};
     const std::string m_depth_topic_name_defaultValue = {""};
     const std::string m_force_info_synch_defaultValue = {"0"};
     const std::string m_depth_frame_id_defaultValue = {""};
     const std::string m_color_frame_id_defaultValue = {""};
+    const std::string m_pub_status_topic_defaultValue = {"0"};
 
     double m_period = {0.02};
     std::string m_node_name = {}; //This default value is autogenerated. It is highly recommended to provide a suggested value also for mandatory parameters.
+    std::string m_namespace = {}; //This default value of this string is an empty string. It is highly recommended to provide a suggested value also for optional string parameters.
     std::string m_color_topic_name = {}; //This default value is autogenerated. It is highly recommended to provide a suggested value also for mandatory parameters.
     std::string m_depth_topic_name = {}; //This default value is autogenerated. It is highly recommended to provide a suggested value also for mandatory parameters.
     int m_force_info_synch = {0};
     std::string m_depth_frame_id = {}; //This default value is autogenerated. It is highly recommended to provide a suggested value also for mandatory parameters.
     std::string m_color_frame_id = {}; //This default value is autogenerated. It is highly recommended to provide a suggested value also for mandatory parameters.
+    int m_pub_status_topic = {0};
 
     bool          parseParams(const yarp::os::Searchable & config) override;
     std::string   getDeviceClassName() const override { return m_device_classname; }

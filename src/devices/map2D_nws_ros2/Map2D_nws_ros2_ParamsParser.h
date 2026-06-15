@@ -8,7 +8,7 @@
 // This is an automatically generated file. Please do not edit it.
 // It will be re-generated if the cmake flag ALLOW_DEVICE_PARAM_PARSER_GERNERATION is ON.
 
-// Generated on: Mon May 26 22:00:40 2025
+// Generated on: Thu Jan 29 14:11:54 2026
 
 
 #ifndef MAP2D_NWS_ROS2_PARAMSPARSER_H
@@ -31,10 +31,11 @@
 * | -          | roscmdparser   | string | -     | rosCmdParser          | 0        | The \"BasicTypes\" ROS service name                         | This is used to send commands to the nws via ros2 BasicTypes service                              |
 * | -          | markers_pub    | string | -     | locationServerMarkers | 0        | The visual markers array publisher name                     | -                                                                                                 |
 * | -          | node_name      | string | -     | map2D_nws_ros2        | 0        | The ROS2 node name. If absent, the device name will be used | -                                                                                                 |
+* | -          | namespace      | string | -     | -                     | 0        | optional namespace for ros2 node                            | -                                                                                                 |
 *
 * The device can be launched by yarpdev using one of the following examples (with and without all optional parameters):
 * \code{.unparsed}
-* yarpdev --device map2D_nws_ros2 --name map2D_nws_ros2 --getmap getMap --getmapbyname getMapByName --roscmdparser rosCmdParser --markers_pub locationServerMarkers --node_name map2D_nws_ros2
+* yarpdev --device map2D_nws_ros2 --name map2D_nws_ros2 --getmap getMap --getmapbyname getMapByName --roscmdparser rosCmdParser --markers_pub locationServerMarkers --node_name map2D_nws_ros2 --namespace <optional_value>
 * \endcode
 *
 * \code{.unparsed}
@@ -68,6 +69,7 @@ public:
     const std::string m_roscmdparser_defaultValue = {"rosCmdParser"};
     const std::string m_markers_pub_defaultValue = {"locationServerMarkers"};
     const std::string m_node_name_defaultValue = {"map2D_nws_ros2"};
+    const std::string m_namespace_defaultValue = {""};
 
     std::string m_name = {"map2D_nws_ros2"};
     std::string m_getmap = {"getMap"};
@@ -75,6 +77,7 @@ public:
     std::string m_roscmdparser = {"rosCmdParser"};
     std::string m_markers_pub = {"locationServerMarkers"};
     std::string m_node_name = {"map2D_nws_ros2"};
+    std::string m_namespace = {}; //This default value of this string is an empty string. It is highly recommended to provide a suggested value also for optional string parameters.
 
     bool          parseParams(const yarp::os::Searchable & config) override;
     std::string   getDeviceClassName() const override { return m_device_classname; }

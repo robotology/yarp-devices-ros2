@@ -1,0 +1,9 @@
+<library path="cb_hw_fw_pos_read_pos_vel">
+    <class name="cb_hw_fw_pos_read_pos_vel/CbHwFwPosReadPosVel"
+           type="cb_hw_fw_pos_read_pos_vel::CbHwFwPosReadPosVel"
+           base_class_type="hardware_interface::SystemInterface">
+        <description>
+            Hardware interface to forward position commands to yarp controlBoard_nws_ros2 and for reading back velocity and position data
+        </description>
+    </class>
+</library>
