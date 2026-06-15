@@ -417,7 +417,7 @@ void ControlBoard_nws_ros2::run()
     JointTypeEnum jType;
     for (size_t i = 0; i < m_subdevice_joints; i++) {
         m_iAxisInfo->getJointType(i, jType);
-        if (jType == VOCAB_JOINTTYPE_REVOLUTE) {
+        if (jType == JointTypeEnum::VOCAB_JOINTTYPE_REVOLUTE) {
             m_ros_struct.position[i] = convertDegreesToRadians(m_ros_struct.position[i]);
             m_ros_struct.velocity[i] = convertDegreesToRadians(m_ros_struct.velocity[i]);
         }
@@ -440,13 +440,13 @@ void ControlBoard_nws_ros2::run()
 
 
     //get and publish Control Modes
-    std::vector<int> modes_array(m_subdevice_joints);
-    m_iControlMode->getControlModes(modes_array.data());
+    std::vector<yarp::dev::ControlModeEnum> modes_array(m_subdevice_joints);
+    m_iControlMode->getControlModes(modes_array);
 
     auto modes = std_msgs::msg::Int8MultiArray();
     modes.data.resize(m_subdevice_joints);
     for (size_t i = 0; i < m_subdevice_joints; i++) {
-        modes.data[i]=modes_array[i];
+        modes.data[i]=int(modes_array[i]);
     }
     if(m_publisherControlModes->get_subscription_count()>0)
         m_publisherControlModes->publish(modes);
