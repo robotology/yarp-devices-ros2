@@ -22,6 +22,7 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
 find_package(builtin_interfaces REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 # uncomment the following section in order to fill in
@@ -48,11 +49,14 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/GetVelocity.srv"
   "srv/GetAvailableControlModes.srv"
   "srv/GetJointsNames.srv"
+  "srv/GetMaxFeedback.srv"
+  "srv/GetTransformation.srv"
+  "srv/SetTransformation.srv"
   "msg/Position.msg"
   "msg/Velocity.msg"
   "msg/PositionDirect.msg"
   LIBRARY_NAME ${PROJECT_NAME}
-  DEPENDENCIES std_msgs builtin_interfaces
+  DEPENDENCIES std_msgs geometry_msgs builtin_interfaces
 )
 ament_export_dependencies(rosidl_default_runtime)
 
