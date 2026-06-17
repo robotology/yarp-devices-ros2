@@ -164,7 +164,7 @@ void Rangefinder2D_controlBoard_nws_ros2::run()
     JointTypeEnum jType;
     for (size_t i = 0; i < subdevice_joints; i++) {
         iAxisInfo->getJointType(i, jType);
-        if (jType == VOCAB_JOINTTYPE_REVOLUTE) {
+        if (jType == JointTypeEnum::VOCAB_JOINTTYPE_REVOLUTE) {
             m_ros_struct.position[i] = convertDegreesToRadians(m_ros_struct.position[i]);
             m_ros_struct.velocity[i] = convertDegreesToRadians(m_ros_struct.velocity[i]);
         }
