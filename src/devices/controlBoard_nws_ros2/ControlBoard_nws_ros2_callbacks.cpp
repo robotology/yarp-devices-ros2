@@ -213,7 +213,7 @@ void ControlBoard_nws_ros2::positionTopic_callback(const yarp_control_msgs::msg:
         if(!noJoints) {selectedJoints.push_back(index);}
         m_iAxisInfo->getJointType(index, jType);
         if(!noSpeed){
-            if(jType == VOCAB_JOINTTYPE_REVOLUTE){
+            if(jType == JointTypeEnum::VOCAB_JOINTTYPE_REVOLUTE){
                 tempVel = convertRadiansToDegrees(msg->ref_velocities[i]);
             }
             else{
@@ -222,7 +222,7 @@ void ControlBoard_nws_ros2::positionTopic_callback(const yarp_control_msgs::msg:
             convertedVel.push_back(tempVel);
         }
 
-        if(jType == VOCAB_JOINTTYPE_REVOLUTE){
+        if(jType == JointTypeEnum::VOCAB_JOINTTYPE_REVOLUTE){
             tempPos = convertRadiansToDegrees(msg->positions[i]);
         }
         else{
@@ -232,13 +232,13 @@ void ControlBoard_nws_ros2::positionTopic_callback(const yarp_control_msgs::msg:
     }
     if(noJoints){
         if(!noSpeed){
-            m_iPositionControl->setRefSpeeds(&convertedVel[0]);
+            m_iPositionControl->setTrajSpeeds(&convertedVel[0]);
         }
         m_iPositionControl->positionMove(&convertedPos[0]);
     }
     else{
         if(!noSpeed){
-            m_iPositionControl->setRefSpeeds(convertedPos.size(),&selectedJoints[0],&convertedVel[0]);
+            m_iPositionControl->setTrajSpeeds(convertedPos.size(),&selectedJoints[0],&convertedVel[0]);
         }
         m_iPositionControl->positionMove(convertedPos.size(),&selectedJoints[0],&convertedPos[0]);
     }
@@ -271,7 +271,7 @@ void ControlBoard_nws_ros2::positionDirectTopic_callback(const yarp_control_msgs
         size_t index = noJoints ? i : m_quickJointRef[msg->names[i]];
         if(!noJoints) {selectedJoints.push_back(index);}
         m_iAxisInfo->getJointType(index, jType);
-        if(jType == VOCAB_JOINTTYPE_REVOLUTE){
+        if(jType == JointTypeEnum::VOCAB_JOINTTYPE_REVOLUTE){
             tempPos = convertRadiansToDegrees(msg->positions[i]);
         }
         else{
@@ -319,7 +319,7 @@ void ControlBoard_nws_ros2::velocityTopic_callback(const yarp_control_msgs::msg:
         if(!noJoints) {selectedJoints.push_back(index);}
         m_iAxisInfo->getJointType(index, jType);
         if(!noAccel){
-            if(jType == VOCAB_JOINTTYPE_REVOLUTE){
+            if(jType == JointTypeEnum::VOCAB_JOINTTYPE_REVOLUTE){
                 tempAccel = convertRadiansToDegrees(msg->ref_accelerations[i]);
             }
             else{
@@ -327,7 +327,7 @@ void ControlBoard_nws_ros2::velocityTopic_callback(const yarp_control_msgs::msg:
             }
             convertedAccel.push_back(tempAccel);
         }
-        if(jType == VOCAB_JOINTTYPE_REVOLUTE){
+        if(jType == JointTypeEnum::VOCAB_JOINTTYPE_REVOLUTE){
             tempVel = convertRadiansToDegrees(msg->velocities[i]);
         }
         else{
@@ -337,13 +337,13 @@ void ControlBoard_nws_ros2::velocityTopic_callback(const yarp_control_msgs::msg:
     }
     if(noJoints){
         if(!noAccel){
-            m_iVelocityControl->setRefAccelerations(&convertedAccel[0]);
+            m_iVelocityControl->setTrajAccelerations(&convertedAccel[0]);
         }
         m_iVelocityControl->velocityMove(&convertedVel[0]);
     }
     else{
         if(!noAccel){
-            m_iVelocityControl->setRefAccelerations(convertedAccel.size(),&selectedJoints[0],&convertedAccel[0]);
+            m_iVelocityControl->setTrajAccelerations(convertedAccel.size(),&selectedJoints[0],&convertedAccel[0]);
         }
         m_iVelocityControl->velocityMove(convertedVel.size(),&selectedJoints[0],&convertedVel[0]);
     }
@@ -517,7 +517,7 @@ void ControlBoard_nws_ros2::getPositionCallback(const std::shared_ptr<rmw_reques
     for (size_t i=0; i<forLimit; i++){
         size_t index = noJoints ? i : m_quickJointRef[request->names[i]];
         m_iAxisInfo->getJointType(index, jType);
-        if(jType == VOCAB_JOINTTYPE_REVOLUTE)
+        if(jType == JointTypeEnum::VOCAB_JOINTTYPE_REVOLUTE)
         {
             position = convertDegreesToRadians(tempPos[index]);
         }
@@ -574,7 +574,7 @@ void ControlBoard_nws_ros2::getVelocityCallback(const std::shared_ptr<rmw_reques
     for (size_t i=0; i<forLimit; i++){
         size_t index = noJoints ? i : m_quickJointRef[request->names[i]];
         m_iAxisInfo->getJointType(index, jType);
-        if(jType == VOCAB_JOINTTYPE_REVOLUTE)
+        if(jType == JointTypeEnum::VOCAB_JOINTTYPE_REVOLUTE)
         {
             velocity = convertDegreesToRadians(tempVel[index]);
         }
