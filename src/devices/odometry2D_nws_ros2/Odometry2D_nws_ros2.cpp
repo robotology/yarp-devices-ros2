@@ -106,7 +106,7 @@ void Odometry2D_nws_ros2::run()
 {
 
     if (m_odometry2D_interface!=nullptr && m_ros2Publisher_odometry && m_publisher_tf) {
-        yarp::dev::OdometryData odometryData;
+        yarp::dev::Nav2D::Odometry odometryData;
         double synchronized_timestamp = 0;
         m_odometry2D_interface->getOdometry(odometryData, &synchronized_timestamp);
 
