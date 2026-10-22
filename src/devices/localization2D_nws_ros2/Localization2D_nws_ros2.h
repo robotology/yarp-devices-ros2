@@ -74,7 +74,7 @@ private:
     yarp::os::Stamp                         m_loc_stamp;
     yarp::os::Stamp                         m_odom_stamp;
 
-    yarp::dev::OdometryData                     m_current_odometry;
+    yarp::dev::Nav2D::Odometry                  m_current_odometry;
     yarp::dev::Nav2D::Map2DLocation             m_current_position;
     yarp::dev::Nav2D::LocalizationStatusEnum    m_current_status;
 };
