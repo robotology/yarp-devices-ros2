@@ -19,7 +19,6 @@
 #include <yarp/sig/all.h>
 #include <yarp/sig/Matrix.h>
 #include <yarp/os/Stamp.h>
-#include <yarp/dev/impl/FixedSizeBuffersManager.h>
 #include <yarp/sig/IntrinsicParams.h>
 
 
