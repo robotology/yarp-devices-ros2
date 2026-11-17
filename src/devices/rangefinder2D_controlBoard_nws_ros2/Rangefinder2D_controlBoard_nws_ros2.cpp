@@ -164,7 +164,7 @@ void Rangefinder2D_controlBoard_nws_ros2::run()
     JointTypeEnum jType;
     for (size_t i = 0; i < subdevice_joints; i++) {
         iAxisInfo->getJointType(i, jType);
-        if (jType == VOCAB_JOINTTYPE_REVOLUTE) {
+        if (jType == JointTypeEnum::VOCAB_JOINTTYPE_REVOLUTE) {
             m_ros_struct.position[i] = convertDegreesToRadians(m_ros_struct.position[i]);
             m_ros_struct.velocity[i] = convertDegreesToRadians(m_ros_struct.velocity[i]);
         }
@@ -210,13 +210,13 @@ bool Rangefinder2D_controlBoard_nws_ros2::setDevice(yarp::dev::DeviceDriver* dri
     }
 
     // Get the number of controlled joints
-    int tmp_axes;
-    if (!iPositionControl->getAxes(&tmp_axes)) {
+    size_t tmp_axes=0;
+    if (!iPositionControl->getAxes(tmp_axes)) {
         yCError(RANGEFINDER2D_NWS_ROS2, "<%s - %s>: Failed to get axes number for attached device. ",  m_node_name.c_str(), m_topic_joint.c_str());
         return false;
     }
-    if (tmp_axes <= 0) {
-        yCError(RANGEFINDER2D_NWS_ROS2, "<%s - %s>: attached device has an invalid number of joints (%d)",  m_node_name.c_str(), m_topic_joint.c_str(), tmp_axes);
+    if (tmp_axes == 0) {
+        yCError(RANGEFINDER2D_NWS_ROS2, "<%s - %s>: attached device has an invalid number of joints (%ld)",  m_node_name.c_str(), m_topic_joint.c_str(), tmp_axes);
         return false;
     }
 
